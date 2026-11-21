@@ -4,74 +4,74 @@
 
 {% block content %}
 <div class="mb-6 flex items-center justify-between font-mono-tech text-xs">
-    <a href="/shop" class="text-neutral-500 hover:text-neutral-950 uppercase tracking-wider">&larr; Back to Catalog</a>
-    <span class="text-neutral-400">MODEL SPEC // #{{ "%02d"|format(sneaker.id) }}</span>
+    <a href="/shop" class="text-[#5C6661] hover:text-[#FF4D1C] uppercase tracking-wider transition">&larr; Back to Catalog</a>
+    <span class="text-[#5C6661]">MODEL SPEC // #{{ "%02d"|format(sneaker.id) }}</span>
 </div>
 
 <div class="reveal-up grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
     <!-- Left 3D Inspection Stage -->
     <div class="lg:col-span-7">
-        <div data-tilt class="tilt-surface rounded-3xl bg-white border border-neutral-200 p-8 sm:p-12 h-full flex flex-col justify-between min-h-[420px]">
+        <div data-tilt class="tilt-surface rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-8 sm:p-12 h-full flex flex-col justify-between min-h-[420px]">
             <div class="flex items-center justify-between">
-                <span class="font-mono-tech text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full text-white" style="background: {{ sneaker.accent_hex }};">
+                <span class="font-mono-tech text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[#0D1512] text-[#F4F1EA]">
                     {{ sneaker.badge }}
                 </span>
-                <span class="font-mono-tech text-[11px] uppercase tracking-wider text-neutral-400">
+                <span class="font-mono-tech text-[11px] uppercase tracking-wider text-[#5C6661]">
                     MOVE CURSOR TO INSPECT 3D
                 </span>
             </div>
 
-            <div class="my-auto py-8 flex items-center justify-center">
+            <div class="my-auto py-8 flex items-center justify-center rounded-2xl bg-[#F4F1EA] border border-[#E7E3D8] my-6">
                 <img src="{{ url_for('static', filename='images/' + sneaker.image_file) }}"
                      alt="{{ sneaker.name }}"
-                     class="tilt-pop max-h-72 sm:max-h-80 max-w-full object-contain drop-shadow-[0_28px_28px_rgba(0,0,0,0.2)]">
+                     class="tilt-pop max-h-72 sm:max-h-80 max-w-full object-contain drop-shadow-[0_28px_28px_rgba(13,21,18,0.22)]">
             </div>
 
-            <div class="grid grid-cols-3 gap-3 pt-6 border-t border-neutral-100 font-mono-tech text-[11px]">
+            <div class="grid grid-cols-3 gap-3 pt-6 border-t border-[#ECE8DE] font-mono-tech text-[11px]">
                 <div>
-                    <span class="text-neutral-400 block">DISCIPLINE</span>
-                    <span class="font-bold uppercase">{{ sneaker.category }}</span>
+                    <span class="text-[#5C6661] block">DISCIPLINE</span>
+                    <span class="font-bold uppercase text-[#0D1512]">{{ sneaker.category }}</span>
                 </div>
                 <div>
-                    <span class="text-neutral-400 block">AVAILABILITY</span>
-                    <span class="font-bold text-emerald-600">{{ sneaker.stock }} UNITS READY</span>
+                    <span class="text-[#5C6661] block">AVAILABILITY</span>
+                    <span class="font-bold text-[#FF4D1C]">{{ sneaker.stock }} UNITS READY</span>
                 </div>
                 <div>
-                    <span class="text-neutral-400 block">VERIFIED RATING</span>
-                    <span class="font-bold">{{ avg_rating if avg_rating else '5.0' }} / 5.0 ({{ reviews|length }})</span>
+                    <span class="text-[#5C6661] block">VERIFIED RATING</span>
+                    <span class="font-bold text-[#0D1512]">{{ avg_rating if avg_rating else '5.0' }} / 5.0 ({{ reviews|length }})</span>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Right Specification & Size Selector -->
-    <div class="lg:col-span-5 flex flex-col justify-between rounded-3xl bg-white border border-neutral-200 p-6 sm:p-8">
+    <div class="lg:col-span-5 flex flex-col justify-between rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-6 sm:p-8">
         <div>
-            <div class="font-mono-tech text-xs uppercase tracking-widest text-neutral-400 mb-1">
+            <div class="font-mono-tech text-xs uppercase tracking-widest text-[#5C6661] mb-1">
                 {{ sneaker.brand }} &bull; {{ sneaker.category }}
             </div>
-            <h1 class="text-3xl sm:text-4xl font-black tracking-tight uppercase leading-tight mb-3">
+            <h1 class="text-3xl sm:text-4xl font-black tracking-tight uppercase leading-tight text-[#0D1512] mb-3">
                 {{ sneaker.name }}
             </h1>
-            <div class="font-mono-tech text-2xl font-black text-neutral-950 mb-5">
+            <div class="font-mono-tech text-2xl font-black text-[#0D1512] mb-5">
                 {{ format_price(sneaker.price) }}
             </div>
 
-            <p class="text-sm text-neutral-600 leading-relaxed mb-6 pb-6 border-b border-neutral-100">
+            <p class="text-sm text-[#5C6661] leading-relaxed mb-6 pb-6 border-b border-[#ECE8DE]">
                 {{ sneaker.description }}
             </p>
 
             <form method="POST" action="/cart/add/{{ sneaker.id }}" class="space-y-5">
                 <div>
                     <div class="flex items-center justify-between font-mono-tech text-[11px] uppercase tracking-wider mb-2.5">
-                        <span class="font-bold text-neutral-950">Select EU Size</span>
-                        <span class="text-neutral-400">True to Size</span>
+                        <span class="font-bold text-[#0D1512]">Select EU Size</span>
+                        <span class="text-[#5C6661]">True to Size</span>
                     </div>
                     <div class="grid grid-cols-3 sm:grid-cols-5 gap-2">
                         {% for sz in sneaker.sizes.split(',') %}
                         <label class="cursor-pointer">
                             <input type="radio" name="size" value="{{ sz }}" class="peer sr-only" {% if loop.first %}checked{% endif %}>
-                            <div class="py-2.5 text-center rounded-xl border border-neutral-200 font-mono-tech text-xs font-bold peer-checked:bg-neutral-950 peer-checked:text-lime-400 peer-checked:border-neutral-950 hover:border-neutral-950 transition">
+                            <div class="py-2.5 text-center rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512] peer-checked:bg-[#0D1512] peer-checked:text-[#FF4D1C] peer-checked:border-[#0D1512] hover:border-[#FF4D1C] transition">
                                 EU {{ sz }}
                             </div>
                         </label>
@@ -83,23 +83,23 @@
                     <div class="w-24">
                         <label class="sr-only">Quantity</label>
                         <input type="number" name="qty" value="1" min="1" max="{{ sneaker.stock }}"
-                               class="w-full px-3 py-3.5 rounded-full border border-neutral-300 text-center font-mono-tech text-xs font-bold">
+                               class="w-full px-3 py-3.5 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] text-center font-mono-tech text-xs font-bold text-[#0D1512]">
                     </div>
-                    <button type="submit" class="magnetic-btn flex-1 py-3.5 px-6 rounded-full bg-lime-400 text-neutral-950 text-xs font-black uppercase tracking-wider hover:bg-lime-300 border border-lime-500/40">
+                    <button type="submit" class="magnetic-btn blaze-glow flex-1 py-3.5 px-6 rounded-full bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider hover:bg-[#E63E10]">
                         Add to Bag &rarr;
                     </button>
                 </div>
             </form>
         </div>
 
-        <div class="pt-6 mt-6 border-t border-neutral-100 flex items-center justify-between">
+        <div class="pt-6 mt-6 border-t border-[#ECE8DE] flex items-center justify-between">
             <form method="POST" action="/wishlist/toggle/{{ sneaker.id }}">
                 <input type="hidden" name="next" value="/sneaker/{{ sneaker.id }}">
-                <button type="submit" class="text-xs font-bold uppercase tracking-wider text-neutral-600 hover:text-neutral-950">
+                <button type="submit" class="text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">
                     {% if sneaker.id in wishlist_ids %}&hearts; Saved in Wishlist{% else %}&hearts; Save to Wishlist{% endif %}
                 </button>
             </form>
-            <a href="/lookbook" class="font-mono-tech text-[11px] font-bold uppercase underline underline-offset-4">
+            <a href="/lookbook" class="font-mono-tech text-[11px] font-bold uppercase text-[#0D1512] hover:text-[#FF4D1C] underline underline-offset-4 transition">
                 View in 3D Book
             </a>
         </div>
@@ -107,43 +107,43 @@
 </div>
 
 <!-- VERIFIED REVIEWS & FEEDBACK LEDGER -->
-<section class="reveal-up rounded-3xl bg-white border border-neutral-200 p-6 sm:p-8 mb-14">
+<section class="reveal-up rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-6 sm:p-8 mb-14">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div class="lg:col-span-5">
-            <div class="font-mono-tech text-[11px] uppercase tracking-widest text-neutral-400 mb-1">OWNER NOTES</div>
-            <h2 class="text-2xl font-black uppercase tracking-tight mb-4">Log a Review</h2>
+            <div class="font-mono-tech text-[11px] uppercase tracking-widest text-[#5C6661] mb-1">OWNER NOTES</div>
+            <h2 class="text-2xl font-black uppercase tracking-tight text-[#0D1512] mb-4">Log a Review</h2>
             <form method="POST" action="/sneaker/{{ sneaker.id }}/review" class="space-y-3">
                 <input type="text" name="author" required placeholder="Your Name"
-                       class="w-full px-4 py-2.5 rounded-xl border border-neutral-200 bg-neutral-50 text-xs font-medium">
-                <select name="rating" class="w-full px-4 py-2.5 rounded-xl border border-neutral-200 bg-neutral-50 font-mono-tech text-xs font-bold">
+                       class="w-full px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-medium text-[#0D1512]">
+                <select name="rating" class="w-full px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
                     <option value="5">5.0 — Exceptional Fit &amp; Build</option>
                     <option value="4">4.0 — Solid Daily Rotation</option>
                     <option value="3">3.0 — Average</option>
                 </select>
                 <textarea name="comment" rows="3" required placeholder="Notes on cushioning, sizing, and materials..."
-                          class="w-full px-4 py-2.5 rounded-xl border border-neutral-200 bg-neutral-50 text-xs font-medium"></textarea>
-                <button type="submit" class="px-5 py-2.5 rounded-full bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider hover:bg-neutral-800">
+                          class="w-full px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-medium text-[#0D1512]"></textarea>
+                <button type="submit" class="px-5 py-2.5 rounded-full bg-[#0D1512] text-[#F4F1EA] text-xs font-bold uppercase tracking-wider hover:bg-[#FF4D1C] hover:text-white transition">
                     Submit Note
                 </button>
             </form>
         </div>
 
         <div class="lg:col-span-7 space-y-3">
-            <div class="font-mono-tech text-[11px] uppercase tracking-widest text-neutral-400 mb-2">
+            <div class="font-mono-tech text-[11px] uppercase tracking-widest text-[#5C6661] mb-2">
                 VERIFIED ENTRIES ({{ reviews|length }})
             </div>
             {% if reviews %}
                 {% for rev in reviews %}
-                <div class="p-4 rounded-2xl bg-neutral-50 border border-neutral-200/80">
+                <div class="p-4 rounded-2xl bg-[#F4F1EA] border border-[#E7E3D8]">
                     <div class="flex items-center justify-between mb-1">
-                        <span class="text-xs font-black uppercase">{{ rev.author }}</span>
-                        <span class="font-mono-tech text-[11px] font-bold text-neutral-950">{{ rev.rating }}.0 / 5.0</span>
+                        <span class="text-xs font-black uppercase text-[#0D1512]">{{ rev.author }}</span>
+                        <span class="font-mono-tech text-[11px] font-bold text-[#FF4D1C]">{{ rev.rating }}.0 / 5.0</span>
                     </div>
-                    <p class="text-xs text-neutral-600 leading-relaxed">{{ rev.comment }}</p>
+                    <p class="text-xs text-[#5C6661] leading-relaxed">{{ rev.comment }}</p>
                 </div>
                 {% endfor %}
             {% else %}
-                <div class="p-6 rounded-2xl bg-neutral-50 border border-neutral-200 text-xs text-neutral-500">
+                <div class="p-6 rounded-2xl bg-[#F4F1EA] border border-[#E7E3D8] text-xs text-[#5C6661]">
                     No owner notes logged for this silhouette yet.
                 </div>
             {% endif %}

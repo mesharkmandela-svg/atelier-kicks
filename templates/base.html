@@ -16,12 +16,20 @@
 
     <style>
         :root {
-            --bg-canvas: #f7f7f5;
-            --surface-card: #ffffff;
-            --ink-primary: #0a0a0a;
-            --ink-muted: #6b6b68;
-            --border-hairline: #e4e4e0;
-            --accent-volt: #a3e635;
+            /* 60% Dominant Surface: Warm Alabaster */
+            --bg-canvas: #F4F1EA;
+            --surface-card: #FCFBF8;
+            --border-hairline: #DFDBD0;
+
+            /* 30% Secondary Structural: Deep Obsidian Forest */
+            --ink-primary: #0D1512;
+            --ink-secondary: #16231E;
+            --ink-muted: #5C6661;
+
+            /* 10% Living Accent: Vermilion Blaze */
+            --accent-blaze: #FF4D1C;
+            --accent-blaze-hover: #E63E10;
+            --accent-blaze-soft: rgba(255, 77, 28, 0.14);
         }
 
         body {
@@ -36,11 +44,11 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Subtle Studio Architectural Grid */
+        /* Subtle Architectural Grid tinted to Deep Obsidian */
         .studio-grid-bg {
             background-image:
-                linear-gradient(to right, rgba(10, 10, 10, 0.035) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(10, 10, 10, 0.035) 1px, transparent 1px);
+                linear-gradient(to right, rgba(13, 21, 18, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(13, 21, 18, 0.04) 1px, transparent 1px);
             background-size: 48px 48px;
         }
 
@@ -64,8 +72,8 @@
         }
 
         .tilt-surface:hover {
-            border-color: #0a0a0a;
-            box-shadow: 0 24px 48px -20px rgba(10, 10, 10, 0.16);
+            border-color: var(--accent-blaze);
+            box-shadow: 0 24px 48px -20px rgba(13, 21, 18, 0.22), 0 0 0 1px rgba(255, 77, 28, 0.25);
         }
 
         .tilt-pop {
@@ -75,89 +83,97 @@
 
         /* Magnetic Button Micro-Interaction */
         .magnetic-btn {
-            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
             will-change: transform;
+        }
+
+        /* Living Vermilion Glow Pulse */
+        .blaze-glow {
+            box-shadow: 0 10px 28px -8px rgba(255, 77, 28, 0.55);
+        }
+        .blaze-glow:hover {
+            box-shadow: 0 14px 34px -6px rgba(255, 77, 28, 0.75);
         }
     </style>
 </head>
-<body class="studio-grid-bg min-h-screen flex flex-col justify-between selection:bg-lime-300 selection:text-neutral-950">
+<body class="studio-grid-bg min-h-screen flex flex-col justify-between selection:bg-[#FF4D1C] selection:text-white">
 
-    <!-- TOP STUDIO ANNOUNCEMENT BAR -->
-    <div class="bg-neutral-950 text-neutral-300 text-[11px] font-mono-tech tracking-wider uppercase border-b border-neutral-800">
+    <!-- TOP STUDIO ANNOUNCEMENT BAR (30% Deep Obsidian + 10% Vermilion Beacon) -->
+    <div class="bg-[#0D1512] text-[#E6E2D8] text-[11px] font-mono-tech tracking-wider uppercase border-b border-[#1E2E28]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-8 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-lime-400 animate-pulse"></span>
+                <span class="w-2 h-2 rounded-full bg-[#FF4D1C] animate-pulse shadow-[0_0_10px_#FF4D1C]"></span>
                 <span>ATELIER ARCHIVE 2026 // NAIROBI &amp; GLOBAL DISPATCH</span>
             </div>
-            <div class="hidden sm:flex items-center gap-6 text-neutral-400">
+            <div class="hidden sm:flex items-center gap-6 text-[#9BA6A0]">
                 <span>COMPLIMENTARY SHIPPING OVER {{ format_price(200) }}</span>
-                <span>M-PESA EXPRESS &amp; CARD</span>
+                <span class="text-[#FF4D1C] font-bold">M-PESA EXPRESS &amp; CARD</span>
             </div>
         </div>
     </div>
 
     <!-- MAIN GLASS NAVIGATION -->
-    <header class="sticky top-0 z-50 bg-[#f7f7f5]/85 backdrop-blur-xl border-b border-neutral-200/90">
+    <header class="sticky top-0 z-50 bg-[#F4F1EA]/88 backdrop-blur-xl border-b border-[#DFDBD0]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
             <!-- Brand Mark -->
             <a href="/" class="flex items-center gap-2.5 group">
-                <div class="w-8 h-8 rounded-lg bg-neutral-950 text-lime-400 flex items-center justify-center font-black text-sm tracking-tighter group-hover:rotate-6 transition-transform">
+                <div class="w-8 h-8 rounded-lg bg-[#0D1512] text-[#FF4D1C] flex items-center justify-center font-black text-sm tracking-tighter group-hover:rotate-6 transition-transform border border-[#1E2E28]">
                     AK
                 </div>
                 <div class="leading-none">
-                    <span class="font-black tracking-tight text-base uppercase block">ATELIER KICKS</span>
-                    <span class="font-mono-tech text-[9px] uppercase tracking-widest text-neutral-500 block">FOOTWEAR STUDIO</span>
+                    <span class="font-black tracking-tight text-base uppercase block text-[#0D1512]">ATELIER KICKS</span>
+                    <span class="font-mono-tech text-[9px] uppercase tracking-widest text-[#5C6661] block">FOOTWEAR STUDIO</span>
                 </div>
             </a>
 
             <!-- Center Navigation Links -->
-            <nav class="hidden md:flex items-center gap-1 bg-white/90 border border-neutral-200 rounded-full p-1">
-                <a href="/" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path == '/' %}bg-neutral-950 text-white{% else %}text-neutral-600 hover:text-neutral-950{% endif %}">
+            <nav class="hidden md:flex items-center gap-1 bg-[#FCFBF8]/95 border border-[#DFDBD0] rounded-full p-1">
+                <a href="/" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path == '/' %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
                     Overview
                 </a>
-                <a href="/shop" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path.startswith('/shop') or request.path.startswith('/sneaker') %}bg-neutral-950 text-white{% else %}text-neutral-600 hover:text-neutral-950{% endif %}">
+                <a href="/shop" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path.startswith('/shop') or request.path.startswith('/sneaker') %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
                     Catalog
                 </a>
-                <a href="/lookbook" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 {% if request.path.startswith('/lookbook') %}bg-neutral-950 text-white{% else %}text-neutral-600 hover:text-neutral-950{% endif %}">
+                <a href="/lookbook" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 {% if request.path.startswith('/lookbook') %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
                     <span>3D Lookbook</span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-lime-500"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#FF4D1C]"></span>
                 </a>
-                <a href="/orders" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path.startswith('/orders') %}bg-neutral-950 text-white{% else %}text-neutral-600 hover:text-neutral-950{% endif %}">
+                <a href="/orders" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path.startswith('/orders') %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
                     Orders
                 </a>
-                <a href="/admin" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path.startswith('/admin') %}bg-neutral-950 text-white{% else %}text-neutral-600 hover:text-neutral-950{% endif %}">
+                <a href="/admin" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path.startswith('/admin') %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
                     Studio
                 </a>
             </nav>
 
             <!-- Right Controls: Currency Switcher, Wishlist, Bag -->
             <div class="flex items-center gap-2">
-                <form method="POST" action="/currency" class="flex items-center bg-white border border-neutral-200 rounded-full p-0.5 text-[11px] font-mono-tech font-bold">
+                <form method="POST" action="/currency" class="flex items-center bg-[#FCFBF8] border border-[#DFDBD0] rounded-full p-0.5 text-[11px] font-mono-tech font-bold">
                     <input type="hidden" name="next" value="{{ request.full_path }}">
                     <button type="submit" name="currency" value="KES"
-                            class="px-2.5 py-1 rounded-full transition {% if currency == 'KES' %}bg-neutral-950 text-white{% else %}text-neutral-500 hover:text-neutral-950{% endif %}">
+                            class="px-2.5 py-1 rounded-full transition {% if currency == 'KES' %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
                         KES
                     </button>
                     <button type="submit" name="currency" value="USD"
-                            class="px-2.5 py-1 rounded-full transition {% if currency == 'USD' %}bg-neutral-950 text-white{% else %}text-neutral-500 hover:text-neutral-950{% endif %}">
+                            class="px-2.5 py-1 rounded-full transition {% if currency == 'USD' %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
                         USD
                     </button>
                 </form>
 
                 <a href="/wishlist" title="Saved Silhouettes"
-                   class="w-9 h-9 rounded-full bg-white border border-neutral-200 flex items-center justify-center text-xs font-bold hover:border-neutral-950 transition relative">
+                   class="w-9 h-9 rounded-full bg-[#FCFBF8] border border-[#DFDBD0] flex items-center justify-center text-xs font-bold text-[#0D1512] hover:border-[#FF4D1C] hover:text-[#FF4D1C] transition relative">
                     <span>&hearts;</span>
                     {% if wishlist_count and wishlist_count > 0 %}
-                        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-neutral-950 text-white text-[9px] font-mono-tech flex items-center justify-center">
+                        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#0D1512] text-[#F4F1EA] text-[9px] font-mono-tech flex items-center justify-center">
                             {{ wishlist_count }}
                         </span>
                     {% endif %}
                 </a>
 
                 <a href="/cart"
-                   class="magnetic-btn px-4 py-2 rounded-full bg-lime-400 text-neutral-950 text-xs font-black uppercase tracking-wider hover:bg-lime-300 flex items-center gap-2 border border-lime-500/40">
+                   class="magnetic-btn blaze-glow px-4 py-2 rounded-full bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider hover:bg-[#E63E10] flex items-center gap-2">
                     <span>Bag</span>
-                    <span class="px-1.5 py-0.5 rounded-full bg-neutral-950 text-white font-mono-tech text-[10px]">
+                    <span class="px-1.5 py-0.5 rounded-full bg-[#0D1512] text-[#F4F1EA] font-mono-tech text-[10px]">
                         {{ cart_count }}
                     </span>
                 </a>
@@ -165,12 +181,12 @@
         </div>
 
         <!-- Mobile Sub-Nav -->
-        <div class="md:hidden border-t border-neutral-200/80 bg-white/90 px-4 py-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider overflow-x-auto gap-4">
-            <a href="/" class="{% if request.path == '/' %}text-neutral-950 underline underline-offset-4{% else %}text-neutral-500{% endif %}">Overview</a>
-            <a href="/shop" class="{% if request.path.startswith('/shop') %}text-neutral-950 underline underline-offset-4{% else %}text-neutral-500{% endif %}">Catalog</a>
-            <a href="/lookbook" class="{% if request.path.startswith('/lookbook') %}text-neutral-950 underline underline-offset-4{% else %}text-neutral-500{% endif %}">3D Book</a>
-            <a href="/orders" class="{% if request.path.startswith('/orders') %}text-neutral-950 underline underline-offset-4{% else %}text-neutral-500{% endif %}">Orders</a>
-            <a href="/admin" class="{% if request.path.startswith('/admin') %}text-neutral-950 underline underline-offset-4{% else %}text-neutral-500{% endif %}">Studio</a>
+        <div class="md:hidden border-t border-[#DFDBD0] bg-[#FCFBF8]/95 px-4 py-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider overflow-x-auto gap-4">
+            <a href="/" class="{% if request.path == '/' %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">Overview</a>
+            <a href="/shop" class="{% if request.path.startswith('/shop') %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">Catalog</a>
+            <a href="/lookbook" class="{% if request.path.startswith('/lookbook') %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">3D Book</a>
+            <a href="/orders" class="{% if request.path.startswith('/orders') %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">Orders</a>
+            <a href="/admin" class="{% if request.path.startswith('/admin') %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">Studio</a>
         </div>
     </header>
 
@@ -179,46 +195,46 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- STUDIO FOOTER -->
-    <footer class="border-t border-neutral-200 bg-white mt-16">
+    <!-- STUDIO FOOTER (30% Deep Obsidian Forest Anchor) -->
+    <footer class="border-t border-[#1E2E28] bg-[#0D1512] text-[#F4F1EA] mt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-neutral-200">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-[#1E2E28]">
                 <div class="md:col-span-5">
                     <div class="flex items-center gap-2.5 mb-3">
-                        <div class="w-7 h-7 rounded-md bg-neutral-950 text-lime-400 flex items-center justify-center font-black text-xs">AK</div>
-                        <span class="font-black uppercase tracking-tight text-sm">ATELIER KICKS</span>
+                        <div class="w-7 h-7 rounded-md bg-[#FF4D1C] text-white flex items-center justify-center font-black text-xs">AK</div>
+                        <span class="font-black uppercase tracking-tight text-sm text-[#F4F1EA]">ATELIER KICKS</span>
                     </div>
-                    <p class="text-xs text-neutral-500 leading-relaxed max-w-sm">
+                    <p class="text-xs text-[#9BA6A0] leading-relaxed max-w-sm">
                         Independent footwear curation and digital showroom. Engineered with tactile 3D inspection, instant currency conversion, and seamless checkout.
                     </p>
                 </div>
 
                 <div class="md:col-span-3 space-y-2 text-xs">
-                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-neutral-400 mb-2">Navigation</div>
-                    <div><a href="/shop" class="font-semibold text-neutral-700 hover:text-neutral-950">Full Catalog</a></div>
-                    <div><a href="/lookbook" class="font-semibold text-neutral-700 hover:text-neutral-950">3D Interactive Lookbook</a></div>
-                    <div><a href="/wishlist" class="font-semibold text-neutral-700 hover:text-neutral-950">Saved Wishlist</a></div>
-                    <div><a href="/orders" class="font-semibold text-neutral-700 hover:text-neutral-950">Order Ledger</a></div>
+                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#6D7A73] mb-2">Navigation</div>
+                    <div><a href="/shop" class="font-semibold text-[#D6D1C4] hover:text-[#FF4D1C] transition">Full Catalog</a></div>
+                    <div><a href="/lookbook" class="font-semibold text-[#D6D1C4] hover:text-[#FF4D1C] transition">3D Interactive Lookbook</a></div>
+                    <div><a href="/wishlist" class="font-semibold text-[#D6D1C4] hover:text-[#FF4D1C] transition">Saved Wishlist</a></div>
+                    <div><a href="/orders" class="font-semibold text-[#D6D1C4] hover:text-[#FF4D1C] transition">Order Ledger</a></div>
                 </div>
 
                 <div class="md:col-span-4 space-y-2 text-xs">
-                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-neutral-400 mb-2">System Status</div>
-                    <div class="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 font-mono-tech text-[11px] space-y-1">
+                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#6D7A73] mb-2">System Status</div>
+                    <div class="p-3.5 rounded-xl bg-[#14201B] border border-[#1E2E28] font-mono-tech text-[11px] space-y-1.5">
                         <div class="flex justify-between">
-                            <span class="text-neutral-500">ACTIVE CURRENCY</span>
-                            <span class="font-bold text-neutral-950">{{ currency }}</span>
+                            <span class="text-[#9BA6A0]">ACTIVE CURRENCY</span>
+                            <span class="font-bold text-[#F4F1EA]">{{ currency }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-neutral-500">SHOWROOM ENGINE</span>
-                            <span class="font-bold text-emerald-600">ONLINE // 3D READY</span>
+                            <span class="text-[#9BA6A0]">SHOWROOM ENGINE</span>
+                            <span class="font-bold text-[#FF4D1C]">ONLINE // 3D READY</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-mono-tech text-neutral-400">
+            <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-mono-tech text-[#6D7A73]">
                 <span>&copy; 2026 ATELIER KICKS STUDIO. ALL RIGHTS RESERVED.</span>
-                <span>CRAFTED FOR PERFORMANCE &amp; PRECISION.</span>
+                <span class="text-[#9BA6A0]">WARM ALABASTER &bull; OBSIDIAN FOREST &bull; VERMILION BLAZE</span>
             </div>
         </div>
     </footer>
@@ -226,7 +242,6 @@
     <!-- GLOBAL STUDIO INTERACTION ENGINE (Scroll Reveal + 3D Card Tilt + Magnetic Buttons) -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. IntersectionObserver Scroll Reveal
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
@@ -238,7 +253,6 @@
 
             document.querySelectorAll('.reveal-up').forEach((el) => observer.observe(el));
 
-            // 2. Site-wide 3D Tilt Cards
             document.querySelectorAll('[data-tilt]').forEach((card) => {
                 card.addEventListener('mousemove', (e) => {
                     const rect = card.getBoundingClientRect();
@@ -251,7 +265,6 @@
                 });
             });
 
-            // 3. Magnetic CTA Buttons
             document.querySelectorAll('.magnetic-btn').forEach((btn) => {
                 btn.addEventListener('mousemove', (e) => {
                     const rect = btn.getBoundingClientRect();
