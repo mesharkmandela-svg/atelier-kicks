@@ -9,6 +9,16 @@
     <meta property="og:description" content="Explore limited-edition running, trail, and court silhouettes in 3D perspective.">
     <meta property="og:type" content="website">
 
+    <!-- Instant Theme Boot (Prevents White Flash on Reload) -->
+    <script>
+        (function () {
+            const saved = localStorage.getItem('ak-theme');
+            if (saved === 'dark') {
+                document.documentElement.classList.add('dark-studio');
+            }
+        })();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -18,12 +28,25 @@
         :root {
             --bg-canvas: #F4F1EA;
             --surface-card: #FCFBF8;
+            --surface-well: #F4F1EA;
             --border-hairline: #DFDBD0;
             --ink-primary: #0D1512;
-            --ink-secondary: #16231E;
             --ink-muted: #5C6661;
             --accent-blaze: #FF4D1C;
             --accent-blaze-hover: #E63E10;
+            --grid-line: rgba(13, 21, 18, 0.04);
+        }
+
+        html.dark-studio {
+            --bg-canvas: #0A0F0D;
+            --surface-card: #121B17;
+            --surface-well: #18241F;
+            --border-hairline: #23332C;
+            --ink-primary: #F4F1EA;
+            --ink-muted: #98A39D;
+            --accent-blaze: #FF4D1C;
+            --accent-blaze-hover: #FF6236;
+            --grid-line: rgba(244, 241, 234, 0.035);
         }
 
         body {
@@ -32,6 +55,7 @@
             color: var(--ink-primary);
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.35s ease, color 0.35s ease;
         }
 
         .font-mono-tech {
@@ -40,11 +64,62 @@
 
         .studio-grid-bg {
             background-image:
-                linear-gradient(to right, rgba(13, 21, 18, 0.04) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(13, 21, 18, 0.04) 1px, transparent 1px);
+                linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
             background-size: 48px 48px;
         }
 
+        /* Classy Dark Mode Surface & Typography Remapping */
+        html.dark-studio header {
+            background-color: rgba(10, 15, 13, 0.86) !important;
+            border-color: #23332C !important;
+        }
+
+        html.dark-studio .bg-\[\#FCFBF8\],
+        html.dark-studio .bg-\[\#FCFBF8\]\/95 {
+            background-color: #121B17 !important;
+        }
+
+        html.dark-studio .bg-\[\#F4F1EA\] {
+            background-color: #18241F !important;
+        }
+
+        html.dark-studio .border-\[\#DFDBD0\],
+        html.dark-studio .border-\[\#E7E3D8\],
+        html.dark-studio .border-\[\#ECE8DE\] {
+            border-color: #23332C !important;
+        }
+
+        html.dark-studio .text-\[\#0D1512\] {
+            color: #F4F1EA !important;
+        }
+
+        html.dark-studio .text-\[\#5C6661\] {
+            color: #98A39D !important;
+        }
+
+        /* Keep dark-filled badges & pills legible in dark mode */
+        html.dark-studio .bg-\[\#0D1512\] {
+            background-color: #1A2621 !important;
+            border: 1px solid #2A3D35;
+        }
+
+        /* Lookbook 3D Pages in Classy Dark Mode */
+        html.dark-studio .page-face,
+        html.dark-studio .page-grid-bg {
+            background-color: #121B17 !important;
+            border-color: #23332C !important;
+            background-image:
+                linear-gradient(to right, rgba(244, 241, 234, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(244, 241, 234, 0.03) 1px, transparent 1px) !important;
+        }
+
+        html.dark-studio .shoe-card-3d {
+            background-color: #18241F !important;
+            border-color: #283A32 !important;
+        }
+
+        /* Scroll Reveal Motion */
         .reveal-up {
             opacity: 0;
             transform: translateY(22px);
@@ -56,15 +131,16 @@
             transform: translateY(0);
         }
 
+        /* Tactile 3D Product Stage */
         .tilt-surface {
             transform-style: preserve-3d;
-            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.35s ease;
             will-change: transform;
         }
 
         .tilt-surface:hover {
-            border-color: var(--accent-blaze);
-            box-shadow: 0 24px 48px -20px rgba(13, 21, 18, 0.22), 0 0 0 1px rgba(255, 77, 28, 0.25);
+            border-color: var(--accent-blaze) !important;
+            box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 77, 28, 0.32);
         }
 
         .tilt-pop {
@@ -72,6 +148,7 @@
             transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
+        /* Magnetic Button Micro-Interaction */
         .magnetic-btn {
             transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
             will-change: transform;
@@ -104,9 +181,9 @@
     </div>
 
     <!-- MAIN GLASS NAVIGATION -->
-    <header class="sticky top-0 z-40 bg-[#F4F1EA]/88 backdrop-blur-xl border-b border-[#DFDBD0]">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-            <a href="/" class="flex items-center gap-2.5 group">
+    <header class="sticky top-0 z-40 bg-[#F4F1EA]/88 backdrop-blur-xl border-b border-[#DFDBD0] transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+            <a href="/" class="flex items-center gap-2.5 group shrink-0">
                 <div class="w-8 h-8 rounded-lg bg-[#0D1512] text-[#FF4D1C] flex items-center justify-center font-black text-sm tracking-tighter group-hover:rotate-6 transition-transform border border-[#1E2E28]">
                     AK
                 </div>
@@ -116,7 +193,7 @@
                 </div>
             </a>
 
-            <nav class="hidden md:flex items-center gap-1 bg-[#FCFBF8]/95 border border-[#DFDBD0] rounded-full p-1">
+            <nav class="hidden lg:flex items-center gap-1 bg-[#FCFBF8]/95 border border-[#DFDBD0] rounded-full p-1">
                 <a href="/" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path == '/' %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
                     Overview
                 </a>
@@ -136,8 +213,15 @@
             </nav>
 
             <div class="flex items-center gap-2">
+                <!-- Classy Dark Mode Toggle -->
+                <button type="button" id="themeToggleBtn" onclick="toggleStudioTheme()" title="Toggle Nocturne Dark Mode"
+                        class="px-3 py-1.5 rounded-full bg-[#FCFBF8] border border-[#DFDBD0] font-mono-tech text-[11px] font-bold text-[#0D1512] hover:border-[#FF4D1C] hover:text-[#FF4D1C] transition flex items-center gap-1.5">
+                    <span id="themeIcon">&#9790;</span>
+                    <span id="themeLabel" class="hidden sm:inline">Nocturne</span>
+                </button>
+
                 <button type="button" onclick="openSizeDrawer()" title="Size Conversion Matrix"
-                        class="hidden sm:inline-flex px-3 py-1.5 rounded-full bg-[#FCFBF8] border border-[#DFDBD0] font-mono-tech text-[11px] font-bold text-[#0D1512] hover:border-[#FF4D1C] hover:text-[#FF4D1C] transition">
+                        class="hidden md:inline-flex px-3 py-1.5 rounded-full bg-[#FCFBF8] border border-[#DFDBD0] font-mono-tech text-[11px] font-bold text-[#0D1512] hover:border-[#FF4D1C] hover:text-[#FF4D1C] transition">
                     Fit Guide
                 </button>
 
@@ -174,7 +258,7 @@
         </div>
 
         <!-- Mobile Sub-Nav -->
-        <div class="md:hidden border-t border-[#DFDBD0] bg-[#FCFBF8]/95 px-4 py-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider overflow-x-auto gap-4">
+        <div class="lg:hidden border-t border-[#DFDBD0] bg-[#FCFBF8]/95 px-4 py-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider overflow-x-auto gap-4">
             <a href="/" class="{% if request.path == '/' %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">Overview</a>
             <a href="/shop" class="{% if request.path.startswith('/shop') %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">Catalog</a>
             <a href="/lookbook" class="{% if request.path.startswith('/lookbook') %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">3D Book</a>
@@ -207,7 +291,7 @@
     </main>
 
     <!-- SLIDE-OUT ARCHITECTURAL SIZE & FIT DRAWER -->
-    <div id="sizeDrawerBackdrop" onclick="closeSizeDrawer()" class="fixed inset-0 bg-[#0D1512]/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
+    <div id="sizeDrawerBackdrop" onclick="closeSizeDrawer()" class="fixed inset-0 bg-[#0D1512]/70 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
     <aside id="sizeDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-[#FCFBF8] border-l border-[#DFDBD0] z-50 transform translate-x-full transition-transform duration-300 ease-out flex flex-col justify-between p-6 sm:p-8 overflow-y-auto">
         <div>
             <div class="flex items-center justify-between pb-5 border-b border-[#DFDBD0]">
@@ -215,7 +299,7 @@
                     <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C] font-bold">CALIBRATION // FIT MATRIX</div>
                     <h2 class="text-2xl font-black uppercase tracking-tight text-[#0D1512]">Sizing &amp; Fit Guide</h2>
                 </div>
-                <button type="button" onclick="closeSizeDrawer()" class="w-9 h-9 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] flex items-center justify-center text-sm font-bold hover:border-[#FF4D1C] hover:text-[#FF4D1C]">
+                <button type="button" onclick="closeSizeDrawer()" class="w-9 h-9 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] flex items-center justify-center text-sm font-bold text-[#0D1512] hover:border-[#FF4D1C] hover:text-[#FF4D1C]">
                     &times;
                 </button>
             </div>
@@ -238,13 +322,13 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[#DFDBD0] text-[#0D1512]">
-                        <tr class="hover:bg-white"><td class="py-2.5 px-3.5 font-bold">EU 39</td><td class="py-2.5 px-3.5">6.0</td><td class="py-2.5 px-3.5">6.5</td><td class="py-2.5 px-3.5 text-[#5C6661]">24.5 cm</td></tr>
-                        <tr class="hover:bg-white"><td class="py-2.5 px-3.5 font-bold">EU 40</td><td class="py-2.5 px-3.5">6.5</td><td class="py-2.5 px-3.5">7.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">25.0 cm</td></tr>
-                        <tr class="hover:bg-white"><td class="py-2.5 px-3.5 font-bold">EU 41</td><td class="py-2.5 px-3.5">7.5</td><td class="py-2.5 px-3.5">8.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">26.0 cm</td></tr>
-                        <tr class="hover:bg-white"><td class="py-2.5 px-3.5 font-bold text-[#FF4D1C]">EU 42</td><td class="py-2.5 px-3.5">8.0</td><td class="py-2.5 px-3.5">8.5</td><td class="py-2.5 px-3.5 text-[#5C6661]">26.5 cm</td></tr>
-                        <tr class="hover:bg-white"><td class="py-2.5 px-3.5 font-bold">EU 43</td><td class="py-2.5 px-3.5">9.0</td><td class="py-2.5 px-3.5">9.5</td><td class="py-2.5 px-3.5 text-[#5C6661]">27.5 cm</td></tr>
-                        <tr class="hover:bg-white"><td class="py-2.5 px-3.5 font-bold">EU 44</td><td class="py-2.5 px-3.5">9.5</td><td class="py-2.5 px-3.5">10.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">28.0 cm</td></tr>
-                        <tr class="hover:bg-white"><td class="py-2.5 px-3.5 font-bold">EU 45</td><td class="py-2.5 px-3.5">10.5</td><td class="py-2.5 px-3.5">11.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">29.0 cm</td></tr>
+                        <tr><td class="py-2.5 px-3.5 font-bold">EU 39</td><td class="py-2.5 px-3.5">6.0</td><td class="py-2.5 px-3.5">6.5</td><td class="py-2.5 px-3.5 text-[#5C6661]">24.5 cm</td></tr>
+                        <tr><td class="py-2.5 px-3.5 font-bold">EU 40</td><td class="py-2.5 px-3.5">6.5</td><td class="py-2.5 px-3.5">7.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">25.0 cm</td></tr>
+                        <tr><td class="py-2.5 px-3.5 font-bold">EU 41</td><td class="py-2.5 px-3.5">7.5</td><td class="py-2.5 px-3.5">8.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">26.0 cm</td></tr>
+                        <tr><td class="py-2.5 px-3.5 font-bold text-[#FF4D1C]">EU 42</td><td class="py-2.5 px-3.5">8.0</td><td class="py-2.5 px-3.5">8.5</td><td class="py-2.5 px-3.5 text-[#5C6661]">26.5 cm</td></tr>
+                        <tr><td class="py-2.5 px-3.5 font-bold">EU 43</td><td class="py-2.5 px-3.5">9.0</td><td class="py-2.5 px-3.5">9.5</td><td class="py-2.5 px-3.5 text-[#5C6661]">27.5 cm</td></tr>
+                        <tr><td class="py-2.5 px-3.5 font-bold">EU 44</td><td class="py-2.5 px-3.5">9.5</td><td class="py-2.5 px-3.5">10.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">28.0 cm</td></tr>
+                        <tr><td class="py-2.5 px-3.5 font-bold">EU 45</td><td class="py-2.5 px-3.5">10.5</td><td class="py-2.5 px-3.5">11.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">29.0 cm</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -303,6 +387,28 @@
     </footer>
 
     <script>
+        function syncThemeButton() {
+            const isDark = document.documentElement.classList.contains('dark-studio');
+            const icon = document.getElementById('themeIcon');
+            const label = document.getElementById('themeLabel');
+            if (!icon || !label) return;
+            if (isDark) {
+                icon.innerHTML = '&#9728;';
+                label.textContent = 'Alabaster';
+            } else {
+                icon.innerHTML = '&#9790;';
+                label.textContent = 'Nocturne';
+            }
+        }
+
+        function toggleStudioTheme() {
+            const root = document.documentElement;
+            const willBeDark = !root.classList.contains('dark-studio');
+            root.classList.toggle('dark-studio', willBeDark);
+            localStorage.setItem('ak-theme', willBeDark ? 'dark' : 'light');
+            syncThemeButton();
+        }
+
         function openSizeDrawer() {
             const backdrop = document.getElementById('sizeDrawerBackdrop');
             const drawer = document.getElementById('sizeDrawer');
@@ -326,6 +432,8 @@
         });
 
         document.addEventListener('DOMContentLoaded', () => {
+            syncThemeButton();
+
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
