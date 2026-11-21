@@ -2,6 +2,7 @@
 from datetime import datetime
 import json
 import os
+import re
 import sqlite3
 import uuid
 
@@ -39,23 +40,61 @@ def allowed_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def _norm(text: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", (text or "").lower())
+
+
+KEYWORD_ALIASES = {
+    "alphafly": ["alphafly", "airzoom", "next3", "nike1", "runner1"],
+    "samba": ["samba", "terrace", "adidas1"],
+    "xt6": ["xt6", "salomon", "goretex", "trail1"],
+    "primex": ["primex", "adizero", "strung"],
+    "dunkhigh": ["dunk", "varsity", "retro", "high"],
+    "990v6": ["990", "newbalance", "nb990"],
+    "kayano31": ["kayano", "gelkayano", "asics"],
+    "cloudultra2": ["cloudultra", "cloud", "onrunning", "oncloud"],
+    "ae1": ["ae1", "anthony", "hardwood"],
+    "gazelle": ["gazelle", "indoor"],
+    "vaporfly3": ["vaporfly", "proto"],
+    "speedgoat5": ["speedgoat", "hoka", "vibram"],
+}
+
+
 def resolve_image_url(image_file: str) -> str:
     clean = (image_file or "").strip()
+    stem = os.path.splitext(clean)[0] if clean else "ak"
+
     if clean:
         full_path = os.path.join(UPLOAD_FOLDER, clean)
         if os.path.isfile(full_path):
             return url_for("static", filename="images/" + clean)
 
-        stem = os.path.splitext(clean)[0].lower()
-        try:
-            for fname in os.listdir(UPLOAD_FOLDER):
-                fstem, fext = os.path.splitext(fname)
-                if fext.lower().lstrip(".") in ALLOWED_EXTENSIONS and fstem.lower() == stem:
-                    return url_for("static", filename="images/" + fname)
-        except OSError:
-            pass
+    try:
+        available = [
+            f
+            for f in os.listdir(UPLOAD_FOLDER)
+            if os.path.splitext(f)[1].lower().lstrip(".") in ALLOWED_EXTENSIONS
+        ]
+    except OSError:
+        available = []
 
-    return url_for("fallback_sneaker_svg", label=(stem or "AK")[:8])
+    norm_stem = _norm(stem)
+    aliases = KEYWORD_ALIASES.get(norm_stem, [norm_stem])
+
+    # 1. Exact normalized stem match
+    for fname in available:
+        if _norm(os.path.splitext(fname)[0]) == norm_stem:
+            return url_for("static", filename="images/" + fname)
+
+    # 2. Alias / substring keyword match (e.g., salomon_xt6.jpg matches xt6.png)
+    for alias in aliases:
+        if not alias:
+            continue
+        for fname in available:
+            if alias in _norm(os.path.splitext(fname)[0]):
+                return url_for("static", filename="images/" + fname)
+
+    return url_for("fallback_sneaker_svg", label=(stem or "AK")[:10])
 
 
 @app.route("/media/fallback/<label>.svg")
