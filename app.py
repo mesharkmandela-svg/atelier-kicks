@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+﻿from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from werkzeug.utils import secure_filename
 import sqlite3
 import os
@@ -170,6 +170,14 @@ def home():
     featured = conn.execute("SELECT * FROM sneakers LIMIT 6").fetchall()
     conn.close()
     return render_template("index.html", featured=featured, wishlist=get_wishlist())
+
+
+@app.route("/lookbook")
+def lookbook():
+    conn = get_db()
+    sneakers = conn.execute("SELECT * FROM sneakers ORDER BY id ASC").fetchall()
+    conn.close()
+    return render_template("lookbook.html", sneakers=sneakers, wishlist=get_wishlist())
 
 
 @app.route("/shop")

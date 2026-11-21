@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Order History — ATELIER KICKS{% endblock %}
+
+{% block content %}
+<div class="flex flex-wrap items-end justify-between gap-4 mb-8">
+    <div>
+        <div class="text-xs font-extrabold uppercase tracking-widest text-lime-600">Fulfillment &amp; Receipts</div>
+        <h1 class="text-3xl sm:text-4xl font-black uppercase tracking-tight">Order History ({{ orders|length }})</h1>
+    </div>
+    <a href="/shop" class="btn-3d bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full hover:bg-neutral-800">
+        Shop More Kicks &rarr;
+    </a>
+</div>
+
+{% if orders %}
+    <div class="space-y-5">
+        {% for order in orders %}
+            <div class="card-3d bg-white rounded-3xl border border-neutral-200/90 p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-neutral-100">
+                    <div>
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-base font-black uppercase tracking-tight">Order #{{ order.id }}</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-100 text-emerald-800">
+                                {{ order.status }}
+                            </span>
+                            {% if order.payment_method %}
+                                <span class="text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-neutral-100 text-neutral-700">
+                                    {{ order.payment_method }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        <div class="text-xs text-neutral-500 mt-1">
+                            Customer: <strong class="text-neutral-800">{{ order.customer_name }}</strong>
+                            &bull; Destination: <strong class="text-neutral-800">{{ order.city }}</strong>
+                            {% if order.mpesa_phone %}
+                                &bull; M-PESA: <span class="font-mono text-neutral-800">{{ order.mpesa_phone }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <div class="text-[11px] font-bold uppercase text-neutral-400">Order Total</div>
+                        <div class="text-xl font-black text-neutral-950">{{ format_price(order.total) }}</div>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <div class="text-neutral-700">
+                        <span class="font-bold uppercase text-neutral-400 mr-1.5">Items:</span>
+                        <span>{{ order.items_summary }}</span>
+                    </div>
+
+                    {% if order.discount_code %}
+                        <span class="font-extrabold uppercase text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
+                            Promo Applied: {{ order.discount_code }}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card-3d bg-white rounded-3xl border border-neutral-200 p-12 text-center">
+        <h2 class="text-xl font-black uppercase mb-2">No orders placed yet</h2>
+        <p class="text-sm text-neutral-500 mb-6">Add a pair to your bag and complete checkout to see your receipts here.</p>
+        <a href="/shop" class="btn-3d inline-block bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-full">
+            Explore Footwear
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

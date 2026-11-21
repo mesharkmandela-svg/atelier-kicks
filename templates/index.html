@@ -1,100 +1,181 @@
 {% extends "base.html" %}
 
-{% block title %}ATELIER KICKS — Performance & Street Flagship{% endblock %}
+{% block title %}ATELIER KICKS — 3D Immersive Footwear{% endblock %}
 
 {% block content %}
-<section class="relative overflow-hidden rounded-3xl bg-neutral-950 text-white p-8 sm:p-16 mb-12">
-    <div class="max-w-2xl">
-        <span class="inline-block text-xs font-extrabold tracking-widest uppercase text-lime-400 mb-3">
-            2026 Flagship Drop // Carbon &amp; Terrace
-        </span>
-        <h1 class="text-4xl sm:text-6xl font-black tracking-tighter leading-none mb-5 uppercase">
-            Engineered For Every Surface.
-        </h1>
-        <p class="text-neutral-300 text-base sm:text-lg mb-8 max-w-xl">
-            Explore 12 curated silhouettes across marathon racing, street terrace classics, hardwood basketball, and technical trail.
-        </p>
-        <div class="flex flex-wrap gap-3">
-            <a href="/shop" class="bg-white text-neutral-950 font-bold text-xs uppercase tracking-wider px-7 py-4 rounded-full hover:bg-neutral-200 transition">
-                Shop Full Catalog
-            </a>
-            <a href="/shop?category=Running" class="border border-neutral-700 text-white font-bold text-xs uppercase tracking-wider px-7 py-4 rounded-full hover:border-white transition">
-                Carbon Racers
-            </a>
+<!-- 3D Interactive Hero Stage -->
+<section class="card-3d bg-neutral-950 text-white rounded-3xl p-6 sm:p-10 mb-12 border border-neutral-800">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-6 space-y-5 z-10">
+            <div class="inline-flex items-center gap-2 bg-neutral-900 border border-neutral-800 text-lime-400 text-[11px] font-extrabold uppercase tracking-widest px-3.5 py-1.5 rounded-full">
+                <span>2026 Spatial Drop</span>
+                <span>&bull;</span>
+                <span>Interactive 3D Stage</span>
+            </div>
+
+            <h1 class="text-4xl sm:text-6xl font-black uppercase tracking-tighter leading-[0.95]">
+                Engineered for <span class="text-lime-400">Zero Gravity</span> Speed.
+            </h1>
+
+            <p class="text-sm sm:text-base text-neutral-300 max-w-lg leading-relaxed">
+                Explore high-rebound marathon racers, terrace classics, and court silhouettes in interactive 3D—or flip through the hardcover book edition.
+            </p>
+
+            <div class="flex flex-wrap gap-3 pt-2">
+                <a href="/lookbook" class="btn-3d bg-lime-400 text-neutral-950 text-xs font-black uppercase tracking-wider px-6 py-3.5 rounded-full hover:bg-lime-300">
+                    Open 3D Flip Book &rarr;
+                </a>
+                <a href="/shop" class="btn-3d bg-neutral-800 text-white text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-full hover:bg-neutral-700">
+                    Browse All 12 Kicks
+                </a>
+            </div>
+        </div>
+
+        <!-- Interactive 3D Hero Shoe Showcase -->
+        <div class="lg:col-span-6">
+            <div id="heroStage"
+                 onmousemove="heroTilt(event, this)"
+                 onmouseleave="heroReset(this)"
+                 class="relative h-72 sm:h-80 rounded-2xl bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-950 border border-neutral-700/70 flex flex-col justify-between p-5"
+                 style="transform-style: preserve-3d; transition: transform 0.16s ease-out;">
+                <div class="flex items-center justify-between text-xs">
+                    <span id="heroBadge" class="font-extrabold uppercase tracking-widest bg-lime-400 text-neutral-950 px-3 py-1 rounded-full">
+                        {{ featured[0].badge if featured else 'FEATURED' }}
+                    </span>
+                    <span id="heroPrice" class="font-black text-base text-white">
+                        {{ format_price(featured[0].price) if featured else '' }}
+                    </span>
+                </div>
+
+                <div class="my-auto flex items-center justify-center px-4" style="transform: translateZ(55px);">
+                    {% if featured %}
+                        <img id="heroImg"
+                             src="{{ url_for('static', filename='images/' + featured[0].image_file) }}"
+                             alt="{{ featured[0].name }}"
+                             class="max-h-44 sm:max-h-52 w-auto object-contain select-none pointer-events-none"
+                             style="filter: drop-shadow(0 28px 24px rgba(0,0,0,0.55)); transition: transform 0.3s ease;">
+                    {% endif %}
+                </div>
+
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <div id="heroBrand" class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                            {{ featured[0].brand if featured else '' }}
+                        </div>
+                        <div id="heroName" class="text-base sm:text-lg font-black tracking-tight text-white">
+                            {{ featured[0].name if featured else '' }}
+                        </div>
+                    </div>
+
+                    <!-- Silhouette Switcher Dots -->
+                    <div class="flex items-center gap-1.5" id="heroDots">
+                        {% for shoe in featured[:4] %}
+                            <button type="button"
+                                    onclick="setHeroShoe({{ loop.index0 }})"
+                                    class="w-7 h-7 rounded-full text-[11px] font-black transition {% if loop.index0 == 0 %}bg-lime-400 text-neutral-950{% else %}bg-neutral-800 text-neutral-300 hover:bg-neutral-700{% endif %}">
+                                {{ loop.index }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Category Spotlight Tiles -->
-<section class="mb-14">
-    <div class="flex items-center justify-between mb-5">
-        <h2 class="text-xl font-black uppercase tracking-tight">Shop By Sport &amp; Style</h2>
-        <a href="/shop" class="text-xs font-bold uppercase underline">View All 12 &rarr;</a>
+<!-- Featured 3D Product Grid -->
+<div class="flex items-baseline justify-between mb-6">
+    <div>
+        <div class="text-xs font-extrabold uppercase tracking-widest text-neutral-400">Curated Rotation</div>
+        <h2 class="text-2xl sm:text-3xl font-black uppercase tracking-tight">Featured Silhouettes</h2>
     </div>
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {% for cat, desc in [("Running", "Carbon & Superfoam"), ("Lifestyle", "Terrace & Retro"), ("Basketball", "Court Containment"), ("Trail", "All-Weather Grip")] %}
-            <a href="/shop?category={{ cat }}" class="bg-white border border-neutral-200 hover:border-neutral-950 rounded-2xl p-6 transition group">
-                <div class="text-xs font-bold uppercase text-neutral-400 mb-1">{{ desc }}</div>
-                <div class="text-xl font-black uppercase group-hover:translate-x-1 transition-transform">{{ cat }} &rarr;</div>
-            </a>
-        {% endfor %}
-    </div>
-</section>
+    <a href="/shop" class="text-xs font-extrabold uppercase tracking-wider underline hover:text-neutral-600">View Full Catalog &rarr;</a>
+</div>
 
-<!-- Featured Drops Grid -->
-<section>
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-black uppercase tracking-tight">Featured Rotation</h2>
-        <a href="/shop" class="text-xs font-bold uppercase underline">Filter &amp; Sort All &rarr;</a>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
-        {% for shoe in featured %}
-            <article class="group bg-white rounded-2xl border border-neutral-200 overflow-hidden flex flex-col justify-between hover:shadow-xl transition-shadow">
-                <div>
-                    <div class="relative h-56 bg-neutral-100 flex items-center justify-center p-6 overflow-hidden">
-                        <span class="absolute top-4 left-4 z-10 bg-white text-neutral-950 text-[10px] font-extrabold tracking-wider uppercase px-3 py-1 rounded-full shadow-sm">
-                            {{ shoe.badge }}
-                        </span>
-
-                        <button type="button" onclick="openQuickView({{ shoe.id }})"
-                                class="absolute bottom-3 right-3 z-10 bg-neutral-950/90 text-white text-[11px] font-bold uppercase px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition">
-                            Quick View
-                        </button>
-
-                        <img src="{{ url_for('static', filename='images/' + shoe.image_file) }}"
-                             alt="{{ shoe.name }}"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                             class="shoe-zoom w-full h-full object-contain">
-
-                        <div style="display:none;" class="shoe-zoom w-full h-full items-center justify-center">
-                            <svg viewBox="0 0 260 120" class="w-52 drop-shadow-md">
-                                <path d="M22 86 C45 86, 75 52, 118 48 C148 45, 175 64, 232 72 C244 74, 248 92, 234 96 L24 96 C14 96, 12 86, 22 86 Z" fill="#18181b"/>
-                                <path d="M18 96 L240 96 C244 104, 236 110, 224 110 L26 110 C16 110, 14 102, 18 96 Z" fill="#ffffff"/>
-                                <path d="M78 76 Q135 84 198 74" stroke="{{ shoe.accent_hex }}" stroke-width="7" stroke-linecap="round" fill="none"/>
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div class="p-6 pb-2">
-                        <div class="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-1">
-                            {{ shoe.brand }} &bull; {{ shoe.category }}
-                        </div>
-                        <h3 class="text-lg font-extrabold text-neutral-950">
-                            <a href="/sneaker/{{ shoe.id }}" class="hover:underline">{{ shoe.name }}</a>
-                        </h3>
-                        <p class="text-xs text-neutral-500 mt-1">{{ shoe.colorway }}</p>
-                    </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
+    {% for shoe in featured %}
+        <div class="card-3d group bg-white rounded-3xl border border-neutral-200/90 p-5 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-[10px] font-black uppercase tracking-widest bg-neutral-950 text-white px-3 py-1 rounded-full">
+                        {{ shoe.badge }}
+                    </span>
+                    <span class="text-sm font-black text-neutral-900">{{ format_price(shoe.price) }}</span>
                 </div>
 
-                <div class="px-6 pb-6 pt-3 flex items-center justify-between">
-                    <span class="text-lg font-black">{{ format_price(shoe.price) }}</span>
-                    <a href="/sneaker/{{ shoe.id }}" class="bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-full hover:bg-neutral-800 transition">
-                        Select Size
-                    </a>
-                </div>
-            </article>
+                <a href="/sneaker/{{ shoe.id }}" class="block h-48 rounded-2xl bg-neutral-100 flex items-center justify-center p-4 mb-4">
+                    <img src="{{ url_for('static', filename='images/' + shoe.image_file) }}"
+                         alt="{{ shoe.name }}"
+                         class="shoe-3d-float max-h-40 w-auto object-contain">
+                </a>
+
+                <div class="text-[11px] font-bold uppercase tracking-wider text-neutral-400">{{ shoe.brand }} &bull; {{ shoe.category }}</div>
+                <a href="/sneaker/{{ shoe.id }}" class="text-lg font-black tracking-tight hover:underline block mt-0.5">{{ shoe.name }}</a>
+                <p class="text-xs text-neutral-500 mt-1 line-clamp-2">{{ shoe.description }}</p>
+            </div>
+
+            <div class="flex items-center gap-2 mt-5 pt-4 border-t border-neutral-100">
+                <button type="button" onclick="openQuickView({{ shoe.id }})"
+                        class="btn-3d flex-1 bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider py-2.5 rounded-full hover:bg-neutral-800">
+                    Quick View
+                </button>
+                <form method="POST" action="/wishlist/toggle/{{ shoe.id }}">
+                    <button type="submit"
+                            class="px-3.5 py-2.5 rounded-full border text-xs font-black transition {% if shoe.id in wishlist %}border-neutral-950 bg-neutral-950 text-lime-400{% else %}border-neutral-300 text-neutral-700 hover:border-neutral-950{% endif %}">
+                        &#9829;
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+    const heroShoes = [
+        {% for shoe in featured[:4] %}
+        {
+            name: {{ shoe.name|tojson }},
+            brand: {{ (shoe.brand ~ ' • ' ~ shoe.category)|tojson }},
+            badge: {{ shoe.badge|tojson }},
+            price: {{ format_price(shoe.price)|tojson }},
+            img: {{ url_for('static', filename='images/' + shoe.image_file)|tojson }}
+        }{% if not loop.last %},{% endif %}
         {% endfor %}
-    </div>
-</section>
+    ];
+
+    function setHeroShoe(idx) {
+        const s = heroShoes[idx];
+        if (!s) return;
+        document.getElementById('heroName').textContent = s.name;
+        document.getElementById('heroBrand').textContent = s.brand;
+        document.getElementById('heroBadge').textContent = s.badge;
+        document.getElementById('heroPrice').textContent = s.price;
+        const img = document.getElementById('heroImg');
+        img.style.transform = 'scale(0.92) rotate(4deg)';
+        setTimeout(() => {
+            img.src = s.img;
+            img.style.transform = 'scale(1) rotate(0deg)';
+        }, 120);
+
+        const buttons = document.querySelectorAll('#heroDots button');
+        buttons.forEach((btn, i) => {
+            if (i === idx) {
+                btn.className = 'w-7 h-7 rounded-full text-[11px] font-black transition bg-lime-400 text-neutral-950';
+            } else {
+                btn.className = 'w-7 h-7 rounded-full text-[11px] font-black transition bg-neutral-800 text-neutral-300 hover:bg-neutral-700';
+            }
+        });
+    }
+
+    function heroTilt(e, el) {
+        const rect = el.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        el.style.transform = `perspective(1200px) rotateX(${(-y * 14).toFixed(2)}deg) rotateY(${(x * 16).toFixed(2)}deg)`;
+    }
+
+    function heroReset(el) {
+        el.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg)';
+    }
+</script>
 {% endblock %}

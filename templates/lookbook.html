@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+
+{% block title %}3D Interactive Lookbook — ATELIER KICKS{% endblock %}
+
+{% block content %}
+<style>
+    .book-scene {
+        perspective: 2400px;
+        user-select: none;
+    }
+    .book-stage {
+        position: relative;
+        width: 100%;
+        max-width: 1040px;
+        height: 600px;
+        margin: 0 auto;
+        transform-style: preserve-3d;
+        transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    /* Each sheet has a front face (right page) and back face (left page when flipped) */
+    .book-sheet {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50%;
+        height: 100%;
+        transform-origin: left center;
+        transform-style: preserve-3d;
+        transition: transform 0.85s cubic-bezier(0.645, 0.045, 0.355, 1);
+        cursor: pointer;
+    }
+    .book-sheet.flipped {
+        transform: rotateY(-180deg);
+    }
+    .page-face {
+        position: absolute;
+        inset: 0;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        overflow: hidden;
+        box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.04), 0 18px 40px rgba(0, 0, 0, 0.14);
+    }
+    .page-front {
+        border-radius: 0 20px 20px 0;
+        background: #ffffff;
+        border: 1px solid #e5e5e5;
+        border-left: none;
+    }
+    .page-back {
+        transform: rotateY(180deg);
+        border-radius: 20px 0 0 20px;
+        background: #fafafa;
+        border: 1px solid #e5e5e5;
+        border-right: none;
+    }
+    /* Realistic book spine crease shadow */
+    .spine-shadow-right {
+        background: linear-gradient(to right, rgba(0,0,0,0.14) 0%, rgba(0,0,0,0.03) 6%, transparent 18%);
+    }
+    .spine-shadow-left {
+        background: linear-gradient(to left, rgba(0,0,0,0.14) 0%, rgba(0,0,0,0.03) 6%, transparent 18%);
+    }
+    /* Interactive 3D Sneaker Stage inside pages */
+    .tilt-shoe-box {
+        transform-style: preserve-3d;
+        transition: transform 0.15s ease-out;
+    }
+    .tilt-shoe-img {
+        transform: translateZ(45px);
+        filter: drop-shadow(0 22px 24px rgba(0, 0, 0, 0.28));
+        transition: transform 0.25s ease;
+    }
+    @media (max-width: 768px) {
+        .book-stage {
+            height: 540px;
+        }
+        .book-sheet {
+            width: 92%;
+            left: 4%;
+            right: auto;
+        }
+    }
+</style>
+
+<!-- Header Controls -->
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <div>
+        <div class="text-xs font-extrabold uppercase tracking-widest text-lime-600">Interactive 3D Edition</div>
+        <h1 class="text-2xl sm:text-3xl font-black uppercase tracking-tight">2026 Flagship Sneaker Lookbook</h1>
+    </div>
+
+    <div class="flex items-center gap-3">
+        <span id="pageIndicator" class="text-xs font-black uppercase tracking-wider bg-white border border-neutral-200 px-4 py-2 rounded-full">
+            Cover
+        </span>
+        <button type="button" onclick="prevPage()" id="prevBtn"
+                class="bg-white border border-neutral-300 hover:border-neutral-950 text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-full transition disabled:opacity-40">
+            &larr; Prev Page
+        </button>
+        <button type="button" onclick="nextPage()" id="nextBtn"
+                class="bg-neutral-950 text-white hover:bg-neutral-800 text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full transition disabled:opacity-40">
+            Next Page &rarr;
+        </button>
+    </div>
+</div>
+
+<!-- 3D Book Stage -->
+<div class="book-scene py-4">
+    <div class="book-stage" id="bookStage">
+
+        <!-- SHEET 0: FRONT COVER (Front) & EDITORIAL MANIFESTO (Back) -->
+        <div class="book-sheet" data-sheet="0">
+            <!-- Front Cover -->
+            <div class="page-face page-front bg-neutral-950 text-white p-8 sm:p-12 flex flex-col justify-between relative">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-extrabold tracking-widest uppercase text-lime-400">Vol. 04 // Archive</span>
+                    <span class="text-[11px] font-bold uppercase border border-neutral-700 px-3 py-1 rounded-full">Hardcover Edition</span>
+                </div>
+
+                <div class="my-auto">
+                    <div class="text-xs font-bold uppercase tracking-[0.25em] text-neutral-400 mb-3">Atelier Kicks Studio</div>
+                    <h2 class="text-4xl sm:text-5xl font-black uppercase tracking-tighter leading-none mb-5">
+                        The Art of<br><span class="text-lime-400">Motion.</span>
+                    </h2>
+                    <p class="text-sm text-neutral-300 max-w-xs leading-relaxed">
+                        Flip through our 2026 footwear catalog. Tilt any sneaker in 3D, inspect technical specs, and add pairs directly to your bag.
+                    </p>
+                </div>
+
+                <div class="flex items-center justify-between pt-4 border-t border-neutral-800 text-xs font-bold uppercase tracking-wider">
+                    <span>{{ sneakers|length }} Silhouettes</span>
+                    <span class="text-lime-400 animate-pulse">Click to Open &rarr;</span>
+                </div>
+            </div>
+
+            <!-- Inside Front Cover (Left Page when opened) -->
+            <div class="page-face page-back spine-shadow-left p-8 sm:p-10 flex flex-col justify-between bg-neutral-100">
+                <div>
+                    <div class="text-xs font-extrabold uppercase tracking-widest text-neutral-400 mb-2">Index &amp; Chapters</div>
+                    <h3 class="text-2xl font-black uppercase tracking-tight mb-4">Inside This Catalog</h3>
+                    <p class="text-xs text-neutral-600 leading-relaxed mb-6">
+                        Move your cursor over any sneaker stage to inspect its silhouette in 3D space, or click a quick-jump chapter below.
+                    </p>
+
+                    <div class="space-y-2 text-xs font-bold" onclick="event.stopPropagation()">
+                        <button type="button" onclick="jumpToSheet(1)" class="w-full flex justify-between items-center bg-white hover:bg-neutral-950 hover:text-white p-3 rounded-xl border border-neutral-200 transition">
+                            <span>01. Carbon &amp; Road Racers</span>
+                            <span>Page 01 &rarr;</span>
+                        </button>
+                        <button type="button" onclick="jumpToSheet(2)" class="w-full flex justify-between items-center bg-white hover:bg-neutral-950 hover:text-white p-3 rounded-xl border border-neutral-200 transition">
+                            <span>02. Terrace &amp; Heritage Icons</span>
+                            <span>Page 03 &rarr;</span>
+                        </button>
+                        <button type="button" onclick="jumpToSheet(3)" class="w-full flex justify-between items-center bg-white hover:bg-neutral-950 hover:text-white p-3 rounded-xl border border-neutral-200 transition">
+                            <span>03. All-Terrain &amp; Trail Grip</span>
+                            <span>Page 05 &rarr;</span>
+                        </button>
+                        <button type="button" onclick="jumpToSheet(4)" class="w-full flex justify-between items-center bg-white hover:bg-neutral-950 hover:text-white p-3 rounded-xl border border-neutral-200 transition">
+                            <span>04. Hardwood Court Editions</span>
+                            <span>Page 07 &rarr;</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-[11px] font-bold uppercase tracking-widest text-neutral-400">
+                    Tip: Use &larr; and &rarr; Arrow Keys
+                </div>
+            </div>
+        </div>
+
+        <!-- DYNAMIC SNEAKER SHEETS (2 shoes per sheet: Front = Odd Page, Back = Even Page) -->
+        {% for i in range(0, sneakers|length, 2) %}
+            {% set shoe_front = sneakers[i] %}
+            {% set shoe_back = sneakers[i + 1] if (i + 1) < sneakers|length else None %}
+            {% set sheet_idx = (i // 2) + 1 %}
+
+            <div class="book-sheet" data-sheet="{{ sheet_idx }}">
+                <!-- FRONT FACE (Right-hand page) -->
+                <div class="page-face page-front spine-shadow-right p-6 sm:p-8 flex flex-col justify-between">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-extrabold uppercase tracking-widest bg-neutral-950 text-white px-3 py-1 rounded-full">
+                            {{ shoe_front.badge }}
+                        </span>
+                        <span class="text-xs font-black text-neutral-400">PAGE 0{{ i + 1 }}</span>
+                    </div>
+
+                    <!-- 3D Tilt Sneaker Showcase -->
+                    <div class="tilt-shoe-box my-3 h-52 rounded-2xl bg-neutral-100 flex items-center justify-center p-5 relative"
+                         onmousemove="tiltCard(event, this)" onmouseleave="resetTilt(this)" onclick="event.stopPropagation()">
+                        <img src="{{ url_for('static', filename='images/' + shoe_front.image_file) }}"
+                             alt="{{ shoe_front.name }}"
+                             class="tilt-shoe-img w-full h-full object-contain pointer-events-none">
+                    </div>
+
+                    <div onclick="event.stopPropagation()">
+                        <div class="flex justify-between items-baseline">
+                            <div>
+                                <div class="text-[11px] font-bold uppercase text-neutral-400">{{ shoe_front.brand }} &bull; {{ shoe_front.category }}</div>
+                                <h3 class="text-xl font-black tracking-tight">{{ shoe_front.name }}</h3>
+                            </div>
+                            <span class="text-lg font-black">{{ format_price(shoe_front.price) }}</span>
+                        </div>
+                        <p class="text-xs text-neutral-600 mt-1.5 line-clamp-2">{{ shoe_front.description }}</p>
+
+                        <!-- Interactive Quick-Add Bar inside the Lookbook Page -->
+                        <form method="POST" action="/cart/add/{{ shoe_front.id }}" class="flex items-center gap-2 mt-4">
+                            <select name="size" class="border border-neutral-300 rounded-full px-3 py-2 text-xs font-bold bg-white">
+                                {% for sz in shoe_front.sizes.split(',') %}
+                                    <option value="{{ sz }}">EU {{ sz }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="flex-1 bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider py-2.5 rounded-full hover:bg-neutral-800 transition">
+                                Add to Bag
+                            </button>
+                            <a href="/sneaker/{{ shoe_front.id }}" class="border border-neutral-300 hover:border-neutral-950 text-xs font-bold px-3.5 py-2.5 rounded-full">
+                                Specs
+                            </a>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- BACK FACE (Left-hand page after flipping) -->
+                <div class="page-face page-back spine-shadow-left p-6 sm:p-8 flex flex-col justify-between">
+                    {% if shoe_back %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-black text-neutral-400">PAGE 0{{ i + 2 }}</span>
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest bg-neutral-950 text-white px-3 py-1 rounded-full">
+                                {{ shoe_back.badge }}
+                            </span>
+                        </div>
+
+                        <div class="tilt-shoe-box my-3 h-52 rounded-2xl bg-white border border-neutral-200 flex items-center justify-center p-5 relative"
+                             onmousemove="tiltCard(event, this)" onmouseleave="resetTilt(this)" onclick="event.stopPropagation()">
+                            <img src="{{ url_for('static', filename='images/' + shoe_back.image_file) }}"
+                                 alt="{{ shoe_back.name }}"
+                                 class="tilt-shoe-img w-full h-full object-contain pointer-events-none">
+                        </div>
+
+                        <div onclick="event.stopPropagation()">
+                            <div class="flex justify-between items-baseline">
+                                <div>
+                                    <div class="text-[11px] font-bold uppercase text-neutral-400">{{ shoe_back.brand }} &bull; {{ shoe_back.category }}</div>
+                                    <h3 class="text-xl font-black tracking-tight">{{ shoe_back.name }}</h3>
+                                </div>
+                                <span class="text-lg font-black">{{ format_price(shoe_back.price) }}</span>
+                            </div>
+                            <p class="text-xs text-neutral-600 mt-1.5 line-clamp-2">{{ shoe_back.description }}</p>
+
+                            <form method="POST" action="/cart/add/{{ shoe_back.id }}" class="flex items-center gap-2 mt-4">
+                                <select name="size" class="border border-neutral-300 rounded-full px-3 py-2 text-xs font-bold bg-white">
+                                    {% for sz in shoe_back.sizes.split(',') %}
+                                        <option value="{{ sz }}">EU {{ sz }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="flex-1 bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider py-2.5 rounded-full hover:bg-neutral-800 transition">
+                                    Add to Bag
+                                </button>
+                                <a href="/sneaker/{{ shoe_back.id }}" class="border border-neutral-300 hover:border-neutral-950 text-xs font-bold px-3.5 py-2.5 rounded-full">
+                                    Specs
+                                </a>
+                            </form>
+                        </div>
+                    {% else %}
+                        <!-- Back Cover Summary if odd number of shoes -->
+                        <div class="my-auto text-center">
+                            <h3 class="text-2xl font-black uppercase mb-2">End of Lookbook</h3>
+                            <p class="text-xs text-neutral-500 mb-6">Explore the full filterable archive or review your shopping bag.</p>
+                            <a href="/shop" onclick="event.stopPropagation()" class="bg-neutral-950 text-white text-xs font-bold uppercase px-6 py-3 rounded-full">Open Full Catalog</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+
+        <!-- FINAL BACK COVER SHEET -->
+        <div class="book-sheet" data-sheet="{{ (sneakers|length // 2) + 1 }}">
+            <div class="page-face page-front spine-shadow-right bg-neutral-950 text-white p-8 sm:p-12 flex flex-col justify-between">
+                <span class="text-xs font-extrabold uppercase tracking-widest text-lime-400">Atelier Kicks // Colophon</span>
+                <div>
+                    <h2 class="text-3xl sm:text-4xl font-black uppercase tracking-tight mb-4">Ready to Lace Up?</h2>
+                    <p class="text-sm text-neutral-300 mb-6 leading-relaxed">
+                        Every pair ships with verified authenticity tags, express delivery, and instant M-PESA Express or Card checkout.
+                    </p>
+                    <div class="flex flex-wrap gap-3" onclick="event.stopPropagation()">
+                        <a href="/cart" class="bg-lime-400 text-neutral-950 text-xs font-black uppercase tracking-wider px-6 py-3.5 rounded-full hover:bg-lime-300 transition">
+                            Checkout Bag ({{ cart_count }})
+                        </a>
+                        <button type="button" onclick="jumpToSheet(0)" class="border border-neutral-700 text-white text-xs font-bold uppercase tracking-wider px-5 py-3.5 rounded-full hover:border-white transition">
+                            Close Book &circlearrowleft;
+                        </button>
+                    </div>
+                </div>
+                <div class="text-[11px] text-neutral-500 uppercase tracking-widest">
+                    &copy; 2026 Atelier Kicks Footwear Studio
+                </div>
+            </div>
+
+            <div class="page-face page-back bg-neutral-950 text-white p-10 flex flex-col justify-center items-center text-center">
+                <div class="text-2xl font-black uppercase tracking-tighter mb-2">Atelier Kicks</div>
+                <p class="text-xs text-neutral-400 mb-6">Back Cover &bull; 2026 Archive</p>
+                <button type="button" onclick="event.stopPropagation(); jumpToSheet(0);" class="bg-white text-neutral-950 text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full">
+                    Reopen Front Cover
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const sheets = Array.from(document.querySelectorAll('.book-sheet'));
+    const totalSheets = sheets.length;
+    let currentSheet = 0; // 0 = closed front cover showing
+
+    function updateBookState() {
+        sheets.forEach((sheet, idx) => {
+            if (idx < currentSheet) {
+                sheet.classList.add('flipped');
+                // Higher z-index for sheets closer to the current left stack
+                sheet.style.zIndex = idx + 1;
+            } else {
+                sheet.classList.remove('flipped');
+                // Higher z-index for sheets on top of the right stack
+                sheet.style.zIndex = totalSheets - idx;
+            }
+        });
+
+        const indicator = document.getElementById('pageIndicator');
+        if (currentSheet === 0) {
+            indicator.textContent = 'Front Cover';
+        } else if (currentSheet >= totalSheets) {
+            indicator.textContent = 'Back Cover';
+        } else {
+            indicator.textContent = `Spread ${currentSheet} of ${totalSheets - 1}`;
+        }
+
+        document.getElementById('prevBtn').disabled = currentSheet === 0;
+        document.getElementById('nextBtn').disabled = currentSheet === totalSheets;
+    }
+
+    function nextPage() {
+        if (currentSheet < totalSheets) {
+            currentSheet++;
+            updateBookState();
+        }
+    }
+
+    function prevPage() {
+        if (currentSheet > 0) {
+            currentSheet--;
+            updateBookState();
+        }
+    }
+
+    function jumpToSheet(target) {
+        currentSheet = Math.max(0, Math.min(totalSheets, target));
+        updateBookState();
+    }
+
+    // Clicking a sheet flips forward if unflipped, or backward if already flipped
+    sheets.forEach((sheet, idx) => {
+        sheet.addEventListener('click', () => {
+            if (idx === currentSheet) {
+                nextPage();
+            } else if (idx === currentSheet - 1) {
+                prevPage();
+            }
+        });
+    });
+
+    // Keyboard Left / Right arrow support
+    document.addEventListener('keydown', (e) => {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+        if (e.key === 'ArrowRight') nextPage();
+        if (e.key === 'ArrowLeft') prevPage();
+    });
+
+    // Real-time 3D mouse-tilt effect for each sneaker inside the book
+    function tiltCard(e, box) {
+        const rect = box.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        const rotateY = x * 28;
+        const rotateX = -y * 24;
+        box.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    }
+
+    function resetTilt(box) {
+        box.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg)';
+    }
+
+    updateBookState();
+</script>
+{% endblock %}

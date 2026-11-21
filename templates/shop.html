@@ -3,114 +3,107 @@
 {% block title %}All Footwear — ATELIER KICKS{% endblock %}
 
 {% block content %}
-<div class="flex flex-wrap items-end justify-between gap-4 mb-8">
+<div class="flex flex-wrap items-end justify-between gap-4 mb-6">
     <div>
-        <div class="text-xs font-bold uppercase tracking-widest text-neutral-400">Complete Archive</div>
+        <div class="text-xs font-extrabold uppercase tracking-widest text-lime-600">Complete Archive</div>
         <h1 class="text-3xl sm:text-4xl font-black uppercase tracking-tight">All Footwear ({{ sneakers|length }})</h1>
     </div>
+    <a href="/lookbook" class="btn-3d bg-neutral-950 text-lime-400 text-xs font-black uppercase tracking-wider px-5 py-2.5 rounded-full hover:bg-neutral-800">
+        Switch to 3D Flip Book &rarr;
+    </a>
+</div>
 
-    <form method="GET" action="/shop" class="flex flex-wrap items-center gap-2.5">
-        <input type="hidden" name="brand" value="{{ selected_brand }}">
-        <input type="hidden" name="category" value="{{ selected_category }}">
-        <input type="hidden" name="q" value="{{ search_q }}">
+<!-- Filter & Search Bar -->
+<form method="GET" action="/shop" class="bg-white/90 backdrop-blur rounded-3xl border border-neutral-200 p-4 sm:p-5 mb-8 shadow-sm">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <input type="text" name="q" value="{{ search_q }}" placeholder="Search model or colorway..."
+               class="px-4 py-2.5 rounded-full border border-neutral-300 text-xs font-bold focus:outline-none focus:border-neutral-950">
 
-        <select name="max_price" onchange="this.form.submit()" class="bg-white border border-neutral-300 rounded-full px-4 py-2 text-xs font-bold">
-            <option value="">Any Price</option>
-            <option value="140" {% if max_price == '140' %}selected{% endif %}>Under $140</option>
-            <option value="180" {% if max_price == '180' %}selected{% endif %}>Under $180</option>
-            <option value="220" {% if max_price == '220' %}selected{% endif %}>Under $220</option>
+        <select name="brand" class="px-4 py-2.5 rounded-full border border-neutral-300 text-xs font-bold bg-white">
+            <option value="ALL" {% if selected_brand == 'ALL' %}selected{% endif %}>All Brands</option>
+            <option value="NIKE-STYLE" {% if selected_brand == 'NIKE-STYLE' %}selected{% endif %}>NIKE-STYLE</option>
+            <option value="ADIDAS-STYLE" {% if selected_brand == 'ADIDAS-STYLE' %}selected{% endif %}>ADIDAS-STYLE</option>
+            <option value="JORDAN-STYLE" {% if selected_brand == 'JORDAN-STYLE' %}selected{% endif %}>JORDAN-STYLE</option>
+            <option value="NB-STYLE" {% if selected_brand == 'NB-STYLE' %}selected{% endif %}>NB-STYLE</option>
+            <option value="ON-STYLE" {% if selected_brand == 'ON-STYLE' %}selected{% endif %}>ON-STYLE</option>
         </select>
 
-        <select name="sort" onchange="this.form.submit()" class="bg-white border border-neutral-300 rounded-full px-4 py-2 text-xs font-bold">
+        <select name="category" class="px-4 py-2.5 rounded-full border border-neutral-300 text-xs font-bold bg-white">
+            <option value="ALL" {% if selected_category == 'ALL' %}selected{% endif %}>All Categories</option>
+            <option value="Running" {% if selected_category == 'Running' %}selected{% endif %}>Running</option>
+            <option value="Lifestyle" {% if selected_category == 'Lifestyle' %}selected{% endif %}>Lifestyle</option>
+            <option value="Basketball" {% if selected_category == 'Basketball' %}selected{% endif %}>Basketball</option>
+            <option value="Trail" {% if selected_category == 'Trail' %}selected{% endif %}>Trail</option>
+            <option value="Training" {% if selected_category == 'Training' %}selected{% endif %}>Training</option>
+        </select>
+
+        <select name="sort" class="px-4 py-2.5 rounded-full border border-neutral-300 text-xs font-bold bg-white">
             <option value="featured" {% if selected_sort == 'featured' %}selected{% endif %}>Sort: Featured</option>
-            <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Sort: Newest</option>
             <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
             <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+            <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest Drops</option>
         </select>
-    </form>
-</div>
 
-<!-- Brand & Category Filter Pills -->
-<div class="space-y-3 mb-8">
-    <div class="flex flex-wrap gap-2">
-        {% for b in ["ALL", "NIKE-STYLE", "ADIDAS-STYLE", "JORDAN-STYLE", "NB-STYLE", "ON-STYLE"] %}
-            <a href="/shop?brand={{ b }}&category={{ selected_category }}&sort={{ selected_sort }}&max_price={{ max_price }}&q={{ search_q }}"
-               class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if selected_brand == b %}bg-neutral-950 text-white{% else %}bg-white border border-neutral-200 hover:border-neutral-950{% endif %}">
-                {{ "All Brands" if b == "ALL" else b }}
+        <div class="flex gap-2">
+            <button type="submit" class="btn-3d flex-1 bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider py-2.5 rounded-full hover:bg-neutral-800">
+                Filter
+            </button>
+            <a href="/shop" class="px-4 py-2.5 rounded-full border border-neutral-300 text-xs font-bold uppercase hover:border-neutral-950 flex items-center">
+                Reset
             </a>
-        {% endfor %}
+        </div>
     </div>
+</form>
 
-    <div class="flex flex-wrap gap-2">
-        {% for cat in ["ALL", "Running", "Lifestyle", "Basketball", "Trail", "Training"] %}
-            <a href="/shop?brand={{ selected_brand }}&category={{ cat }}&sort={{ selected_sort }}&max_price={{ max_price }}&q={{ search_q }}"
-               class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if selected_category == cat %}bg-neutral-950 text-white{% else %}bg-white border border-neutral-200 hover:border-neutral-950{% endif %}">
-                {{ "All Sports" if cat == "ALL" else cat }}
-            </a>
-        {% endfor %}
-    </div>
-</div>
-
+<!-- 3D Product Grid -->
 {% if sneakers %}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
         {% for shoe in sneakers %}
-            <article class="group bg-white rounded-2xl border border-neutral-200 overflow-hidden flex flex-col justify-between hover:shadow-xl transition-shadow">
+            <div class="card-3d group bg-white rounded-3xl border border-neutral-200/90 p-5 flex flex-col justify-between">
                 <div>
-                    <div class="relative h-56 bg-neutral-100 flex items-center justify-center p-6 overflow-hidden">
-                        <span class="absolute top-4 left-4 z-10 bg-white text-neutral-950 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[10px] font-black uppercase tracking-widest bg-neutral-950 text-white px-3 py-1 rounded-full">
                             {{ shoe.badge }}
                         </span>
+                        <span class="text-sm font-black text-neutral-900">{{ format_price(shoe.price) }}</span>
+                    </div>
 
-                        <form method="POST" action="/wishlist/toggle/{{ shoe.id }}" class="absolute top-4 right-4 z-10">
-                            <button type="submit" class="bg-white/90 hover:bg-white text-neutral-950 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
-                                {{ "Saved" if shoe.id in wishlist else "Save" }}
-                            </button>
-                        </form>
-
-                        <button type="button" onclick="openQuickView({{ shoe.id }})"
-                                class="absolute bottom-3 right-3 z-10 bg-neutral-950/90 text-white text-[11px] font-bold uppercase px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition">
-                            Quick View
-                        </button>
-
+                    <a href="/sneaker/{{ shoe.id }}" class="block h-48 rounded-2xl bg-neutral-100 flex items-center justify-center p-4 mb-4">
                         <img src="{{ url_for('static', filename='images/' + shoe.image_file) }}"
                              alt="{{ shoe.name }}"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                             class="shoe-zoom w-full h-full object-contain">
-
-                        <div style="display:none;" class="shoe-zoom w-full h-full items-center justify-center">
-                            <svg viewBox="0 0 260 120" class="w-52 drop-shadow-md">
-                                <path d="M22 86 C45 86, 75 52, 118 48 C148 45, 175 64, 232 72 C244 74, 248 92, 234 96 L24 96 C14 96, 12 86, 22 86 Z" fill="#18181b"/>
-                                <path d="M18 96 L240 96 C244 104, 236 110, 224 110 L26 110 C16 110, 14 102, 18 96 Z" fill="#ffffff"/>
-                                <path d="M78 76 Q135 84 198 74" stroke="{{ shoe.accent_hex }}" stroke-width="7" stroke-linecap="round" fill="none"/>
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div class="p-6 pb-2">
-                        <div class="flex justify-between text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-1">
-                            <span>{{ shoe.brand }} &bull; {{ shoe.category }}</span>
-                            <span>{{ shoe.weight_g }}g</span>
-                        </div>
-                        <h2 class="text-lg font-extrabold text-neutral-950">
-                            <a href="/sneaker/{{ shoe.id }}" class="hover:underline">{{ shoe.name }}</a>
-                        </h2>
-                        <p class="text-xs text-neutral-500 mt-1">{{ shoe.colorway }}</p>
-                    </div>
-                </div>
-
-                <div class="px-6 pb-6 pt-3 flex items-center justify-between">
-                    <span class="text-lg font-black">{{ format_price(shoe.price) }}</span>
-                    <a href="/sneaker/{{ shoe.id }}" class="bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-full hover:bg-neutral-800 transition">
-                        Select Size
+                             class="shoe-3d-float max-h-40 w-auto object-contain">
                     </a>
+
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-neutral-400">{{ shoe.brand }} &bull; {{ shoe.category }}</div>
+                    <a href="/sneaker/{{ shoe.id }}" class="text-lg font-black tracking-tight hover:underline block mt-0.5">{{ shoe.name }}</a>
+                    <div class="text-xs text-neutral-500 mt-0.5">{{ shoe.colorway }}</div>
+                    <p class="text-xs text-neutral-500 mt-1.5 line-clamp-2">{{ shoe.description }}</p>
                 </div>
-            </article>
+
+                <div class="flex items-center gap-2 mt-5 pt-4 border-t border-neutral-100">
+                    <button type="button" onclick="openQuickView({{ shoe.id }})"
+                            class="btn-3d flex-1 bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider py-2.5 rounded-full hover:bg-neutral-800">
+                        Quick View
+                    </button>
+                    <a href="/sneaker/{{ shoe.id }}"
+                       class="px-3.5 py-2.5 rounded-full border border-neutral-300 hover:border-neutral-950 text-xs font-bold">
+                        3D View
+                    </a>
+                    <form method="POST" action="/wishlist/toggle/{{ shoe.id }}">
+                        <button type="submit"
+                                class="px-3.5 py-2.5 rounded-full border text-xs font-black transition {% if shoe.id in wishlist %}border-neutral-950 bg-neutral-950 text-lime-400{% else %}border-neutral-300 text-neutral-700 hover:border-neutral-950{% endif %}">
+                            &#9829;
+                        </button>
+                    </form>
+                </div>
+            </div>
         {% endfor %}
     </div>
 {% else %}
-    <div class="bg-white rounded-2xl border border-neutral-200 p-12 text-center">
-        <h2 class="text-xl font-bold mb-2">No silhouettes match your filters</h2>
-        <a href="/shop" class="inline-block mt-3 bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full">Reset All Filters</a>
+    <div class="bg-white rounded-3xl border border-neutral-200 p-12 text-center">
+        <h2 class="text-xl font-black uppercase mb-2">No silhouettes match your filter</h2>
+        <p class="text-sm text-neutral-500 mb-5">Try clearing your search or switching back to all categories.</p>
+        <a href="/shop" class="btn-3d inline-block bg-neutral-950 text-white text-xs font-bold uppercase px-6 py-3 rounded-full">Show All Footwear</a>
     </div>
 {% endif %}
 {% endblock %}

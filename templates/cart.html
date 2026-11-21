@@ -5,16 +5,26 @@
 {% block content %}
 <h1 class="text-3xl font-black tracking-tight uppercase mb-6">Your Bag</h1>
 
+{% if mpesa_error %}
+    <div class="bg-red-50 border-l-4 border-red-600 text-red-900 rounded-2xl p-5 mb-6 text-sm">
+        <div class="font-black uppercase text-xs mb-1">M-PESA STK Push Error</div>
+        <p>{{ mpesa_error }}</p>
+    </div>
+{% endif %}
+
 {% if confirmed_order %}
-    <div class="bg-white border-l-4 border-emerald-600 rounded-2xl p-6 sm:p-8 shadow-sm mb-8">
-        <h2 class="text-xl font-black uppercase mb-2">Order #{{ confirmed_order.id }} Confirmed</h2>
+    <div class="card-3d bg-white border-l-4 border-emerald-600 rounded-2xl p-6 sm:p-8 shadow-sm mb-8">
+        <h2 class="text-xl font-black uppercase mb-2">Order #{{ confirmed_order.id }} &mdash; {{ confirmed_order.status }}</h2>
         <p class="text-sm text-neutral-700 mb-2">
-            Thank you, <strong>{{ confirmed_order.customer_name }}</strong>. Total paid: <strong>{{ confirmed_order.total_formatted }}</strong> via <strong>{{ confirmed_order.payment_method }}</strong>
+            Thank you, <strong>{{ confirmed_order.customer_name }}</strong>. Total: <strong>{{ confirmed_order.total_formatted }}</strong> via <strong>{{ confirmed_order.payment_method }}</strong>
             {% if confirmed_order.mpesa_phone %}({{ confirmed_order.mpesa_phone }}){% endif %}.
         </p>
+        {% if confirmed_order.payment_method == 'M-PESA Express' %}
+            <p class="text-xs text-emerald-700 font-bold mb-2">Check your phone for the Safaricom M-PESA STK prompt and enter your PIN. Order status updates automatically on /orders once Safaricom confirms.</p>
+        {% endif %}
         <p class="text-xs text-neutral-500 mb-5">Shipping Destination: {{ confirmed_order.city }}</p>
         <div class="flex flex-wrap gap-3">
-            <a href="/orders" class="bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-full">View Order History</a>
+            <a href="/orders" class="btn-3d bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-full">Check Live Order Status</a>
             <a href="/shop" class="border border-neutral-300 text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-full">Continue Shopping</a>
         </div>
     </div>
@@ -71,7 +81,7 @@
                 </div>
             </div>
 
-            <form method="POST" action="/cart" id="checkoutForm" class="space-y-3 mt-6">
+            <form method="POST" action="/cart" class="space-y-3 mt-6">
                 <input type="hidden" name="form_type" value="checkout">
                 <div>
                     <label class="block text-xs font-bold uppercase mb-1">Full Name</label>
@@ -89,33 +99,21 @@
                 <div>
                     <label class="block text-xs font-bold uppercase mb-1">Payment Method</label>
                     <select name="payment_method" id="payMethod" onchange="toggleMpesaField()" class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm font-bold">
-                        <option value="M-PESA Express">M-PESA Express (STK Push)</option>
+                        <option value="M-PESA Express">M-PESA Express (Real STK Push)</option>
                         <option value="Visa / Mastercard">Visa / Mastercard</option>
                     </select>
                 </div>
 
                 <div id="mpesaBox" class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
-                    <label class="block text-xs font-bold uppercase text-emerald-900 mb-1">M-PESA Phone Number</label>
-                    <input type="tel" name="mpesa_phone" id="mpesaPhone" placeholder="07XX XXX XXX" required class="w-full px-3.5 py-2 rounded-lg border border-emerald-300 bg-white text-sm font-mono">
-                    <p class="text-[11px] text-emerald-800 mt-1">An instant STK prompt simulation will trigger on submit.</p>
+                    <label class="block text-xs font-bold uppercase text-emerald-900 mb-1">Safaricom M-PESA Number</label>
+                    <input type="tel" name="mpesa_phone" id="mpesaPhone" placeholder="07XX XXX XXX or 2547XX XXX XXX" required class="w-full px-3.5 py-2 rounded-lg border border-emerald-300 bg-white text-sm font-mono">
+                    <p class="text-[11px] text-emerald-800 mt-1">Triggers an STK Push prompt directly to your phone.</p>
                 </div>
 
-                <button type="button" onclick="handlePaymentSubmit()" class="w-full bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider py-4 rounded-full hover:bg-emerald-700 transition mt-2">
-                    Pay {{ format_price(total) }} Now
+                <button type="submit" class="btn-3d w-full bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider py-4 rounded-full hover:bg-emerald-700 transition mt-2">
+                    Send M-PESA Prompt ({{ format_price(total) }})
                 </button>
             </form>
-        </div>
-    </div>
-
-    <!-- M-PESA STK Push Simulation Modal -->
-    <div id="stkModal" class="fixed inset-0 bg-black/65 z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl">
-            <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 font-black flex items-center justify-center mx-auto mb-3 text-lg">M</div>
-            <h3 class="text-lg font-black uppercase mb-1">M-PESA Prompt Sent</h3>
-            <p class="text-xs text-neutral-600 mb-4">Check phone <strong id="stkPhoneDisplay"></strong> and enter your M-PESA PIN to authorize <strong>{{ format_price(total) }}</strong>.</p>
-            <button type="button" onclick="document.getElementById('checkoutForm').submit()" class="w-full bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider py-3.5 rounded-full hover:bg-emerald-700">
-                Confirm PIN Entered &rarr;
-            </button>
         </div>
     </div>
 
@@ -132,27 +130,12 @@
                 phone.required = false;
             }
         }
-
-        function handlePaymentSubmit() {
-            const form = document.getElementById('checkoutForm');
-            if (!form.reportValidity()) return;
-
-            const method = document.getElementById('payMethod').value;
-            if (method === 'M-PESA Express') {
-                document.getElementById('stkPhoneDisplay').textContent = document.getElementById('mpesaPhone').value;
-                const modal = document.getElementById('stkModal');
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } else {
-                form.submit();
-            }
-        }
     </script>
 {% elif not confirmed_order %}
     <div class="bg-white rounded-2xl border border-neutral-200 p-12 text-center">
         <h2 class="text-xl font-bold mb-2">Your bag is empty</h2>
         <p class="text-sm text-neutral-500 mb-6">Explore the catalog and select your size to add pairs.</p>
-        <a href="/shop" class="bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full">Shop Footwear</a>
+        <a href="/shop" class="btn-3d bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full">Shop Footwear</a>
     </div>
 {% endif %}
 {% endblock %}
