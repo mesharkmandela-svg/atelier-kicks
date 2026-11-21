@@ -1,262 +1,267 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}ATELIER KICKS — Immersive 3D Footwear{% endblock %}</title>
+    <title>{% block title %}ATELIER KICKS — Architectural Footwear Studio{% endblock %}</title>
+    <meta name="description" content="Curated performance and terrace silhouettes engineered for modern movement. Interactive 3D lookbook and dual-currency checkout.">
+    <meta property="og:title" content="ATELIER KICKS — Architectural Footwear Studio">
+    <meta property="og:description" content="Explore limited-edition running, trail, and court silhouettes in 3D perspective.">
+    <meta property="og:type" content="website">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
         :root {
-            --mx: 50%;
-            --my: 50%;
-            --accent-glow: rgba(163, 230, 53, 0.16);
+            --bg-canvas: #f7f7f5;
+            --surface-card: #ffffff;
+            --ink-primary: #0a0a0a;
+            --ink-muted: #6b6b68;
+            --border-hairline: #e4e4e0;
+            --accent-volt: #a3e635;
         }
 
         body {
-            background-color: #e8e8e6;
-            background-image:
-                radial-gradient(650px circle at var(--mx) var(--my), var(--accent-glow), transparent 60%),
-                linear-gradient(to right, rgba(24, 24, 27, 0.035) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(24, 24, 27, 0.035) 1px, transparent 1px);
-            background-size: 100% 100%, 48px 48px, 48px 48px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-canvas);
+            color: var(--ink-primary);
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .scene-3d {
-            perspective: 1600px;
+        .font-mono-tech {
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        .card-3d {
-            transform-style: preserve-3d;
-            transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
-            box-shadow:
-                0 14px 30px -12px rgba(0, 0, 0, 0.16),
-                0 2px 6px rgba(0, 0, 0, 0.05);
-            position: relative;
-            overflow: hidden;
+        /* Subtle Studio Architectural Grid */
+        .studio-grid-bg {
+            background-image:
+                linear-gradient(to right, rgba(10, 10, 10, 0.035) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(10, 10, 10, 0.035) 1px, transparent 1px);
+            background-size: 48px 48px;
         }
 
-        .card-3d::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            background: radial-gradient(360px circle at var(--card-x, 50%) var(--card-y, 50%), rgba(255,255,255,0.45), transparent 65%);
+        /* Scroll Reveal Motion */
+        .reveal-up {
             opacity: 0;
-            transition: opacity 0.25s ease;
+            transform: translateY(22px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .card-3d:hover::after {
+        .reveal-up.is-visible {
             opacity: 1;
+            transform: translateY(0);
         }
 
-        .card-3d:hover {
-            box-shadow:
-                0 30px 55px -16px rgba(0, 0, 0, 0.28),
-                0 10px 18px -8px rgba(0, 0, 0, 0.12);
+        /* Tactile 3D Product Stage */
+        .tilt-surface {
+            transform-style: preserve-3d;
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+            will-change: transform;
         }
 
-        .shoe-3d-float {
-            transform: translateZ(42px);
-            filter: drop-shadow(0 20px 18px rgba(0, 0, 0, 0.24));
-            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), filter 0.35s ease;
+        .tilt-surface:hover {
+            border-color: #0a0a0a;
+            box-shadow: 0 24px 48px -20px rgba(10, 10, 10, 0.16);
         }
 
-        .group:hover .shoe-3d-float,
-        .card-3d:hover .shoe-3d-float {
-            transform: translateZ(68px) scale(1.08) rotate(-4deg);
-            filter: drop-shadow(0 32px 28px rgba(0, 0, 0, 0.32));
+        .tilt-pop {
+            transform: translateZ(26px);
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .btn-3d {
-            transition: transform 0.14s ease, box-shadow 0.14s ease, background-color 0.2s ease;
-            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.28), 0 10px 18px rgba(0, 0, 0, 0.14);
-        }
-
-        .btn-3d:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 14px 24px rgba(0, 0, 0, 0.18);
-        }
-
-        .btn-3d:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.28), 0 4px 10px rgba(0, 0, 0, 0.12);
-        }
-
-        .modal-3d-panel {
-            transform: perspective(1200px) rotateX(6deg) scale(0.96);
-            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        #qvModal.flex .modal-3d-panel {
-            transform: perspective(1200px) rotateX(0deg) scale(1);
+        /* Magnetic Button Micro-Interaction */
+        .magnetic-btn {
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+            will-change: transform;
         }
     </style>
 </head>
-<body class="text-neutral-900 antialiased selection:bg-neutral-950 selection:text-lime-300">
-    <div class="bg-neutral-950 text-white text-[11px] font-bold tracking-widest uppercase text-center py-2 px-4">
-        Free Express Delivery Over {{ format_price(200) }} &bull; M-PESA &amp; Card Accepted &bull; Code <span class="text-lime-400">KICKS15</span>
+<body class="studio-grid-bg min-h-screen flex flex-col justify-between selection:bg-lime-300 selection:text-neutral-950">
+
+    <!-- TOP STUDIO ANNOUNCEMENT BAR -->
+    <div class="bg-neutral-950 text-neutral-300 text-[11px] font-mono-tech tracking-wider uppercase border-b border-neutral-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-8 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-lime-400 animate-pulse"></span>
+                <span>ATELIER ARCHIVE 2026 // NAIROBI &amp; GLOBAL DISPATCH</span>
+            </div>
+            <div class="hidden sm:flex items-center gap-6 text-neutral-400">
+                <span>COMPLIMENTARY SHIPPING OVER {{ format_price(200) }}</span>
+                <span>M-PESA EXPRESS &amp; CARD</span>
+            </div>
+        </div>
     </div>
 
-    <header class="bg-white/80 backdrop-blur-xl border-b border-neutral-200/80 sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-            <a href="/" class="text-xl font-black tracking-tighter uppercase flex items-center gap-2">
-                <span class="inline-block w-2.5 h-2.5 rounded-full bg-lime-400 ring-4 ring-lime-400/20"></span>
-                <span>Atelier Kicks</span>
+    <!-- MAIN GLASS NAVIGATION -->
+    <header class="sticky top-0 z-50 bg-[#f7f7f5]/85 backdrop-blur-xl border-b border-neutral-200/90">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <!-- Brand Mark -->
+            <a href="/" class="flex items-center gap-2.5 group">
+                <div class="w-8 h-8 rounded-lg bg-neutral-950 text-lime-400 flex items-center justify-center font-black text-sm tracking-tighter group-hover:rotate-6 transition-transform">
+                    AK
+                </div>
+                <div class="leading-none">
+                    <span class="font-black tracking-tight text-base uppercase block">ATELIER KICKS</span>
+                    <span class="font-mono-tech text-[9px] uppercase tracking-widest text-neutral-500 block">FOOTWEAR STUDIO</span>
+                </div>
             </a>
 
-            <nav class="hidden lg:flex items-center gap-6 text-xs font-extrabold uppercase tracking-wider">
-                <a href="/" class="hover:text-neutral-500 transition">Home</a>
-                <a href="/lookbook" class="bg-neutral-950 text-lime-400 px-3 py-1.5 rounded-full hover:bg-neutral-800 transition">3D Lookbook</a>
-                <a href="/shop" class="hover:text-neutral-500 transition">All Footwear</a>
-                <a href="/shop?category=Running" class="hover:text-neutral-500 transition">Running</a>
-                <a href="/shop?category=Lifestyle" class="hover:text-neutral-500 transition">Lifestyle</a>
-                <a href="/orders" class="hover:text-neutral-500 transition">Orders</a>
-                <a href="/admin" class="text-emerald-700 hover:text-emerald-500 transition">Studio Admin</a>
+            <!-- Center Navigation Links -->
+            <nav class="hidden md:flex items-center gap-1 bg-white/90 border border-neutral-200 rounded-full p-1">
+                <a href="/" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path == '/' %}bg-neutral-950 text-white{% else %}text-neutral-600 hover:text-neutral-950{% endif %}">
+                    Overview
+                </a>
+                <a href="/shop" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path.startswith('/shop') or request.path.startswith('/sneaker') %}bg-neutral-950 text-white{% else %}text-neutral-600 hover:text-neutral-950{% endif %}">
+                    Catalog
+                </a>
+                <a href="/lookbook" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 {% if request.path.startswith('/lookbook') %}bg-neutral-950 text-white{% else %}text-neutral-600 hover:text-neutral-950{% endif %}">
+                    <span>3D Lookbook</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-lime-500"></span>
+                </a>
+                <a href="/orders" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path.startswith('/orders') %}bg-neutral-950 text-white{% else %}text-neutral-600 hover:text-neutral-950{% endif %}">
+                    Orders
+                </a>
+                <a href="/admin" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path.startswith('/admin') %}bg-neutral-950 text-white{% else %}text-neutral-600 hover:text-neutral-950{% endif %}">
+                    Studio
+                </a>
             </nav>
 
+            <!-- Right Controls: Currency Switcher, Wishlist, Bag -->
             <div class="flex items-center gap-2">
-                <div class="flex items-center bg-neutral-100 rounded-full p-0.5 border border-neutral-200">
-                    <form method="POST" action="/currency/USD">
-                        <button type="submit" class="px-2.5 py-1 rounded-full text-[11px] font-black transition {% if currency == 'USD' %}bg-neutral-950 text-white{% else %}text-neutral-600{% endif %}">USD</button>
-                    </form>
-                    <form method="POST" action="/currency/KES">
-                        <button type="submit" class="px-2.5 py-1 rounded-full text-[11px] font-black transition {% if currency == 'KES' %}bg-emerald-600 text-white{% else %}text-neutral-600{% endif %}">KES</button>
-                    </form>
-                </div>
+                <form method="POST" action="/currency" class="flex items-center bg-white border border-neutral-200 rounded-full p-0.5 text-[11px] font-mono-tech font-bold">
+                    <input type="hidden" name="next" value="{{ request.full_path }}">
+                    <button type="submit" name="currency" value="KES"
+                            class="px-2.5 py-1 rounded-full transition {% if currency == 'KES' %}bg-neutral-950 text-white{% else %}text-neutral-500 hover:text-neutral-950{% endif %}">
+                        KES
+                    </button>
+                    <button type="submit" name="currency" value="USD"
+                            class="px-2.5 py-1 rounded-full transition {% if currency == 'USD' %}bg-neutral-950 text-white{% else %}text-neutral-500 hover:text-neutral-950{% endif %}">
+                        USD
+                    </button>
+                </form>
 
-                <a href="/wishlist" class="hidden sm:inline-block text-xs font-bold uppercase tracking-wider px-3 py-2 rounded-full hover:bg-neutral-100 transition">
-                    Saved ({{ wishlist_count }})
+                <a href="/wishlist" title="Saved Silhouettes"
+                   class="w-9 h-9 rounded-full bg-white border border-neutral-200 flex items-center justify-center text-xs font-bold hover:border-neutral-950 transition relative">
+                    <span>&hearts;</span>
+                    {% if wishlist_count and wishlist_count > 0 %}
+                        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-neutral-950 text-white text-[9px] font-mono-tech flex items-center justify-center">
+                            {{ wishlist_count }}
+                        </span>
+                    {% endif %}
                 </a>
 
-                <button type="button" onclick="toggleDrawer(true)"
-                        class="btn-3d bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-full hover:bg-neutral-800">
-                    Bag ({{ cart_count }})
-                </button>
+                <a href="/cart"
+                   class="magnetic-btn px-4 py-2 rounded-full bg-lime-400 text-neutral-950 text-xs font-black uppercase tracking-wider hover:bg-lime-300 flex items-center gap-2 border border-lime-500/40">
+                    <span>Bag</span>
+                    <span class="px-1.5 py-0.5 rounded-full bg-neutral-950 text-white font-mono-tech text-[10px]">
+                        {{ cart_count }}
+                    </span>
+                </a>
             </div>
+        </div>
+
+        <!-- Mobile Sub-Nav -->
+        <div class="md:hidden border-t border-neutral-200/80 bg-white/90 px-4 py-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider overflow-x-auto gap-4">
+            <a href="/" class="{% if request.path == '/' %}text-neutral-950 underline underline-offset-4{% else %}text-neutral-500{% endif %}">Overview</a>
+            <a href="/shop" class="{% if request.path.startswith('/shop') %}text-neutral-950 underline underline-offset-4{% else %}text-neutral-500{% endif %}">Catalog</a>
+            <a href="/lookbook" class="{% if request.path.startswith('/lookbook') %}text-neutral-950 underline underline-offset-4{% else %}text-neutral-500{% endif %}">3D Book</a>
+            <a href="/orders" class="{% if request.path.startswith('/orders') %}text-neutral-950 underline underline-offset-4{% else %}text-neutral-500{% endif %}">Orders</a>
+            <a href="/admin" class="{% if request.path.startswith('/admin') %}text-neutral-950 underline underline-offset-4{% else %}text-neutral-500{% endif %}">Studio</a>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 scene-3d">
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Quick-View 3D Modal -->
-    <div id="qvModal" class="fixed inset-0 bg-black/65 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
-        <div class="modal-3d-panel bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 relative shadow-2xl border border-neutral-200">
-            <button type="button" onclick="closeQuickView()" class="absolute top-5 right-5 text-xs font-bold uppercase bg-neutral-100 px-3 py-1.5 rounded-full hover:bg-neutral-200">Close</button>
-            <div id="qvContent" class="text-sm text-neutral-600">Loading silhouette specs...</div>
-        </div>
-    </div>
-
-    <!-- Slide-out 3D Shopping Bag Drawer -->
-    <div id="bagBackdrop" onclick="toggleDrawer(false)" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
-    <aside id="bagDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col border-l border-neutral-200">
-        <div class="p-6 border-b border-neutral-200 flex items-center justify-between">
-            <h2 class="text-lg font-black uppercase tracking-tight">Your Bag ({{ cart_count }})</h2>
-            <button type="button" onclick="toggleDrawer(false)" class="text-xs font-bold uppercase px-3 py-1.5 rounded-full bg-neutral-100 hover:bg-neutral-200">Close</button>
-        </div>
-
-        <div class="flex-1 overflow-y-auto p-6 space-y-4">
-            {% if cart_items %}
-                {% for item in cart_items %}
-                    <div class="flex items-center justify-between gap-4 border-b border-neutral-100 pb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="w-10 h-10 rounded-lg flex-shrink-0 border border-neutral-200 shadow-sm" style="background: {{ item.accent_hex }};"></span>
-                            <div>
-                                <div class="text-sm font-bold">{{ item.name }}</div>
-                                <div class="text-xs text-neutral-500">EU {{ item.size }} &bull; Qty {{ item.qty }}</div>
-                            </div>
-                        </div>
-                        <div class="text-sm font-bold">{{ format_price(item.price * item.qty) }}</div>
+    <!-- STUDIO FOOTER -->
+    <footer class="border-t border-neutral-200 bg-white mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-neutral-200">
+                <div class="md:col-span-5">
+                    <div class="flex items-center gap-2.5 mb-3">
+                        <div class="w-7 h-7 rounded-md bg-neutral-950 text-lime-400 flex items-center justify-center font-black text-xs">AK</div>
+                        <span class="font-black uppercase tracking-tight text-sm">ATELIER KICKS</span>
                     </div>
-                {% endfor %}
-            {% else %}
-                <p class="text-sm text-neutral-500">Your bag is currently empty.</p>
-            {% endif %}
-        </div>
+                    <p class="text-xs text-neutral-500 leading-relaxed max-w-sm">
+                        Independent footwear curation and digital showroom. Engineered with tactile 3D inspection, instant currency conversion, and seamless checkout.
+                    </p>
+                </div>
 
-        <div class="p-6 border-t border-neutral-200 bg-neutral-50 space-y-3">
-            <div class="flex justify-between text-sm font-bold">
-                <span>Subtotal</span>
-                <span>{{ format_price(cart_subtotal) }}</span>
+                <div class="md:col-span-3 space-y-2 text-xs">
+                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-neutral-400 mb-2">Navigation</div>
+                    <div><a href="/shop" class="font-semibold text-neutral-700 hover:text-neutral-950">Full Catalog</a></div>
+                    <div><a href="/lookbook" class="font-semibold text-neutral-700 hover:text-neutral-950">3D Interactive Lookbook</a></div>
+                    <div><a href="/wishlist" class="font-semibold text-neutral-700 hover:text-neutral-950">Saved Wishlist</a></div>
+                    <div><a href="/orders" class="font-semibold text-neutral-700 hover:text-neutral-950">Order Ledger</a></div>
+                </div>
+
+                <div class="md:col-span-4 space-y-2 text-xs">
+                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-neutral-400 mb-2">System Status</div>
+                    <div class="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 font-mono-tech text-[11px] space-y-1">
+                        <div class="flex justify-between">
+                            <span class="text-neutral-500">ACTIVE CURRENCY</span>
+                            <span class="font-bold text-neutral-950">{{ currency }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-neutral-500">SHOWROOM ENGINE</span>
+                            <span class="font-bold text-emerald-600">ONLINE // 3D READY</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <a href="/cart" class="btn-3d block w-full text-center bg-neutral-950 text-white font-bold text-xs uppercase tracking-wider py-3.5 rounded-full hover:bg-neutral-800">
-                Checkout with M-PESA / Card
-            </a>
+
+            <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-mono-tech text-neutral-400">
+                <span>&copy; 2026 ATELIER KICKS STUDIO. ALL RIGHTS RESERVED.</span>
+                <span>CRAFTED FOR PERFORMANCE &amp; PRECISION.</span>
+            </div>
         </div>
-    </aside>
+    </footer>
 
+    <!-- GLOBAL STUDIO INTERACTION ENGINE (Scroll Reveal + 3D Card Tilt + Magnetic Buttons) -->
     <script>
-        // Ambient cursor spotlight
-        document.addEventListener('mousemove', (e) => {
-            document.documentElement.style.setProperty('--mx', `${e.clientX}px`);
-            document.documentElement.style.setProperty('--my', `${e.clientY}px`);
-        });
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. IntersectionObserver Scroll Reveal
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.08 });
 
-        function toggleDrawer(open) {
-            const drawer = document.getElementById('bagDrawer');
-            const backdrop = document.getElementById('bagBackdrop');
-            if (open) {
-                backdrop.classList.remove('hidden');
-                drawer.classList.remove('translate-x-full');
-            } else {
-                backdrop.classList.add('hidden');
-                drawer.classList.add('translate-x-full');
-            }
-        }
+            document.querySelectorAll('.reveal-up').forEach((el) => observer.observe(el));
 
-        async function openQuickView(id) {
-            const modal = document.getElementById('qvModal');
-            const box = document.getElementById('qvContent');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            box.innerHTML = 'Loading silhouette specs...';
-
-            const res = await fetch(`/api/sneakers/${id}`);
-            const shoe = await res.json();
-            const sizes = shoe.sizes.split(',').map(s => `<option value="${s}">EU ${s}</option>`).join('');
-
-            box.innerHTML = `
-                <div class="text-xs font-extrabold uppercase tracking-wider text-neutral-400 mb-1">${shoe.brand} &bull; ${shoe.category}</div>
-                <h3 class="text-2xl font-black text-neutral-950 mb-1">${shoe.name}</h3>
-                <div class="text-lg font-extrabold text-neutral-900 mb-3">${shoe.formatted_price}</div>
-                <p class="text-neutral-600 mb-4 leading-relaxed">${shoe.description}</p>
-                <div class="grid grid-cols-2 gap-2 bg-neutral-100 p-3 rounded-xl text-xs font-bold text-neutral-800 mb-5">
-                    <div>Weight: ${shoe.weight_g}g</div>
-                    <div>Heel Drop: ${shoe.drop_mm}mm</div>
-                </div>
-                <form method="POST" action="/cart/add/${shoe.id}" class="flex gap-2">
-                    <select name="size" class="border border-neutral-300 rounded-full px-4 py-2.5 text-xs font-bold text-neutral-900">${sizes}</select>
-                    <button type="submit" class="btn-3d flex-1 bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider py-3 rounded-full hover:bg-neutral-800">Quick Add to Bag</button>
-                </form>
-                <div class="mt-3 text-center">
-                    <a href="/sneaker/${shoe.id}" class="text-xs font-bold underline text-neutral-700">Open Full Product Page &amp; Reviews &rarr;</a>
-                </div>
-            `;
-        }
-
-        function closeQuickView() {
-            const modal = document.getElementById('qvModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        // Site-wide 3D card tilt + specular highlight
-        document.querySelectorAll('.card-3d').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const px = (e.clientX - rect.left) / rect.width;
-                const py = (e.clientY - rect.top) / rect.height;
-                const rotateY = (px - 0.5) * 14;
-                const rotateX = (0.5 - py) * 12;
-                card.style.setProperty('--card-x', `${(px * 100).toFixed(1)}%`);
-                card.style.setProperty('--card-y', `${(py * 100).toFixed(1)}%`);
-                card.style.transform = `perspective(1100px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-5px)`;
+            // 2. Site-wide 3D Tilt Cards
+            document.querySelectorAll('[data-tilt]').forEach((card) => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width - 0.5;
+                    const y = (e.clientY - rect.top) / rect.height - 0.5;
+                    card.style.transform = `perspective(1000px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg) translateY(-2px)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) translateY(0px)';
+                });
             });
 
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(1100px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+            // 3. Magnetic CTA Buttons
+            document.querySelectorAll('.magnetic-btn').forEach((btn) => {
+                btn.addEventListener('mousemove', (e) => {
+                    const rect = btn.getBoundingClientRect();
+                    const dx = (e.clientX - (rect.left + rect.width / 2)) * 0.18;
+                    const dy = (e.clientY - (rect.top + rect.height / 2)) * 0.18;
+                    btn.style.transform = `translate(${dx}px, ${dy}px)`;
+                });
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.transform = 'translate(0px, 0px)';
+                });
             });
         });
     </script>
