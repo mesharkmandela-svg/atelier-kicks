@@ -8,6 +8,7 @@ import uuid
 from dotenv import load_dotenv
 from flask import (
     Flask,
+    Response,
     flash,
     jsonify,
     redirect,
@@ -36,6 +37,42 @@ USD_TO_KES = float(os.getenv("USD_TO_KES", "129.0"))
 
 def allowed_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def resolve_image_url(image_file: str) -> str:
+    clean = (image_file or "").strip()
+    if clean:
+        full_path = os.path.join(UPLOAD_FOLDER, clean)
+        if os.path.isfile(full_path):
+            return url_for("static", filename="images/" + clean)
+
+        stem = os.path.splitext(clean)[0].lower()
+        try:
+            for fname in os.listdir(UPLOAD_FOLDER):
+                fstem, fext = os.path.splitext(fname)
+                if fext.lower().lstrip(".") in ALLOWED_EXTENSIONS and fstem.lower() == stem:
+                    return url_for("static", filename="images/" + fname)
+        except OSError:
+            pass
+
+    return url_for("fallback_sneaker_svg", label=(stem or "AK")[:8])
+
+
+@app.route("/media/fallback/<label>.svg")
+def fallback_sneaker_svg(label: str):
+    safe_label = "".join(ch for ch in label if ch.isalnum() or ch in (" ", "-")).upper()[:10] or "AK"
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" width="640" height="420">
+      <rect width="640" height="420" rx="28" fill="#14201B"/>
+      <ellipse cx="320" cy="315" rx="210" ry="26" fill="#0A0F0D" opacity="0.7"/>
+      <path d="M125 275 C135 235, 175 210, 215 190 L265 132 C282 122, 302 130, 318 156 C355 196, 425 215, 505 232 C522 238, 528 258, 522 278 L125 284 Z"
+            fill="#F4F1EA" stroke="#FF4D1C" stroke-width="4"/>
+      <path d="M122 278 L525 278 L522 298 L120 298 Z" fill="#FF4D1C"/>
+      <text x="320" y="72" text-anchor="middle" fill="#98A39D" font-family="monospace" font-size="18" letter-spacing="4">ATELIER ARCHIVE // {safe_label}</text>
+    </svg>"""
+    return Response(svg, mimetype="image/svg+xml")
+
+
+app.jinja_env.globals["resolve_image_url"] = resolve_image_url
 
 
 def get_db() -> sqlite3.Connection:
@@ -729,7 +766,6 @@ def admin_delete(sneaker_id: int):
     return redirect(url_for("admin_view"))
 
 
-# --- INSTANT JSON API ENDPOINTS (Command Palette, Quick-View & Slide-Out Bag Drawer) ---
 @app.route("/api/catalog")
 def api_catalog():
     conn = get_db()
@@ -746,7 +782,7 @@ def api_catalog():
                 "badge": r["badge"],
                 "price_raw": r["price"],
                 "price_formatted": format_price(r["price"]),
-                "image_url": url_for("static", filename="images/" + r["image_file"]),
+                "image_url": resolve_image_url(r["image_file"]),
                 "sizes": [s.strip() for s in r["sizes"].split(",") if s.strip()],
                 "description": r["description"],
                 "stock": r["stock"],
@@ -769,7 +805,7 @@ def api_cart_state():
                 "brand": s["brand"],
                 "size": it["size"],
                 "qty": it["qty"],
-                "image_url": url_for("static", filename="images/" + s["image_file"]),
+                "image_url": resolve_image_url(s["image_file"]),
                 "line_total_formatted": format_price(it["line_total"]),
             }
         )
