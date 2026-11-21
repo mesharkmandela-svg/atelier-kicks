@@ -3,6 +3,7 @@ from datetime import datetime
 import json
 import os
 import re
+import shutil
 import sqlite3
 import uuid
 
@@ -15,6 +16,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_from_directory,
     session,
     url_for,
 )
@@ -27,17 +29,34 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "atelier-kicks-studio-secret-2026")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "store.db")
-UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "images")
+DATA_DIR = os.getenv("DATA_DIR", "").strip() or BASE_DIR
+os.makedirs(DATA_DIR, exist_ok=True)
+
+DB_PATH = os.path.join(DATA_DIR, "store.db")
+STATIC_IMAGES_DIR = os.path.join(BASE_DIR, "static", "images")
+os.makedirs(STATIC_IMAGES_DIR, exist_ok=True)
+
+UPLOAD_FOLDER = (
+    os.path.join(DATA_DIR, "uploads")
+    if DATA_DIR != BASE_DIR
+    else STATIC_IMAGES_DIR
+)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "gif"}
 USD_TO_KES = float(os.getenv("USD_TO_KES", "129.0"))
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "").strip()
 
 
 def allowed_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def is_admin_authenticated() -> bool:
+    if not ADMIN_PASSWORD:
+        return True
+    return bool(session.get("admin_authed"))
 
 
 def _norm(text: str) -> str:
@@ -71,19 +90,25 @@ def compute_telemetry(category: str) -> dict:
     return {"cushion": 78, "response": 76, "traction": 85}
 
 
+@app.route("/media/uploads/<path:filename>")
+def uploaded_media(filename: str):
+    return send_from_directory(UPLOAD_FOLDER, filename)
+
+
 def resolve_image_url(image_file: str) -> str:
     clean = (image_file or "").strip()
     stem = os.path.splitext(clean)[0] if clean else "ak"
 
     if clean:
-        full_path = os.path.join(UPLOAD_FOLDER, clean)
-        if os.path.isfile(full_path):
+        if UPLOAD_FOLDER != STATIC_IMAGES_DIR and os.path.isfile(os.path.join(UPLOAD_FOLDER, clean)):
+            return url_for("uploaded_media", filename=clean)
+        if os.path.isfile(os.path.join(STATIC_IMAGES_DIR, clean)):
             return url_for("static", filename="images/" + clean)
 
     try:
         available = [
             f
-            for f in os.listdir(UPLOAD_FOLDER)
+            for f in os.listdir(STATIC_IMAGES_DIR)
             if os.path.splitext(f)[1].lower().lstrip(".") in ALLOWED_EXTENSIONS
         ]
     except OSError:
@@ -307,6 +332,11 @@ DEFAULT_SNEAKERS = [
 
 
 def init_db() -> None:
+    # Migrate existing local store.db if DATA_DIR was newly configured
+    legacy_db = os.path.join(BASE_DIR, "store.db")
+    if DB_PATH != legacy_db and not os.path.exists(DB_PATH) and os.path.exists(legacy_db):
+        shutil.copy2(legacy_db, DB_PATH)
+
     conn = get_db()
     cur = conn.cursor()
 
@@ -538,7 +568,6 @@ def sneaker_detail(sneaker_id: int):
         flash("Silhouette not found in archive.")
         return redirect(url_for("shop"))
 
-    # Record Recently Viewed rotation history
     rv = [int(x) for x in session.get("recently_viewed", []) if int(x) != sneaker_id]
     rv.insert(0, sneaker_id)
     session["recently_viewed"] = rv[:6]
@@ -797,17 +826,58 @@ def orders_view():
     return render_template("orders.html", orders=rows)
 
 
+# --- STUDIO ADMIN CONSOLE & PRODUCTION READINESS ---
+@app.route("/admin/login", methods=["POST"])
+def admin_login():
+    pw = (request.form.get("password") or "").strip()
+    if not ADMIN_PASSWORD or pw == ADMIN_PASSWORD:
+        session["admin_authed"] = True
+        session.modified = True
+        flash("Studio Admin unlocked.")
+    else:
+        flash("Invalid Studio Admin passcode.")
+    return redirect(url_for("admin_view"))
+
+
+@app.route("/admin/logout", methods=["POST"])
+def admin_logout():
+    session.pop("admin_authed", None)
+    session.modified = True
+    flash("Studio Admin locked.")
+    return redirect(url_for("admin_view"))
+
+
 @app.route("/admin")
 def admin_view():
+    if not is_admin_authenticated():
+        return render_template("admin.html", locked=True, sneakers=[], orders_count=0)
+
     conn = get_db()
     sneakers = [dict(r) for r in conn.execute("SELECT * FROM sneakers ORDER BY id DESC").fetchall()]
     orders_count = conn.execute("SELECT COUNT(*) FROM orders").fetchone()[0]
+    total_units = sum(int(s.get("stock") or 0) for s in sneakers)
+    catalog_value_usd = sum(float(s.get("price") or 0) * int(s.get("stock") or 0) for s in sneakers)
     conn.close()
-    return render_template("admin.html", sneakers=sneakers, orders_count=orders_count)
+
+    storage_mode = "Persistent Disk" if DATA_DIR != BASE_DIR else "Local Ephemeral Disk"
+    return render_template(
+        "admin.html",
+        locked=False,
+        sneakers=sneakers,
+        orders_count=orders_count,
+        total_units=total_units,
+        catalog_value_usd=catalog_value_usd,
+        storage_mode=storage_mode,
+        data_dir=DATA_DIR,
+        admin_protected=bool(ADMIN_PASSWORD),
+    )
 
 
 @app.route("/admin/add", methods=["POST"])
 def admin_add():
+    if not is_admin_authenticated():
+        return redirect(url_for("admin_view"))
+
     name = (request.form.get("name") or "").strip()
     brand = (request.form.get("brand") or "Atelier").strip()
     category = (request.form.get("category") or "Lifestyle").strip()
@@ -852,14 +922,113 @@ def admin_add():
     return redirect(url_for("admin_view"))
 
 
+@app.route("/admin/edit/<int:sneaker_id>", methods=["POST"])
+def admin_edit(sneaker_id: int):
+    if not is_admin_authenticated():
+        return redirect(url_for("admin_view"))
+
+    price = max(1.0, float(request.form.get("price") or 150.0))
+    stock = max(0, int(request.form.get("stock") or 0))
+    badge = (request.form.get("badge") or "ARCHIVE").strip()
+    sizes = (request.form.get("sizes") or "40,41,42,43,44").strip()
+    featured = 1 if request.form.get("featured") else 0
+
+    conn = get_db()
+    conn.execute(
+        """
+        UPDATE sneakers
+        SET price = ?, stock = ?, badge = ?, sizes = ?, featured = ?
+        WHERE id = ?
+        """,
+        (price, stock, badge, sizes, featured, sneaker_id),
+    )
+    conn.commit()
+    conn.close()
+    flash(f"Updated silhouette #{sneaker_id:02d}.")
+    return redirect(url_for("admin_view"))
+
+
 @app.route("/admin/delete/<int:sneaker_id>", methods=["POST"])
 def admin_delete(sneaker_id: int):
+    if not is_admin_authenticated():
+        return redirect(url_for("admin_view"))
+
     conn = get_db()
     conn.execute("DELETE FROM sneakers WHERE id = ?", (sneaker_id,))
     conn.commit()
     conn.close()
     flash("Silhouette removed from catalog.")
     return redirect(url_for("admin_view"))
+
+
+@app.route("/admin/export")
+def admin_export():
+    if not is_admin_authenticated():
+        return redirect(url_for("admin_view"))
+
+    conn = get_db()
+    sneakers = [dict(r) for r in conn.execute("SELECT * FROM sneakers ORDER BY id ASC").fetchall()]
+    conn.close()
+    payload = json.dumps({"exported_at": datetime.utcnow().isoformat(), "sneakers": sneakers}, indent=2)
+    return Response(
+        payload,
+        mimetype="application/json",
+        headers={"Content-Disposition": "attachment; filename=atelier-kicks-catalog.json"},
+    )
+
+
+@app.route("/admin/import", methods=["POST"])
+def admin_import():
+    if not is_admin_authenticated():
+        return redirect(url_for("admin_view"))
+
+    file = request.files.get("backup_file")
+    if not file or not file.filename:
+        flash("Please choose a valid catalog JSON backup file.")
+        return redirect(url_for("admin_view"))
+
+    try:
+        raw = json.loads(file.read().decode("utf-8"))
+        items = raw.get("sneakers", raw) if isinstance(raw, dict) else raw
+        if not isinstance(items, list) or not items:
+            raise ValueError("Empty or invalid catalog structure")
+
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM sneakers")
+        for s in items:
+            cur.execute(
+                """
+                INSERT INTO sneakers
+                    (name, brand, category, price, badge, accent_hex, image_file, sizes, stock, description, featured)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    s["name"],
+                    s.get("brand", "Atelier"),
+                    s.get("category", "Lifestyle"),
+                    float(s.get("price", 150.0)),
+                    s.get("badge", "ARCHIVE"),
+                    s.get("accent_hex", "#FF4D1C"),
+                    s.get("image_file", "samba.jpg"),
+                    s.get("sizes", "40,41,42,43,44"),
+                    int(s.get("stock", 10)),
+                    s.get("description", ""),
+                    int(s.get("featured", 0)),
+                ),
+            )
+        conn.commit()
+        conn.close()
+        flash(f"Restored {len(items)} silhouettes from JSON backup.")
+    except Exception as exc:
+        flash(f"Backup restore failed: {exc}")
+
+    return redirect(url_for("admin_view"))
+
+
+@app.route("/health")
+def health_check():
+    return jsonify({"status": "ok", "storage": "persistent" if DATA_DIR != BASE_DIR else "local"})
 
 
 @app.route("/api/catalog")

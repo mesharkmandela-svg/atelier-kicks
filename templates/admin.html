@@ -3,38 +3,95 @@
 {% block title %}Studio Admin — ATELIER KICKS{% endblock %}
 
 {% block content %}
+{% if locked %}
+<div class="max-w-md mx-auto my-12 rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-8 space-y-5 shadow-xl">
+    <div>
+        <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C] font-bold">PROTECTED WORKSPACE</div>
+        <h1 class="text-2xl font-black uppercase tracking-tight text-[#0D1512]">Studio Admin Gate</h1>
+        <p class="text-xs text-[#5C6661] mt-1">Enter your <code class="font-mono-tech">ADMIN_PASSWORD</code> environment passcode to manage catalog inventory.</p>
+    </div>
+    <form method="POST" action="/admin/login" class="space-y-3">
+        <input type="password" name="password" required placeholder="Studio Passcode"
+               class="w-full px-4 py-3 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512] focus:outline-none focus:border-[#FF4D1C]">
+        <button type="submit" class="w-full py-3 rounded-full bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider hover:bg-[#E63E10] transition">
+            Unlock Console &rarr;
+        </button>
+    </form>
+</div>
+{% else %}
 <div class="reveal-up flex flex-wrap items-end justify-between gap-4 mb-8">
     <div>
-        <div class="font-mono-tech text-[11px] uppercase tracking-widest text-[#FF4D1C] font-bold">INVENTORY &amp; DROPS CONTROL</div>
-        <h1 class="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#0D1512]">Studio Console</h1>
+        <div class="font-mono-tech text-[11px] uppercase tracking-widest text-[#5C6661]">STUDIO CONSOLE &bull; INVENTORY &amp; TELEMETRY</div>
+        <h1 class="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#0D1512]">Admin Inventory</h1>
     </div>
-    <div class="font-mono-tech text-xs px-4 py-2 rounded-full bg-[#0D1512] text-[#F4F1EA]">
-        {{ sneakers|length }} MODELS &bull; {{ orders_count }} ORDERS
+
+    <div class="flex flex-wrap items-center gap-2">
+        <a href="/admin/export"
+           class="px-4 py-2 rounded-full border border-[#DFDBD0] bg-[#FCFBF8] font-mono-tech text-xs font-bold uppercase text-[#0D1512] hover:border-[#FF4D1C] transition">
+            Export JSON &darr;
+        </a>
+        {% if admin_protected %}
+        <form method="POST" action="/admin/logout">
+            <button type="submit" class="px-4 py-2 rounded-full bg-[#0D1512] text-[#F4F1EA] font-mono-tech text-xs font-bold uppercase hover:bg-[#FF4D1C] transition">
+                Lock Console
+            </button>
+        </form>
+        {% endif %}
     </div>
 </div>
 
-<div class="reveal-up grid grid-cols-1 lg:grid-cols-12 gap-8">
-    <div class="lg:col-span-5">
-        <div class="rounded-3xl bg-[#0D1512] text-[#F4F1EA] border border-[#1E2E28] p-6 sm:p-8">
-            <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C] mb-1">NEW ARCHIVE RELEASE</div>
-            <h2 class="text-2xl font-black uppercase tracking-tight mb-5">Publish Silhouette</h2>
+<!-- PRODUCTION READINESS & INVENTORY TELEMETRY CARDS -->
+<div class="reveal-up grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-5">
+        <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">ACTIVE SILHOUETTES</div>
+        <div class="font-mono-tech text-2xl font-extrabold text-[#0D1512] mt-1">{{ sneakers|length }}</div>
+        <div class="font-mono-tech text-[10px] text-[#5C6661] mt-1">{{ total_units }} total pairs in stock</div>
+    </div>
 
-            <form method="POST" action="/admin/add" enctype="multipart/form-data" class="space-y-3.5 text-xs">
+    <div class="rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-5">
+        <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">INVENTORY VALUATION</div>
+        <div class="font-mono-tech text-2xl font-extrabold text-[#FF4D1C] mt-1">{{ format_price(catalog_value_usd) }}</div>
+        <div class="font-mono-tech text-[10px] text-[#5C6661] mt-1">At current retail pricing</div>
+    </div>
+
+    <div class="rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-5">
+        <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">LOGGED ORDERS</div>
+        <div class="font-mono-tech text-2xl font-extrabold text-[#0D1512] mt-1">{{ orders_count }}</div>
+        <a href="/orders" class="inline-block font-mono-tech text-[10px] font-bold text-[#FF4D1C] mt-1 hover:underline">Inspect Ledger &rarr;</a>
+    </div>
+
+    <div class="rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-5">
+        <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">STORAGE &amp; SECURITY</div>
+        <div class="font-mono-tech text-sm font-extrabold text-[#0D1512] mt-1.5">{{ storage_mode }}</div>
+        <div class="font-mono-tech text-[10px] text-[#5C6661] mt-1 truncate" title="{{ data_dir }}">
+            {% if admin_protected %}Passcode Lock: ON{% else %}Passcode Lock: Open{% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- LEFT COLUMN: PUBLISH NEW SILHOUETTE + JSON BACKUP RESTORE -->
+    <div class="lg:col-span-5 space-y-6">
+        <div class="rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-6 sm:p-8">
+            <div class="font-mono-tech text-[11px] uppercase tracking-widest text-[#FF4D1C] font-bold mb-1">NEW ARCHIVE ENTRY</div>
+            <h2 class="text-2xl font-black uppercase tracking-tight text-[#0D1512] mb-5">Add Sneaker</h2>
+
+            <form method="POST" action="/admin/add" enctype="multipart/form-data" class="space-y-4">
                 <div>
-                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Model Name</label>
-                    <input type="text" name="name" required placeholder="e.g. Nike Pegasus Plus"
-                           class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] text-[#F4F1EA]">
+                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661] mb-1">Model Name *</label>
+                    <input type="text" name="name" required placeholder="e.g. Zoom Vomero 5 Roam"
+                           class="w-full px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-medium text-[#0D1512]">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Brand</label>
+                        <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661] mb-1">Brand Style *</label>
                         <input type="text" name="brand" required placeholder="Nike-Style"
-                               class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] text-[#F4F1EA]">
+                               class="w-full px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-medium text-[#0D1512]">
                     </div>
                     <div>
-                        <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Category</label>
-                        <select name="category" class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] text-[#F4F1EA]">
+                        <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661] mb-1">Discipline *</label>
+                        <select name="category" class="w-full px-3 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-bold text-[#0D1512]">
                             <option value="Running">Running</option>
                             <option value="Lifestyle">Lifestyle</option>
                             <option value="Trail">Trail</option>
@@ -45,68 +102,139 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Base Price (USD)</label>
-                        <input type="number" step="0.01" name="price" required placeholder="190"
-                               class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] font-mono-tech text-[#F4F1EA]">
+                        <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661] mb-1">Base Price (USD) *</label>
+                        <input type="number" step="0.01" name="price" required value="165"
+                               class="w-full px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
                     </div>
                     <div>
-                        <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Stock Units</label>
-                        <input type="number" name="stock" value="10" required
-                               class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] font-mono-tech text-[#F4F1EA]">
+                        <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661] mb-1">Stock Units *</label>
+                        <input type="number" name="stock" required value="10"
+                               class="w-full px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Badge Tag</label>
+                        <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661] mb-1">Edition Badge</label>
                         <input type="text" name="badge" value="NEW DROP"
-                               class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] text-[#F4F1EA]">
+                               class="w-full px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
                     </div>
                     <div>
-                        <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">EU Sizes</label>
+                        <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661] mb-1">EU Sizes</label>
                         <input type="text" name="sizes" value="40,41,42,43,44"
-                               class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] font-mono-tech text-[#F4F1EA]">
+                               class="w-full px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Product Image</label>
+                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661] mb-1">Upload Image (PNG / JPG / WEBP)</label>
                     <input type="file" name="image" accept="image/*"
-                           class="w-full px-3 py-2 rounded-xl bg-[#14201B] border border-[#243830] text-[#9BA6A0]">
+                           class="w-full text-xs text-[#5C6661] file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#0D1512] file:text-[#F4F1EA] hover:file:bg-[#FF4D1C]">
                 </div>
 
                 <div>
-                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Technical Description</label>
-                    <textarea name="description" rows="2" required placeholder="Midsole compound, upper mesh, and ride profile..."
-                              class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] text-[#F4F1EA]"></textarea>
+                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661] mb-1">Technical Description</label>
+                    <textarea name="description" rows="2" required placeholder="Midsole compound, upper construction, traction..."
+                              class="w-full px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-medium text-[#0D1512]"></textarea>
                 </div>
 
-                <button type="submit" class="blaze-glow w-full py-3.5 rounded-full bg-[#FF4D1C] text-white font-black uppercase tracking-wider hover:bg-[#E63E10] transition">
-                    Add to Showroom +
+                <label class="flex items-center gap-2 text-xs font-bold text-[#0D1512] cursor-pointer">
+                    <input type="checkbox" name="featured" value="1" checked class="accent-[#FF4D1C]">
+                    <span>Feature on Home Showroom Grid</span>
+                </label>
+
+                <button type="submit" class="w-full py-3.5 rounded-full bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider hover:bg-[#E63E10] transition">
+                    Publish to Catalog &rarr;
+                </button>
+            </form>
+        </div>
+
+        <!-- BACKUP & RESTORE CARD -->
+        <div class="rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-6 space-y-3">
+            <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661] font-bold">DISASTER RECOVERY // SNAPSHOTS</div>
+            <h3 class="text-lg font-black uppercase tracking-tight text-[#0D1512]">Catalog JSON Restore</h3>
+            <p class="text-xs text-[#5C6661] leading-relaxed">
+                Export your catalog JSON before major redeploys or restore a saved snapshot anytime. For persistent Render storage, mount a disk and set <code class="font-mono-tech">DATA_DIR=/var/data</code>.
+            </p>
+            <form method="POST" action="/admin/import" enctype="multipart/form-data" class="flex flex-col sm:flex-row gap-2 pt-1">
+                <input type="file" name="backup_file" accept=".json" required
+                       class="flex-1 text-xs text-[#5C6661] file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[11px] file:font-bold file:bg-[#0D1512] file:text-[#F4F1EA]">
+                <button type="submit" class="px-4 py-2 rounded-full bg-[#0D1512] text-[#F4F1EA] font-mono-tech text-xs font-bold uppercase hover:bg-[#FF4D1C] transition">
+                    Restore
                 </button>
             </form>
         </div>
     </div>
 
-    <div class="lg:col-span-7 space-y-3">
-        {% for shoe in sneakers %}
-        <div class="rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-4 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-4 min-w-0">
-                <img src="{{ resolve_image_url(shoe.image_file) }}" alt="{{ shoe.name }}" class="w-14 h-14 rounded-xl bg-[#F4F1EA] p-2 object-contain shrink-0">
-                <div class="min-w-0">
-                    <div class="font-mono-tech text-[10px] uppercase text-[#5C6661]">{{ shoe.brand }} &bull; {{ shoe.category }}</div>
-                    <div class="text-sm font-black text-[#0D1512] truncate">{{ shoe.name }}</div>
-                    <div class="font-mono-tech text-xs text-[#FF4D1C] font-bold">{{ format_price(shoe.price) }} &bull; {{ shoe.stock }} left</div>
-                </div>
-            </div>
-
-            <form method="POST" action="/admin/delete/{{ shoe.id }}">
-                <button type="submit" class="px-3.5 py-2 rounded-full border border-[#DFDBD0] font-mono-tech text-[10px] font-bold uppercase text-[#5C6661] hover:border-[#FF4D1C] hover:text-[#FF4D1C] transition">
-                    Delete
-                </button>
-            </form>
+    <!-- RIGHT COLUMN: LIVE INLINE-EDITABLE CATALOG MANAGER -->
+    <div class="lg:col-span-7 space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-black uppercase tracking-tight text-[#0D1512]">Live Catalog ({{ sneakers|length }})</h2>
+            <span class="font-mono-tech text-[10px] uppercase text-[#5C6661]">INLINE EDIT PRICE, STOCK &amp; BADGE</span>
         </div>
-        {% endfor %}
+
+        <div class="space-y-3">
+            {% for shoe in sneakers %}
+            <div class="rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-4 space-y-3">
+                <div class="flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <img src="{{ resolve_image_url(shoe.image_file) }}" alt="{{ shoe.name }}" class="w-14 h-14 rounded-xl bg-[#F4F1EA] p-1.5 object-contain shrink-0">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <a href="/sneaker/{{ shoe.id }}" class="text-sm font-black text-[#0D1512] hover:text-[#FF4D1C] truncate">{{ shoe.name }}</a>
+                                {% if shoe.featured %}
+                                <span class="font-mono-tech text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#FF4D1C]/15 text-[#FF4D1C]">Featured</span>
+                                {% endif %}
+                            </div>
+                            <div class="font-mono-tech text-[10px] text-[#5C6661] uppercase mt-0.5">
+                                {{ shoe.brand }} &bull; {{ shoe.category }} &bull; Display: {{ format_price(shoe.price) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="/admin/delete/{{ shoe.id }}" onsubmit="return confirm('Delete {{ shoe.name }}?');">
+                        <button type="submit" class="px-3 py-1.5 rounded-full border border-[#DFDBD0] font-mono-tech text-[10px] font-bold uppercase text-[#5C6661] hover:border-[#FF4D1C] hover:text-[#FF4D1C] transition">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+
+                <!-- INLINE EDIT FORM -->
+                <form method="POST" action="/admin/edit/{{ shoe.id }}" class="pt-3 border-t border-[#ECE8DE] grid grid-cols-2 sm:grid-cols-12 gap-2 items-end">
+                    <div class="sm:col-span-2">
+                        <label class="block font-mono-tech text-[9px] uppercase text-[#5C6661] mb-0.5">USD Price</label>
+                        <input type="number" step="0.01" name="price" value="{{ shoe.price }}"
+                               class="w-full px-2.5 py-1.5 rounded-lg border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block font-mono-tech text-[9px] uppercase text-[#5C6661] mb-0.5">Stock</label>
+                        <input type="number" name="stock" value="{{ shoe.stock }}"
+                               class="w-full px-2.5 py-1.5 rounded-lg border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label class="block font-mono-tech text-[9px] uppercase text-[#5C6661] mb-0.5">Badge</label>
+                        <input type="text" name="badge" value="{{ shoe.badge }}"
+                               class="w-full px-2.5 py-1.5 rounded-lg border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label class="block font-mono-tech text-[9px] uppercase text-[#5C6661] mb-0.5">EU Sizes</label>
+                        <input type="text" name="sizes" value="{{ shoe.sizes }}"
+                               class="w-full px-2.5 py-1.5 rounded-lg border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
+                    </div>
+                    <div class="col-span-2 sm:col-span-2 flex items-center justify-between gap-2">
+                        <label class="flex items-center gap-1 font-mono-tech text-[10px] font-bold text-[#0D1512] cursor-pointer" title="Feature on Home">
+                            <input type="checkbox" name="featured" value="1" {% if shoe.featured %}checked{% endif %} class="accent-[#FF4D1C]">
+                            <span>Feat</span>
+                        </label>
+                        <button type="submit" class="px-3 py-1.5 rounded-lg bg-[#0D1512] text-[#F4F1EA] font-mono-tech text-[10px] font-bold uppercase hover:bg-[#FF4D1C] hover:text-white transition">
+                            Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
+{% endif %}
 {% endblock %}
