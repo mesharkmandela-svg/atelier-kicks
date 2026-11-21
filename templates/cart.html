@@ -1,141 +1,144 @@
 {% extends "base.html" %}
 
-{% block title %}Your Bag & Checkout — ATELIER KICKS{% endblock %}
+{% block title %}Bag & Checkout — ATELIER KICKS{% endblock %}
 
 {% block content %}
-<h1 class="text-3xl font-black tracking-tight uppercase mb-6">Your Bag</h1>
-
-{% if mpesa_error %}
-    <div class="bg-red-50 border-l-4 border-red-600 text-red-900 rounded-2xl p-5 mb-6 text-sm">
-        <div class="font-black uppercase text-xs mb-1">M-PESA STK Push Error</div>
-        <p>{{ mpesa_error }}</p>
+<div class="reveal-up flex flex-wrap items-end justify-between gap-4 mb-8">
+    <div>
+        <div class="font-mono-tech text-[11px] uppercase tracking-widest text-[#5C6661]">DISPATCH BAG // {{ items|length }} LINE ITEMS</div>
+        <h1 class="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#0D1512]">Shopping Bag</h1>
     </div>
-{% endif %}
+    <a href="/shop" class="font-mono-tech text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">
+        &larr; Continue Browsing
+    </a>
+</div>
 
-{% if confirmed_order %}
-    <div class="card-3d bg-white border-l-4 border-emerald-600 rounded-2xl p-6 sm:p-8 shadow-sm mb-8">
-        <h2 class="text-xl font-black uppercase mb-2">Order #{{ confirmed_order.id }} &mdash; {{ confirmed_order.status }}</h2>
-        <p class="text-sm text-neutral-700 mb-2">
-            Thank you, <strong>{{ confirmed_order.customer_name }}</strong>. Total: <strong>{{ confirmed_order.total_formatted }}</strong> via <strong>{{ confirmed_order.payment_method }}</strong>
-            {% if confirmed_order.mpesa_phone %}({{ confirmed_order.mpesa_phone }}){% endif %}.
-        </p>
-        {% if confirmed_order.payment_method == 'M-PESA Express' %}
-            <p class="text-xs text-emerald-700 font-bold mb-2">Check your phone for the Safaricom M-PESA STK prompt and enter your PIN. Order status updates automatically on /orders once Safaricom confirms.</p>
-        {% endif %}
-        <p class="text-xs text-neutral-500 mb-5">Shipping Destination: {{ confirmed_order.city }}</p>
-        <div class="flex flex-wrap gap-3">
-            <a href="/orders" class="btn-3d bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-full">Check Live Order Status</a>
-            <a href="/shop" class="border border-neutral-300 text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-full">Continue Shopping</a>
-        </div>
-    </div>
-{% endif %}
+{% if items %}
+<div class="reveal-up grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- Left Items List -->
+    <div class="lg:col-span-7 space-y-4">
+        {% for item in items %}
+        <div class="rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-5 flex items-center gap-4 sm:gap-6">
+            <a href="/sneaker/{{ item.sneaker.id }}" class="w-24 h-24 rounded-xl bg-[#F4F1EA] border border-[#E7E3D8] p-2.5 flex items-center justify-center shrink-0">
+                <img src="{{ url_for('static', filename='images/' + item.sneaker.image_file) }}" alt="{{ item.sneaker.name }}" class="max-h-full max-w-full object-contain">
+            </a>
 
-{% if cart %}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <div class="lg:col-span-2 bg-white rounded-2xl border border-neutral-200 p-6 divide-y divide-neutral-100">
-            {% for item in cart %}
-                <div class="py-4 first:pt-0 last:pb-0 flex flex-wrap items-center justify-between gap-4">
-                    <div class="flex items-center gap-4">
-                        <span class="w-14 h-14 rounded-xl border border-neutral-200 flex-shrink-0" style="background: {{ item.accent_hex }};"></span>
-                        <div>
-                            <div class="text-xs font-bold text-neutral-500 uppercase">{{ item.brand }}</div>
-                            <div class="text-base font-extrabold">{{ item.name }}</div>
-                            <div class="text-xs text-neutral-500">{{ item.colorway }} &bull; Size EU {{ item.size }}</div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-3">
-                        <form method="POST" action="/cart/update/{{ loop.index0 }}/dec">
-                            <button type="submit" class="w-8 h-8 rounded-full border border-neutral-300 font-bold hover:border-neutral-950">-</button>
-                        </form>
-                        <span class="text-sm font-bold w-5 text-center">{{ item.qty }}</span>
-                        <form method="POST" action="/cart/update/{{ loop.index0 }}/inc">
-                            <button type="submit" class="w-8 h-8 rounded-full border border-neutral-300 font-bold hover:border-neutral-950">+</button>
-                        </form>
-                        <span class="text-sm font-black w-28 text-right">{{ format_price(item.price * item.qty) }}</span>
-                        <form method="POST" action="/cart/update/{{ loop.index0 }}/remove">
-                            <button type="submit" class="text-xs font-bold text-neutral-400 hover:text-red-600 ml-2">Remove</button>
-                        </form>
-                    </div>
+            <div class="flex-1 min-w-0">
+                <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">
+                    {{ item.sneaker.brand }} &bull; <span class="text-[#0D1512] font-bold">EU {{ item.size }}</span>
                 </div>
-            {% endfor %}
-        </div>
-
-        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
-            <h2 class="text-lg font-black uppercase mb-4">Checkout Summary</h2>
-
-            <form method="POST" action="/cart" class="flex gap-2 mb-5">
-                <input type="hidden" name="form_type" value="promo">
-                <input type="text" name="promo_code" value="{{ promo_code }}" placeholder="Promo (KICKS15 / VIP25)" class="flex-1 px-3.5 py-2 rounded-full border border-neutral-300 text-xs font-bold uppercase">
-                <button type="submit" class="bg-neutral-900 text-white text-xs font-bold uppercase px-4 py-2 rounded-full">Apply</button>
-            </form>
-
-            <div class="space-y-2 text-sm mb-4">
-                <div class="flex justify-between"><span class="text-neutral-600">Subtotal</span><strong>{{ format_price(subtotal) }}</strong></div>
-                {% if discount_amt > 0 %}
-                    <div class="flex justify-between text-emerald-700"><span>Discount ({{ promo_code }})</span><strong>-{{ format_price(discount_amt) }}</strong></div>
-                {% endif %}
-                <div class="flex justify-between"><span class="text-neutral-600">Delivery</span><strong>{{ "FREE" if shipping == 0 else format_price(shipping) }}</strong></div>
-                <div class="border-t border-neutral-200 pt-3 flex justify-between text-base font-black">
-                    <span>Total</span><span>{{ format_price(total) }}</span>
+                <a href="/sneaker/{{ item.sneaker.id }}" class="text-base sm:text-lg font-black text-[#0D1512] hover:text-[#FF4D1C] truncate block">
+                    {{ item.sneaker.name }}
+                </a>
+                <div class="font-mono-tech text-xs font-bold text-[#5C6661] mt-1">
+                    {{ format_price(item.sneaker.price) }} &times; {{ item.qty }}
                 </div>
             </div>
 
-            <form method="POST" action="/cart" class="space-y-3 mt-6">
-                <input type="hidden" name="form_type" value="checkout">
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Full Name</label>
-                    <input type="text" name="customer_name" required class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm">
+            <div class="text-right space-y-2">
+                <div class="font-mono-tech text-sm sm:text-base font-black text-[#0D1512]">{{ format_price(item.line_total) }}</div>
+                <form method="POST" action="/cart/remove/{{ item.key }}">
+                    <button type="submit" class="font-mono-tech text-[10px] font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C]">
+                        Remove &times;
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Right Checkout Monolith -->
+    <div class="lg:col-span-5">
+        <div class="rounded-3xl bg-[#0D1512] text-[#F4F1EA] border border-[#1E2E28] p-6 sm:p-8 space-y-6">
+            <div>
+                <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C] font-bold">EXPRESS SETTLEMENT</div>
+                <h2 class="text-2xl font-black uppercase tracking-tight">Order Summary</h2>
+            </div>
+
+            <div class="space-y-2.5 font-mono-tech text-xs border-y border-[#1E2E28] py-4">
+                <div class="flex justify-between text-[#9BA6A0]">
+                    <span>SUBTOTAL</span>
+                    <span class="text-[#F4F1EA]">{{ format_price(subtotal) }}</span>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Email</label>
-                    <input type="email" name="email" required class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm">
+                <div class="flex justify-between text-[#9BA6A0]">
+                    <span>DISPATCH SHIPPING</span>
+                    <span class="text-[#F4F1EA]">{{ 'FREE' if shipping == 0 else format_price(shipping) }}</span>
                 </div>
+                <div class="flex justify-between text-base font-black pt-2 border-t border-[#1E2E28]">
+                    <span>TOTAL ({{ currency }})</span>
+                    <span class="text-[#FF4D1C]">{{ format_price(total) }}</span>
+                </div>
+            </div>
+
+            <form method="POST" action="/checkout" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Delivery Location (e.g. Nairobi / Juja)</label>
-                    <input type="text" name="city" required class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm">
+                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Full Name</label>
+                    <input type="text" name="customer_name" required placeholder="Mandela Kimeu"
+                           class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] text-xs text-[#F4F1EA] focus:outline-none focus:border-[#FF4D1C]">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Payment Method</label>
-                    <select name="payment_method" id="payMethod" onchange="toggleMpesaField()" class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm font-bold">
-                        <option value="M-PESA Express">M-PESA Express (Real STK Push)</option>
-                        <option value="Visa / Mastercard">Visa / Mastercard</option>
-                    </select>
+                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Email Address</label>
+                    <input type="email" name="customer_email" required placeholder="you@example.com"
+                           class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] text-xs text-[#F4F1EA] focus:outline-none focus:border-[#FF4D1C]">
                 </div>
 
-                <div id="mpesaBox" class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
-                    <label class="block text-xs font-bold uppercase text-emerald-900 mb-1">Safaricom M-PESA Number</label>
-                    <input type="tel" name="mpesa_phone" id="mpesaPhone" placeholder="07XX XXX XXX or 2547XX XXX XXX" required class="w-full px-3.5 py-2 rounded-lg border border-emerald-300 bg-white text-sm font-mono">
-                    <p class="text-[11px] text-emerald-800 mt-1">Triggers an STK Push prompt directly to your phone.</p>
+                <div>
+                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Delivery Address</label>
+                    <input type="text" name="shipping_address" required placeholder="Nairobi / Juja, Kenya"
+                           class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] text-xs text-[#F4F1EA] focus:outline-none focus:border-[#FF4D1C]">
                 </div>
 
-                <button type="submit" class="btn-3d w-full bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider py-4 rounded-full hover:bg-emerald-700 transition mt-2">
-                    Send M-PESA Prompt ({{ format_price(total) }})
+                <div>
+                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1.5">Payment Method</label>
+                    <div class="grid grid-cols-2 gap-2 font-mono-tech text-xs">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="payment_method" value="mpesa" checked class="peer sr-only" onchange="toggleMpesaField(true)">
+                            <div class="py-2.5 text-center rounded-xl border border-[#243830] bg-[#14201B] font-bold peer-checked:border-[#FF4D1C] peer-checked:text-[#FF4D1C]">
+                                M-PESA Express
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="payment_method" value="card" class="peer sr-only" onchange="toggleMpesaField(false)">
+                            <div class="py-2.5 text-center rounded-xl border border-[#243830] bg-[#14201B] font-bold peer-checked:border-[#FF4D1C] peer-checked:text-[#FF4D1C]">
+                                Card / Demo
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="mpesaPhoneBox">
+                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">M-PESA Phone Number</label>
+                    <input type="tel" name="mpesa_phone" placeholder="07XX XXX XXX or 2547XXXXXXXX"
+                           class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] font-mono-tech text-xs text-[#F4F1EA] focus:outline-none focus:border-[#FF4D1C]">
+                </div>
+
+                <button type="submit" class="magnetic-btn blaze-glow w-full py-3.5 rounded-full bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider hover:bg-[#E63E10]">
+                    Complete Order &rarr;
                 </button>
             </form>
         </div>
     </div>
+</div>
 
-    <script>
-        function toggleMpesaField() {
-            const method = document.getElementById('payMethod').value;
-            const box = document.getElementById('mpesaBox');
-            const phone = document.getElementById('mpesaPhone');
-            if (method === 'M-PESA Express') {
-                box.classList.remove('hidden');
-                phone.required = true;
-            } else {
-                box.classList.add('hidden');
-                phone.required = false;
-            }
-        }
-    </script>
-{% elif not confirmed_order %}
-    <div class="bg-white rounded-2xl border border-neutral-200 p-12 text-center">
-        <h2 class="text-xl font-bold mb-2">Your bag is empty</h2>
-        <p class="text-sm text-neutral-500 mb-6">Explore the catalog and select your size to add pairs.</p>
-        <a href="/shop" class="btn-3d bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full">Shop Footwear</a>
+<script>
+    function toggleMpesaField(show) {
+        document.getElementById('mpesaPhoneBox').style.display = show ? 'block' : 'none';
+    }
+</script>
+{% else %}
+<div class="rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-12 text-center">
+    <div class="font-mono-tech text-xs uppercase tracking-widest text-[#5C6661] mb-2">BAG STATUS // EMPTY</div>
+    <h2 class="text-2xl font-black uppercase text-[#0D1512] mb-3">Your bag has zero pairs</h2>
+    <p class="text-xs text-[#5C6661] mb-6">Explore the catalog or flip through the 3D lookbook to add silhouettes.</p>
+    <div class="flex justify-center gap-3">
+        <a href="/shop" class="px-6 py-3 rounded-full bg-[#0D1512] text-[#F4F1EA] text-xs font-bold uppercase tracking-wider hover:bg-[#FF4D1C] transition">
+            Open Catalog
+        </a>
+        <a href="/lookbook" class="px-6 py-3 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-bold uppercase tracking-wider text-[#0D1512] hover:border-[#0D1512]">
+            3D Lookbook
+        </a>
     </div>
+</div>
 {% endif %}
 {% endblock %}

@@ -16,20 +16,14 @@
 
     <style>
         :root {
-            /* 60% Dominant Surface: Warm Alabaster */
             --bg-canvas: #F4F1EA;
             --surface-card: #FCFBF8;
             --border-hairline: #DFDBD0;
-
-            /* 30% Secondary Structural: Deep Obsidian Forest */
             --ink-primary: #0D1512;
             --ink-secondary: #16231E;
             --ink-muted: #5C6661;
-
-            /* 10% Living Accent: Vermilion Blaze */
             --accent-blaze: #FF4D1C;
             --accent-blaze-hover: #E63E10;
-            --accent-blaze-soft: rgba(255, 77, 28, 0.14);
         }
 
         body {
@@ -44,7 +38,6 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Subtle Architectural Grid tinted to Deep Obsidian */
         .studio-grid-bg {
             background-image:
                 linear-gradient(to right, rgba(13, 21, 18, 0.04) 1px, transparent 1px),
@@ -52,7 +45,6 @@
             background-size: 48px 48px;
         }
 
-        /* Scroll Reveal Motion */
         .reveal-up {
             opacity: 0;
             transform: translateY(22px);
@@ -64,7 +56,6 @@
             transform: translateY(0);
         }
 
-        /* Tactile 3D Product Stage */
         .tilt-surface {
             transform-style: preserve-3d;
             transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
@@ -81,13 +72,11 @@
             transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Magnetic Button Micro-Interaction */
         .magnetic-btn {
             transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
             will-change: transform;
         }
 
-        /* Living Vermilion Glow Pulse */
         .blaze-glow {
             box-shadow: 0 10px 28px -8px rgba(255, 77, 28, 0.55);
         }
@@ -98,7 +87,7 @@
 </head>
 <body class="studio-grid-bg min-h-screen flex flex-col justify-between selection:bg-[#FF4D1C] selection:text-white">
 
-    <!-- TOP STUDIO ANNOUNCEMENT BAR (30% Deep Obsidian + 10% Vermilion Beacon) -->
+    <!-- TOP STUDIO ANNOUNCEMENT BAR -->
     <div class="bg-[#0D1512] text-[#E6E2D8] text-[11px] font-mono-tech tracking-wider uppercase border-b border-[#1E2E28]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-8 flex items-center justify-between">
             <div class="flex items-center gap-2">
@@ -106,16 +95,17 @@
                 <span>ATELIER ARCHIVE 2026 // NAIROBI &amp; GLOBAL DISPATCH</span>
             </div>
             <div class="hidden sm:flex items-center gap-6 text-[#9BA6A0]">
-                <span>COMPLIMENTARY SHIPPING OVER {{ format_price(200) }}</span>
+                <button type="button" onclick="openSizeDrawer()" class="hover:text-white underline underline-offset-4 transition">
+                    EU / UK / US SIZE MATRIX
+                </button>
                 <span class="text-[#FF4D1C] font-bold">M-PESA EXPRESS &amp; CARD</span>
             </div>
         </div>
     </div>
 
     <!-- MAIN GLASS NAVIGATION -->
-    <header class="sticky top-0 z-50 bg-[#F4F1EA]/88 backdrop-blur-xl border-b border-[#DFDBD0]">
+    <header class="sticky top-0 z-40 bg-[#F4F1EA]/88 backdrop-blur-xl border-b border-[#DFDBD0]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-            <!-- Brand Mark -->
             <a href="/" class="flex items-center gap-2.5 group">
                 <div class="w-8 h-8 rounded-lg bg-[#0D1512] text-[#FF4D1C] flex items-center justify-center font-black text-sm tracking-tighter group-hover:rotate-6 transition-transform border border-[#1E2E28]">
                     AK
@@ -126,7 +116,6 @@
                 </div>
             </a>
 
-            <!-- Center Navigation Links -->
             <nav class="hidden md:flex items-center gap-1 bg-[#FCFBF8]/95 border border-[#DFDBD0] rounded-full p-1">
                 <a href="/" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path == '/' %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
                     Overview
@@ -146,8 +135,12 @@
                 </a>
             </nav>
 
-            <!-- Right Controls: Currency Switcher, Wishlist, Bag -->
             <div class="flex items-center gap-2">
+                <button type="button" onclick="openSizeDrawer()" title="Size Conversion Matrix"
+                        class="hidden sm:inline-flex px-3 py-1.5 rounded-full bg-[#FCFBF8] border border-[#DFDBD0] font-mono-tech text-[11px] font-bold text-[#0D1512] hover:border-[#FF4D1C] hover:text-[#FF4D1C] transition">
+                    Fit Guide
+                </button>
+
                 <form method="POST" action="/currency" class="flex items-center bg-[#FCFBF8] border border-[#DFDBD0] rounded-full p-0.5 text-[11px] font-mono-tech font-bold">
                     <input type="hidden" name="next" value="{{ request.full_path }}">
                     <button type="submit" name="currency" value="KES"
@@ -185,17 +178,87 @@
             <a href="/" class="{% if request.path == '/' %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">Overview</a>
             <a href="/shop" class="{% if request.path.startswith('/shop') %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">Catalog</a>
             <a href="/lookbook" class="{% if request.path.startswith('/lookbook') %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">3D Book</a>
+            <button type="button" onclick="openSizeDrawer()" class="text-[#0D1512] uppercase font-bold">Fit Guide</button>
             <a href="/orders" class="{% if request.path.startswith('/orders') %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">Orders</a>
             <a href="/admin" class="{% if request.path.startswith('/admin') %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">Studio</a>
         </div>
     </header>
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+                {% for msg in messages %}
+                    <div class="mb-2 px-4 py-3 rounded-2xl bg-[#0D1512] text-[#F4F1EA] border border-[#243830] flex items-center justify-between text-xs font-mono-tech">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-2 h-2 rounded-full bg-[#FF4D1C]"></span>
+                            <span>{{ msg }}</span>
+                        </div>
+                        <button type="button" onclick="this.parentElement.remove()" class="text-[#9BA6A0] hover:text-white">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
     <!-- MAIN CONTENT CONTAINER -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- STUDIO FOOTER (30% Deep Obsidian Forest Anchor) -->
+    <!-- SLIDE-OUT ARCHITECTURAL SIZE & FIT DRAWER -->
+    <div id="sizeDrawerBackdrop" onclick="closeSizeDrawer()" class="fixed inset-0 bg-[#0D1512]/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
+    <aside id="sizeDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-[#FCFBF8] border-l border-[#DFDBD0] z-50 transform translate-x-full transition-transform duration-300 ease-out flex flex-col justify-between p-6 sm:p-8 overflow-y-auto">
+        <div>
+            <div class="flex items-center justify-between pb-5 border-b border-[#DFDBD0]">
+                <div>
+                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C] font-bold">CALIBRATION // FIT MATRIX</div>
+                    <h2 class="text-2xl font-black uppercase tracking-tight text-[#0D1512]">Sizing &amp; Fit Guide</h2>
+                </div>
+                <button type="button" onclick="closeSizeDrawer()" class="w-9 h-9 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] flex items-center justify-center text-sm font-bold hover:border-[#FF4D1C] hover:text-[#FF4D1C]">
+                    &times;
+                </button>
+            </div>
+
+            <div class="my-5 p-4 rounded-2xl bg-[#0D1512] text-[#F4F1EA] text-xs space-y-1.5">
+                <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C]">STUDIO FIT ADVISORY</div>
+                <p class="text-[#C4C0B5] leading-relaxed">
+                    All silhouettes are listed in <strong>EU Sizing</strong>. Carbon race runners and technical trail models feature a locked-in midfoot—go <strong>+0.5 EU</strong> up if you prefer wider toe splay.
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-[#DFDBD0] overflow-hidden bg-[#F4F1EA]">
+                <table class="w-full text-left font-mono-tech text-xs">
+                    <thead class="bg-[#0D1512] text-[#F4F1EA] text-[10px] uppercase tracking-wider">
+                        <tr>
+                            <th class="py-3 px-3.5">EU</th>
+                            <th class="py-3 px-3.5">UK</th>
+                            <th class="py-3 px-3.5">US (M)</th>
+                            <th class="py-3 px-3.5">CM</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#DFDBD0] text-[#0D1512]">
+                        <tr class="hover:bg-white"><td class="py-2.5 px-3.5 font-bold">EU 39</td><td class="py-2.5 px-3.5">6.0</td><td class="py-2.5 px-3.5">6.5</td><td class="py-2.5 px-3.5 text-[#5C6661]">24.5 cm</td></tr>
+                        <tr class="hover:bg-white"><td class="py-2.5 px-3.5 font-bold">EU 40</td><td class="py-2.5 px-3.5">6.5</td><td class="py-2.5 px-3.5">7.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">25.0 cm</td></tr>
+                        <tr class="hover:bg-white"><td class="py-2.5 px-3.5 font-bold">EU 41</td><td class="py-2.5 px-3.5">7.5</td><td class="py-2.5 px-3.5">8.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">26.0 cm</td></tr>
+                        <tr class="hover:bg-white"><td class="py-2.5 px-3.5 font-bold text-[#FF4D1C]">EU 42</td><td class="py-2.5 px-3.5">8.0</td><td class="py-2.5 px-3.5">8.5</td><td class="py-2.5 px-3.5 text-[#5C6661]">26.5 cm</td></tr>
+                        <tr class="hover:bg-white"><td class="py-2.5 px-3.5 font-bold">EU 43</td><td class="py-2.5 px-3.5">9.0</td><td class="py-2.5 px-3.5">9.5</td><td class="py-2.5 px-3.5 text-[#5C6661]">27.5 cm</td></tr>
+                        <tr class="hover:bg-white"><td class="py-2.5 px-3.5 font-bold">EU 44</td><td class="py-2.5 px-3.5">9.5</td><td class="py-2.5 px-3.5">10.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">28.0 cm</td></tr>
+                        <tr class="hover:bg-white"><td class="py-2.5 px-3.5 font-bold">EU 45</td><td class="py-2.5 px-3.5">10.5</td><td class="py-2.5 px-3.5">11.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">29.0 cm</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="pt-5 border-t border-[#DFDBD0] flex items-center justify-between gap-3">
+            <span class="font-mono-tech text-[10px] text-[#5C6661] uppercase">FREE SIZE EXCHANGES WITHIN 14 DAYS</span>
+            <button type="button" onclick="closeSizeDrawer()" class="px-5 py-2.5 rounded-full bg-[#0D1512] text-[#F4F1EA] text-xs font-bold uppercase tracking-wider hover:bg-[#FF4D1C] transition">
+                Done
+            </button>
+        </div>
+    </aside>
+
+    <!-- STUDIO FOOTER -->
     <footer class="border-t border-[#1E2E28] bg-[#0D1512] text-[#F4F1EA] mt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-[#1E2E28]">
@@ -239,8 +302,29 @@
         </div>
     </footer>
 
-    <!-- GLOBAL STUDIO INTERACTION ENGINE (Scroll Reveal + 3D Card Tilt + Magnetic Buttons) -->
     <script>
+        function openSizeDrawer() {
+            const backdrop = document.getElementById('sizeDrawerBackdrop');
+            const drawer = document.getElementById('sizeDrawer');
+            backdrop.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                backdrop.classList.remove('opacity-0');
+                drawer.classList.remove('translate-x-full');
+            });
+        }
+
+        function closeSizeDrawer() {
+            const backdrop = document.getElementById('sizeDrawerBackdrop');
+            const drawer = document.getElementById('sizeDrawer');
+            backdrop.classList.add('opacity-0');
+            drawer.classList.add('translate-x-full');
+            setTimeout(() => backdrop.classList.add('hidden'), 300);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeSizeDrawer();
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach((entry) => {

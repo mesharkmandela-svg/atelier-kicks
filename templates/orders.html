@@ -1,72 +1,58 @@
 {% extends "base.html" %}
 
-{% block title %}Order History — ATELIER KICKS{% endblock %}
+{% block title %}Order Ledger — ATELIER KICKS{% endblock %}
 
 {% block content %}
-<div class="flex flex-wrap items-end justify-between gap-4 mb-8">
+<div class="reveal-up flex flex-wrap items-end justify-between gap-4 mb-8">
     <div>
-        <div class="text-xs font-extrabold uppercase tracking-widest text-lime-600">Fulfillment &amp; Receipts</div>
-        <h1 class="text-3xl sm:text-4xl font-black uppercase tracking-tight">Order History ({{ orders|length }})</h1>
+        <div class="font-mono-tech text-[11px] uppercase tracking-widest text-[#5C6661]">DISPATCH RECORDS // {{ orders|length }} ENTRIES</div>
+        <h1 class="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#0D1512]">Order Ledger</h1>
     </div>
-    <a href="/shop" class="btn-3d bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full hover:bg-neutral-800">
-        Shop More Kicks &rarr;
+    <a href="/shop" class="px-4 py-2 rounded-full bg-[#0D1512] text-[#F4F1EA] text-xs font-bold uppercase tracking-wider hover:bg-[#FF4D1C] transition">
+        New Order +
     </a>
 </div>
 
 {% if orders %}
-    <div class="space-y-5">
-        {% for order in orders %}
-            <div class="card-3d bg-white rounded-3xl border border-neutral-200/90 p-6">
-                <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-neutral-100">
-                    <div>
-                        <div class="flex items-center gap-2.5">
-                            <span class="text-base font-black uppercase tracking-tight">Order #{{ order.id }}</span>
-                            <span class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-100 text-emerald-800">
-                                {{ order.status }}
-                            </span>
-                            {% if order.payment_method %}
-                                <span class="text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-neutral-100 text-neutral-700">
-                                    {{ order.payment_method }}
-                                </span>
-                            {% endif %}
-                        </div>
-                        <div class="text-xs text-neutral-500 mt-1">
-                            Customer: <strong class="text-neutral-800">{{ order.customer_name }}</strong>
-                            &bull; Destination: <strong class="text-neutral-800">{{ order.city }}</strong>
-                            {% if order.mpesa_phone %}
-                                &bull; M-PESA: <span class="font-mono text-neutral-800">{{ order.mpesa_phone }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="text-right">
-                        <div class="text-[11px] font-bold uppercase text-neutral-400">Order Total</div>
-                        <div class="text-xl font-black text-neutral-950">{{ format_price(order.total) }}</div>
-                    </div>
-                </div>
-
-                <div class="pt-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-                    <div class="text-neutral-700">
-                        <span class="font-bold uppercase text-neutral-400 mr-1.5">Items:</span>
-                        <span>{{ order.items_summary }}</span>
-                    </div>
-
-                    {% if order.discount_code %}
-                        <span class="font-extrabold uppercase text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
-                            Promo Applied: {{ order.discount_code }}
-                        </span>
-                    {% endif %}
-                </div>
+<div class="reveal-up space-y-4">
+    {% for order in orders %}
+    <div class="rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-6">
+        <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#ECE8DE]">
+            <div>
+                <div class="font-mono-tech text-xs font-black text-[#0D1512]">{{ order.order_number }}</div>
+                <div class="text-xs text-[#5C6661]">{{ order.customer_name }} &bull; {{ order.shipping_address }}</div>
             </div>
-        {% endfor %}
+
+            <div class="flex items-center gap-3">
+                <span class="font-mono-tech text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[#0D1512] text-[#FF4D1C]">
+                    {{ order.status }}
+                </span>
+                <span class="font-mono-tech text-base font-black text-[#0D1512]">
+                    {{ format_price(order.total_usd) }}
+                </span>
+            </div>
+        </div>
+
+        <div class="pt-4 flex flex-wrap items-center justify-between gap-4 text-xs">
+            <div class="space-y-1 text-[#5C6661]">
+                {% for item in order.items_list %}
+                    <div>&bull; <strong class="text-[#0D1512]">{{ item.name }}</strong> (EU {{ item.size }}) &times; {{ item.qty }}</div>
+                {% endfor %}
+            </div>
+            <div class="font-mono-tech text-[11px] text-[#5C6661]">
+                {{ order.created_at }}
+            </div>
+        </div>
     </div>
+    {% endfor %}
+</div>
 {% else %}
-    <div class="card-3d bg-white rounded-3xl border border-neutral-200 p-12 text-center">
-        <h2 class="text-xl font-black uppercase mb-2">No orders placed yet</h2>
-        <p class="text-sm text-neutral-500 mb-6">Add a pair to your bag and complete checkout to see your receipts here.</p>
-        <a href="/shop" class="btn-3d inline-block bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-full">
-            Explore Footwear
-        </a>
-    </div>
+<div class="rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-12 text-center">
+    <div class="font-mono-tech text-xs uppercase tracking-widest text-[#5C6661] mb-2">LEDGER // CLEAN</div>
+    <h2 class="text-2xl font-black uppercase text-[#0D1512] mb-3">No orders recorded yet</h2>
+    <a href="/shop" class="inline-block mt-2 px-6 py-3 rounded-full bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider hover:bg-[#E63E10]">
+        Browse Catalog
+    </a>
+</div>
 {% endif %}
 {% endblock %}

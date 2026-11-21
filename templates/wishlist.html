@@ -3,31 +3,65 @@
 {% block title %}Saved Wishlist — ATELIER KICKS{% endblock %}
 
 {% block content %}
-<h1 class="text-3xl font-black uppercase tracking-tight mb-6">Saved Wishlist ({{ sneakers|length }})</h1>
+<div class="reveal-up flex flex-wrap items-end justify-between gap-4 mb-8">
+    <div>
+        <div class="font-mono-tech text-[11px] uppercase tracking-widest text-[#5C6661]">SAVED ARCHIVE // {{ sneakers|length }} PAIRS</div>
+        <h1 class="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#0D1512]">Saved Wishlist</h1>
+    </div>
+    <a href="/shop" class="font-mono-tech text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">
+        &larr; Back to Catalog
+    </a>
+</div>
 
 {% if sneakers %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for shoe in sneakers %}
-            <div class="bg-white rounded-2xl border border-neutral-200 p-6 flex flex-col justify-between">
-                <div>
-                    <div class="text-xs font-bold uppercase text-neutral-400">{{ shoe.brand }} &bull; {{ shoe.category }}</div>
-                    <h2 class="text-lg font-extrabold mt-1">{{ shoe.name }}</h2>
-                    <p class="text-xs text-neutral-500 mt-1">{{ shoe.colorway }}</p>
-                    <div class="text-lg font-black mt-3">{{ format_price(shoe.price) }}</div>
-                </div>
-                <div class="flex gap-2 mt-5">
-                    <a href="/sneaker/{{ shoe.id }}" class="flex-1 text-center bg-neutral-950 text-white text-xs font-bold uppercase py-2.5 rounded-full">Select Size</a>
-                    <form method="POST" action="/wishlist/toggle/{{ shoe.id }}">
-                        <button type="submit" class="border border-neutral-300 text-xs font-bold uppercase px-4 py-2.5 rounded-full hover:border-red-600 hover:text-red-600">Remove</button>
-                    </form>
-                </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for shoe in sneakers %}
+    <div data-tilt class="reveal-up tilt-surface rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-6 flex flex-col justify-between">
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <span class="font-mono-tech text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#0D1512] text-[#F4F1EA]">
+                    {{ shoe.badge }}
+                </span>
+                <form method="POST" action="/wishlist/toggle/{{ shoe.id }}">
+                    <input type="hidden" name="next" value="/wishlist">
+                    <button type="submit" class="w-8 h-8 rounded-full bg-[#FF4D1C] text-white flex items-center justify-center text-xs">
+                        &times;
+                    </button>
+                </form>
             </div>
-        {% endfor %}
+
+            <a href="/sneaker/{{ shoe.id }}" class="block h-48 rounded-xl bg-[#F4F1EA] border border-[#E7E3D8] p-4 flex items-center justify-center mb-5">
+                <img src="{{ url_for('static', filename='images/' + shoe.image_file) }}" alt="{{ shoe.name }}" class="tilt-pop max-h-full max-w-full object-contain">
+            </a>
+
+            <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">{{ shoe.brand }} &bull; {{ shoe.category }}</div>
+            <a href="/sneaker/{{ shoe.id }}" class="text-lg font-black text-[#0D1512] hover:text-[#FF4D1C] block mt-0.5">{{ shoe.name }}</a>
+        </div>
+
+        <div class="pt-5 mt-5 border-t border-[#ECE8DE] flex items-center justify-between gap-3">
+            <div class="font-mono-tech text-base font-black text-[#0D1512]">{{ format_price(shoe.price) }}</div>
+            <form method="POST" action="/cart/add/{{ shoe.id }}" class="flex items-center gap-1.5">
+                <input type="hidden" name="qty" value="1">
+                <select name="size" class="px-2.5 py-2 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
+                    {% for sz in shoe.sizes.split(',') %}
+                        <option value="{{ sz }}">EU {{ sz }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="px-4 py-2 rounded-full bg-[#FF4D1C] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#E63E10] transition">
+                    Move to Bag
+                </button>
+            </form>
+        </div>
     </div>
+    {% endfor %}
+</div>
 {% else %}
-    <div class="bg-white rounded-2xl border border-neutral-200 p-12 text-center">
-        <p class="text-sm text-neutral-500 mb-4">You haven't saved any sneakers yet.</p>
-        <a href="/shop" class="bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full">Explore Footwear</a>
-    </div>
+<div class="rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-12 text-center">
+    <div class="font-mono-tech text-xs uppercase tracking-widest text-[#5C6661] mb-2">WISHLIST // EMPTY</div>
+    <h2 class="text-2xl font-black uppercase text-[#0D1512] mb-3">No saved silhouettes</h2>
+    <a href="/shop" class="inline-block mt-2 px-6 py-3 rounded-full bg-[#0D1512] text-[#F4F1EA] text-xs font-bold uppercase tracking-wider hover:bg-[#FF4D1C] transition">
+        Explore Catalog
+    </a>
+</div>
 {% endif %}
 {% endblock %}

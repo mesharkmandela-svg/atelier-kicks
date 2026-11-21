@@ -40,8 +40,8 @@
         inset: 0;
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
-        background-color: #fafaf9;
-        border: 1px solid #d6d3d1;
+        background-color: #FCFBF8;
+        border: 1px solid #DFDBD0;
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -52,20 +52,19 @@
     .page-front {
         transform: rotateY(0deg) translateZ(1px);
         border-radius: 0 22px 22px 0;
-        box-shadow: inset 18px 0 28px -18px rgba(0, 0, 0, 0.24), 10px 14px 28px -12px rgba(0, 0, 0, 0.22);
+        box-shadow: inset 18px 0 28px -18px rgba(13, 21, 18, 0.22), 10px 14px 28px -12px rgba(13, 21, 18, 0.2);
     }
 
     .page-back {
         transform: rotateY(180deg) translateZ(1px);
         border-radius: 22px 0 0 22px;
-        box-shadow: inset -18px 0 28px -18px rgba(0, 0, 0, 0.24), -10px 14px 28px -12px rgba(0, 0, 0, 0.22);
+        box-shadow: inset -18px 0 28px -18px rgba(13, 21, 18, 0.22), -10px 14px 28px -12px rgba(13, 21, 18, 0.2);
     }
 
     .book-sheet.flipped {
         transform: rotateY(-180deg);
     }
 
-    /* Hide inactive face explicitly to eliminate 3D bleed-through across browsers */
     .book-sheet:not(.flipped) .page-back {
         opacity: 0;
         visibility: hidden;
@@ -79,22 +78,22 @@
     }
 
     .cover-front {
-        background: radial-gradient(circle at 25% 20%, #262626 0%, #0a0a0a 80%) !important;
-        color: #ffffff;
-        border: 1px solid #262626;
+        background: radial-gradient(circle at 25% 20%, #16231E 0%, #0D1512 80%) !important;
+        color: #F4F1EA;
+        border: 1px solid #243830;
     }
 
     .cover-back {
-        background: #0a0a0a !important;
-        color: #ffffff;
-        border: 1px solid #262626;
+        background: #0D1512 !important;
+        color: #F4F1EA;
+        border: 1px solid #243830;
     }
 
     .page-grid-bg {
-        background-color: #fafaf9;
+        background-color: #FCFBF8;
         background-image:
-            linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+            linear-gradient(to right, rgba(13, 21, 18, 0.035) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(13, 21, 18, 0.035) 1px, transparent 1px);
         background-size: 26px 26px;
     }
 
@@ -105,16 +104,16 @@
     .shoe-card-3d {
         transition: transform 0.18s ease-out, box-shadow 0.18s ease-out;
         transform-style: preserve-3d;
-        background-color: #ffffff;
+        background-color: #F4F1EA;
     }
 
     .shoe-card-3d:hover {
-        box-shadow: 0 24px 40px -15px rgba(0, 0, 0, 0.22);
+        box-shadow: 0 24px 40px -15px rgba(13, 21, 18, 0.22);
     }
 
     .shoe-img-pop {
         transform: translateZ(34px);
-        filter: drop-shadow(0 18px 20px rgba(0, 0, 0, 0.22));
+        filter: drop-shadow(0 18px 20px rgba(13, 21, 18, 0.22));
     }
 
     .spine-crease {
@@ -124,7 +123,7 @@
         left: 50%;
         width: 32px;
         transform: translateX(-50%);
-        background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0) 100%);
+        background: linear-gradient(90deg, rgba(13,21,18,0) 0%, rgba(13,21,18,0.2) 50%, rgba(13,21,18,0) 100%);
         pointer-events: none;
         z-index: 90;
     }
@@ -145,18 +144,18 @@
 
 <div class="flex flex-wrap items-end justify-between gap-4 mb-6">
     <div>
-        <div class="text-xs font-bold uppercase tracking-widest text-neutral-500">Interactive 3D Edition &bull; 2026</div>
-        <h1 class="text-3xl sm:text-4xl font-black tracking-tight uppercase">3D Footwear Lookbook</h1>
+        <div class="font-mono-tech text-[11px] uppercase tracking-widest text-[#5C6661]">INTERACTIVE 3D EDITION &bull; 2026</div>
+        <h1 class="text-3xl sm:text-4xl font-black tracking-tight uppercase text-[#0D1512]">3D Footwear Lookbook</h1>
     </div>
     <div class="flex items-center gap-2">
-        <button type="button" onclick="prevPage()" class="px-4 py-2 rounded-full border border-neutral-300 bg-white text-xs font-bold uppercase tracking-wider hover:border-neutral-950 transition">
-            &larr; Prev Page
+        <button type="button" onclick="prevPage()" class="px-4 py-2 rounded-full border border-[#DFDBD0] bg-[#FCFBF8] text-xs font-bold uppercase tracking-wider text-[#0D1512] hover:border-[#FF4D1C] transition">
+            &larr; Prev
         </button>
-        <span id="pageIndicator" class="px-4 py-2 rounded-full bg-neutral-900 text-white text-xs font-bold uppercase tracking-wider">
+        <span id="pageIndicator" class="px-4 py-2 rounded-full bg-[#0D1512] text-[#F4F1EA] font-mono-tech text-xs font-bold uppercase tracking-wider">
             Cover
         </span>
-        <button type="button" onclick="nextPage()" class="px-4 py-2 rounded-full bg-lime-400 text-neutral-950 text-xs font-black uppercase tracking-wider hover:bg-lime-300 transition">
-            Next Page &rarr;
+        <button type="button" onclick="nextPage()" class="px-4 py-2 rounded-full bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider hover:bg-[#E63E10] transition">
+            Next &rarr;
         </button>
     </div>
 </div>
@@ -168,58 +167,58 @@
         <!-- SHEET 0: HARDCOVER FRONT + INSIDE INTRO -->
         <div class="book-sheet" data-sheet="0" onclick="handleSheetClick(event, 0)">
             <div class="page-face page-front cover-front p-8 sm:p-12">
-                <div class="flex justify-between items-center text-xs font-bold uppercase tracking-widest text-neutral-400">
+                <div class="flex justify-between items-center font-mono-tech text-xs font-bold uppercase tracking-widest text-[#9BA6A0]">
                     <span>ATELIER KICKS</span>
                     <span>VOL. 01 // ARCHIVE</span>
                 </div>
 
                 <div class="my-auto">
-                    <span class="inline-block bg-lime-400 text-neutral-950 text-[11px] font-black uppercase tracking-widest px-3 py-1 rounded-full mb-5">
+                    <span class="inline-block bg-[#FF4D1C] text-white font-mono-tech text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-5">
                         3D Interactive Catalog
                     </span>
-                    <h2 class="text-4xl sm:text-5xl font-black tracking-tight uppercase leading-none mb-4">
+                    <h2 class="text-4xl sm:text-5xl font-black tracking-tight uppercase leading-none mb-4 text-[#F4F1EA]">
                         THE<br>SILHOUETTE<br>EDITION.
                     </h2>
-                    <p class="text-sm text-neutral-300 max-w-sm leading-relaxed">
+                    <p class="text-sm text-[#C4C0B5] max-w-sm leading-relaxed">
                         Flip through all {{ sneakers|length }} curated footwear models in 3D perspective. Tilt any sneaker stage and add directly to your bag.
                     </p>
                 </div>
 
-                <div class="flex items-center justify-between pt-6 border-t border-neutral-800">
-                    <span class="text-xs text-neutral-400">Click cover or use arrow keys</span>
-                    <span class="text-xs font-black uppercase tracking-wider text-lime-400">Open Book &rarr;</span>
+                <div class="flex items-center justify-between pt-6 border-t border-[#1E2E28]">
+                    <span class="text-xs text-[#9BA6A0]">Click cover or use arrow keys</span>
+                    <span class="font-mono-tech text-xs font-bold uppercase tracking-wider text-[#FF4D1C]">Open Book &rarr;</span>
                 </div>
             </div>
 
             <div class="page-face page-back page-grid-bg p-8 sm:p-10">
                 <div>
-                    <div class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-2">Index &amp; Foreword</div>
-                    <h3 class="text-2xl font-black uppercase tracking-tight mb-3">Inside This Catalog</h3>
-                    <p class="text-xs sm:text-sm text-neutral-600 leading-relaxed mb-5">
+                    <div class="font-mono-tech text-xs font-bold uppercase tracking-widest text-[#5C6661] mb-2">Index &amp; Foreword</div>
+                    <h3 class="text-2xl font-black uppercase tracking-tight text-[#0D1512] mb-3">Inside This Catalog</h3>
+                    <p class="text-xs sm:text-sm text-[#5C6661] leading-relaxed mb-5">
                         Move your cursor over any sneaker stage to inspect its silhouette in 3D space, or select your EU size right inside the book to checkout in <strong>{{ currency }}</strong>.
                     </p>
 
                     <div class="space-y-2 text-xs">
-                        <div class="flex justify-between py-2 px-3 rounded-xl bg-white border border-neutral-200">
-                            <span class="font-bold">01. Carbon Race-Day Runners</span>
-                            <span class="text-neutral-500">Page 01 &rarr;</span>
+                        <div class="flex justify-between py-2.5 px-3.5 rounded-xl bg-[#F4F1EA] border border-[#DFDBD0]">
+                            <span class="font-bold text-[#0D1512]">01. Carbon Race-Day Runners</span>
+                            <span class="font-mono-tech text-[#FF4D1C] font-bold">Page 01 &rarr;</span>
                         </div>
-                        <div class="flex justify-between py-2 px-3 rounded-xl bg-white border border-neutral-200">
-                            <span class="font-bold">02. Terrace &amp; Court Icons</span>
-                            <span class="text-neutral-500">Page 03 &rarr;</span>
+                        <div class="flex justify-between py-2.5 px-3.5 rounded-xl bg-[#F4F1EA] border border-[#DFDBD0]">
+                            <span class="font-bold text-[#0D1512]">02. Terrace &amp; Court Icons</span>
+                            <span class="font-mono-tech text-[#FF4D1C] font-bold">Page 03 &rarr;</span>
                         </div>
-                        <div class="flex justify-between py-2 px-3 rounded-xl bg-white border border-neutral-200">
-                            <span class="font-bold">03. Technical Trail Protectors</span>
-                            <span class="text-neutral-500">Page 05 &rarr;</span>
+                        <div class="flex justify-between py-2.5 px-3.5 rounded-xl bg-[#F4F1EA] border border-[#DFDBD0]">
+                            <span class="font-bold text-[#0D1512]">03. Technical Trail Protectors</span>
+                            <span class="font-mono-tech text-[#FF4D1C] font-bold">Page 05 &rarr;</span>
                         </div>
-                        <div class="flex justify-between py-2 px-3 rounded-xl bg-white border border-neutral-200">
-                            <span class="font-bold">04. Hardwood Court Editions</span>
-                            <span class="text-neutral-500">Page 07 &rarr;</span>
+                        <div class="flex justify-between py-2.5 px-3.5 rounded-xl bg-[#F4F1EA] border border-[#DFDBD0]">
+                            <span class="font-bold text-[#0D1512]">04. Hardwood Court Editions</span>
+                            <span class="font-mono-tech text-[#FF4D1C] font-bold">Page 07 &rarr;</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex justify-between items-center text-[11px] font-bold uppercase tracking-wider text-neutral-400 pt-4 border-t border-neutral-200">
+                <div class="flex justify-between items-center font-mono-tech text-[11px] font-bold uppercase tracking-wider text-[#5C6661] pt-4 border-t border-[#DFDBD0]">
                     <span>&larr; Click to Close</span>
                     <span>Page 00</span>
                 </div>
@@ -234,26 +233,22 @@
             {% set sheet_num = pair_idx + 1 %}
 
             <div class="book-sheet" data-sheet="{{ sheet_num }}" onclick="handleSheetClick(event, {{ sheet_num }})">
-                <!-- FRONT FACE (RIGHT PAGE) -->
+                <!-- FRONT FACE -->
                 <div class="page-face page-front page-grid-bg p-6 sm:p-8">
                     <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full text-white" style="background: {{ front_shoe.accent_hex }};">
+                        <span class="font-mono-tech text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#0D1512] text-[#F4F1EA]">
                             {{ front_shoe.badge }}
                         </span>
-                        <span class="text-xs font-bold text-neutral-400">PAGE {{ "%02d"|format(pair_idx * 2 + 1) }}</span>
+                        <span class="font-mono-tech text-xs font-bold text-[#5C6661]">PAGE {{ "%02d"|format(pair_idx * 2 + 1) }}</span>
                     </div>
 
                     <div class="shoe-stage-3d my-auto py-3">
-                        <div class="shoe-card-3d rounded-2xl border border-neutral-200 p-5 flex flex-col items-center justify-center relative"
+                        <div class="shoe-card-3d rounded-2xl border border-[#DFDBD0] p-5 flex flex-col items-center justify-center relative"
                              onmousemove="tiltCard(event, this)" onmouseleave="resetTilt(this)">
                             <div class="w-48 h-40 sm:w-56 sm:h-48 flex items-center justify-center">
                                 <img src="{{ url_for('static', filename='images/' + front_shoe.image_file) }}"
                                      alt="{{ front_shoe.name }}"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                      class="shoe-img-pop max-h-full max-w-full object-contain rounded-xl">
-                                <div class="hidden w-full h-full rounded-xl items-center justify-center text-white font-black text-2xl" style="background: {{ front_shoe.accent_hex }};">
-                                    {{ front_shoe.brand[:4] }}
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -261,51 +256,47 @@
                     <div>
                         <div class="flex items-baseline justify-between gap-2 mb-1">
                             <div>
-                                <div class="text-[11px] font-bold uppercase tracking-wider text-neutral-400">{{ front_shoe.brand }} &bull; {{ front_shoe.category }}</div>
-                                <h3 class="text-xl font-black tracking-tight leading-tight">{{ front_shoe.name }}</h3>
+                                <div class="font-mono-tech text-[10px] font-bold uppercase tracking-wider text-[#5C6661]">{{ front_shoe.brand }} &bull; {{ front_shoe.category }}</div>
+                                <h3 class="text-xl font-black tracking-tight text-[#0D1512] leading-tight">{{ front_shoe.name }}</h3>
                             </div>
-                            <div class="text-lg font-black whitespace-nowrap">{{ format_price(front_shoe.price) }}</div>
+                            <div class="font-mono-tech text-base font-black text-[#0D1512] whitespace-nowrap">{{ format_price(front_shoe.price) }}</div>
                         </div>
-                        <p class="text-xs text-neutral-600 line-clamp-2 mb-3">{{ front_shoe.description }}</p>
+                        <p class="text-xs text-[#5C6661] line-clamp-2 mb-3">{{ front_shoe.description }}</p>
 
                         <form method="POST" action="/cart/add/{{ front_shoe.id }}" onclick="event.stopPropagation()" class="flex items-center gap-2">
                             <input type="hidden" name="qty" value="1">
-                            <select name="size" class="px-2.5 py-2 rounded-full border border-neutral-300 bg-white text-xs font-bold">
+                            <select name="size" class="px-2.5 py-2 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
                                 {% for sz in front_shoe.sizes.split(',') %}
                                     <option value="{{ sz }}">EU {{ sz }}</option>
                                 {% endfor %}
                             </select>
-                            <button type="submit" class="flex-1 bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider py-2.5 rounded-full hover:bg-neutral-800 transition">
+                            <button type="submit" class="flex-1 bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider py-2.5 rounded-full hover:bg-[#E63E10] transition">
                                 Add to Bag
                             </button>
-                            <a href="/sneaker/{{ front_shoe.id }}" class="px-3 py-2.5 rounded-full border border-neutral-300 bg-white text-xs font-bold hover:border-neutral-950">
+                            <a href="/sneaker/{{ front_shoe.id }}" class="px-3 py-2.5 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-bold text-[#0D1512] hover:border-[#0D1512]">
                                 Specs
                             </a>
                         </form>
                     </div>
                 </div>
 
-                <!-- BACK FACE (LEFT PAGE AFTER FLIP) -->
+                <!-- BACK FACE -->
                 {% if back_shoe %}
                     <div class="page-face page-back page-grid-bg p-6 sm:p-8">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-neutral-400">PAGE {{ "%02d"|format(pair_idx * 2 + 2) }}</span>
-                            <span class="text-[11px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full text-white" style="background: {{ back_shoe.accent_hex }};">
+                            <span class="font-mono-tech text-xs font-bold text-[#5C6661]">PAGE {{ "%02d"|format(pair_idx * 2 + 2) }}</span>
+                            <span class="font-mono-tech text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#0D1512] text-[#F4F1EA]">
                                 {{ back_shoe.badge }}
                             </span>
                         </div>
 
                         <div class="shoe-stage-3d my-auto py-3">
-                            <div class="shoe-card-3d rounded-2xl border border-neutral-200 p-5 flex flex-col items-center justify-center relative"
+                            <div class="shoe-card-3d rounded-2xl border border-[#DFDBD0] p-5 flex flex-col items-center justify-center relative"
                                  onmousemove="tiltCard(event, this)" onmouseleave="resetTilt(this)">
                                 <div class="w-48 h-40 sm:w-56 sm:h-48 flex items-center justify-center">
                                     <img src="{{ url_for('static', filename='images/' + back_shoe.image_file) }}"
                                          alt="{{ back_shoe.name }}"
-                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                          class="shoe-img-pop max-h-full max-w-full object-contain rounded-xl">
-                                    <div class="hidden w-full h-full rounded-xl items-center justify-center text-white font-black text-2xl" style="background: {{ back_shoe.accent_hex }};">
-                                        {{ back_shoe.brand[:4] }}
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -313,48 +304,47 @@
                         <div>
                             <div class="flex items-baseline justify-between gap-2 mb-1">
                                 <div>
-                                    <div class="text-[11px] font-bold uppercase tracking-wider text-neutral-400">{{ back_shoe.brand }} &bull; {{ back_shoe.category }}</div>
-                                    <h3 class="text-xl font-black tracking-tight leading-tight">{{ back_shoe.name }}</h3>
+                                    <div class="font-mono-tech text-[10px] font-bold uppercase tracking-wider text-[#5C6661]">{{ back_shoe.brand }} &bull; {{ back_shoe.category }}</div>
+                                    <h3 class="text-xl font-black tracking-tight text-[#0D1512] leading-tight">{{ back_shoe.name }}</h3>
                                 </div>
-                                <div class="text-lg font-black whitespace-nowrap">{{ format_price(back_shoe.price) }}</div>
+                                <div class="font-mono-tech text-base font-black text-[#0D1512] whitespace-nowrap">{{ format_price(back_shoe.price) }}</div>
                             </div>
-                            <p class="text-xs text-neutral-600 line-clamp-2 mb-3">{{ back_shoe.description }}</p>
+                            <p class="text-xs text-[#5C6661] line-clamp-2 mb-3">{{ back_shoe.description }}</p>
 
                             <form method="POST" action="/cart/add/{{ back_shoe.id }}" onclick="event.stopPropagation()" class="flex items-center gap-2">
                                 <input type="hidden" name="qty" value="1">
-                                <select name="size" class="px-2.5 py-2 rounded-full border border-neutral-300 bg-white text-xs font-bold">
+                                <select name="size" class="px-2.5 py-2 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
                                     {% for sz in back_shoe.sizes.split(',') %}
                                         <option value="{{ sz }}">EU {{ sz }}</option>
                                     {% endfor %}
                                 </select>
-                                <button type="submit" class="flex-1 bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider py-2.5 rounded-full hover:bg-neutral-800 transition">
+                                <button type="submit" class="flex-1 bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider py-2.5 rounded-full hover:bg-[#E63E10] transition">
                                     Add to Bag
                                 </button>
-                                <a href="/sneaker/{{ back_shoe.id }}" class="px-3 py-2.5 rounded-full border border-neutral-300 bg-white text-xs font-bold hover:border-neutral-950">
+                                <a href="/sneaker/{{ back_shoe.id }}" class="px-3 py-2.5 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-bold text-[#0D1512] hover:border-[#0D1512]">
                                     Specs
                                 </a>
                             </form>
                         </div>
                     </div>
                 {% else %}
-                    <!-- BACK HARDCOVER CLOSING PAGE -->
                     <div class="page-face page-back cover-back p-8 sm:p-12">
-                        <div class="text-xs font-bold uppercase tracking-widest text-neutral-500">ATELIER KICKS // END OF EDITION</div>
+                        <div class="font-mono-tech text-xs font-bold uppercase tracking-widest text-[#9BA6A0]">ATELIER KICKS // END OF EDITION</div>
                         <div class="my-auto">
-                            <h3 class="text-3xl font-black uppercase tracking-tight mb-3">Ready to Checkout?</h3>
-                            <p class="text-sm text-neutral-400 mb-6">
+                            <h3 class="text-3xl font-black uppercase tracking-tight mb-3 text-[#F4F1EA]">Ready to Checkout?</h3>
+                            <p class="text-sm text-[#C4C0B5] mb-6">
                                 Complete your order with M-PESA Express or Card in {{ currency }}. Free shipping on orders over {{ format_price(200) }}.
                             </p>
                             <div class="flex flex-wrap gap-3" onclick="event.stopPropagation()">
-                                <a href="/cart" class="bg-lime-400 text-neutral-950 text-xs font-black uppercase tracking-wider px-5 py-3 rounded-full hover:bg-lime-300">
+                                <a href="/cart" class="bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider px-5 py-3 rounded-full hover:bg-[#E63E10]">
                                     Checkout Bag ({{ cart_count }})
                                 </a>
-                                <button type="button" onclick="resetBook()" class="border border-neutral-700 text-white text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-full hover:border-white">
+                                <button type="button" onclick="resetBook()" class="border border-[#243830] text-[#F4F1EA] text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-full hover:border-[#FF4D1C]">
                                     Close Book &#8634;
                                 </button>
                             </div>
                         </div>
-                        <div class="text-xs text-neutral-500">&larr; Click page to turn back</div>
+                        <div class="font-mono-tech text-xs text-[#9BA6A0]">&larr; Click page to turn back</div>
                     </div>
                 {% endif %}
             </div>
@@ -377,8 +367,6 @@
                 sheet.style.zIndex = totalSheets - idx + 1;
             }
 
-            // Only keep the active left sheet (currentSheet - 1) and active right sheet (currentSheet) visible
-            // plus one neighbor during flip transitions so lower sheets never bleed through
             const isVisibleLeft = idx === currentSheet - 1;
             const isVisibleRight = idx === currentSheet;
             if (isVisibleLeft || isVisibleRight) {
@@ -402,8 +390,7 @@
 
     function nextPage() {
         if (currentSheet < totalSheets) {
-            const target = sheets[currentSheet];
-            target.classList.remove('is-hidden-sheet');
+            sheets[currentSheet].classList.remove('is-hidden-sheet');
             currentSheet++;
             updateBookState();
         }
@@ -412,8 +399,7 @@
     function prevPage() {
         if (currentSheet > 0) {
             currentSheet--;
-            const target = sheets[currentSheet];
-            target.classList.remove('is-hidden-sheet');
+            sheets[currentSheet].classList.remove('is-hidden-sheet');
             updateBookState();
         }
     }
