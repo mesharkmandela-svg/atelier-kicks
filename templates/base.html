@@ -1,125 +1,82 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}ATELIER KICKS — Architectural Footwear Studio{% endblock %}</title>
-    <meta name="description" content="Curated performance and terrace silhouettes engineered for modern movement. Interactive 3D lookbook and dual-currency checkout.">
-    <meta property="og:title" content="ATELIER KICKS — Architectural Footwear Studio">
-    <meta property="og:description" content="Explore limited-edition running, trail, and court silhouettes in 3D perspective.">
-    <meta property="og:type" content="website">
-
-    <script>
-        (function () {
-            if (localStorage.getItem('ak-theme') === 'dark') {
-                document.documentElement.classList.add('dark-studio');
-            }
-        })();
-    </script>
-
+    <title>{% block title %}ATELIER KICKS{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-canvas: #F4F1EA;
-            --surface-card: #FCFBF8;
-            --surface-well: #F4F1EA;
-            --border-hairline: #DFDBD0;
+            --bg-surface: #FCFBF8;
+            --bg-muted: #ECE8DE;
             --ink-primary: #0D1512;
-            --ink-muted: #5C6661;
-            --accent-blaze: #FF4D1C;
-            --accent-blaze-hover: #E63E10;
-            --grid-line: rgba(13, 21, 18, 0.04);
+            --ink-secondary: #5C6661;
+            --border-hairline: #DFDBD0;
+            --accent: #FF4D1C;
+            --accent-hover: #E63E10;
+            --nav-bg: rgba(244, 241, 234, 0.86);
+            --grid-line: rgba(13, 21, 18, 0.032);
         }
 
-        html.dark-studio {
+        html.dark-theme {
             --bg-canvas: #0A0F0D;
-            --surface-card: #121B17;
-            --surface-well: #18241F;
-            --border-hairline: #23332C;
+            --bg-surface: #121B17;
+            --bg-muted: #18241F;
             --ink-primary: #F4F1EA;
-            --ink-muted: #98A39D;
-            --accent-blaze: #FF4D1C;
-            --accent-blaze-hover: #FF6236;
-            --grid-line: rgba(244, 241, 234, 0.035);
+            --ink-secondary: #98A39D;
+            --border-hairline: #22302A;
+            --accent: #FF5A2C;
+            --accent-hover: #FF400A;
+            --nav-bg: rgba(10, 15, 13, 0.86);
+            --grid-line: rgba(244, 241, 234, 0.028);
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-canvas);
-            color: var(--ink-primary);
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            transition: background-color 0.35s ease, color 0.35s ease;
-        }
-
-        .font-mono-tech {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .studio-grid-bg {
             background-image:
                 linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
                 linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-            background-size: 48px 48px;
+            background-size: 32px 32px;
+            color: var(--ink-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: clip;
+            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        html.dark-studio header {
-            background-color: rgba(10, 15, 13, 0.86) !important;
-            border-color: #23332C !important;
+        h1, h2, h3, .font-display {
+            font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: -0.03em;
         }
 
-        html.dark-studio .bg-\[\#FCFBF8\],
-        html.dark-studio .bg-\[\#FCFBF8\]\/95 {
-            background-color: #121B17 !important;
+        .font-mono-tech {
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.01em;
         }
 
-        html.dark-studio .bg-\[\#F4F1EA\] {
-            background-color: #18241F !important;
-        }
-
-        html.dark-studio .border-\[\#DFDBD0\],
-        html.dark-studio .border-\[\#E7E3D8\],
-        html.dark-studio .border-\[\#ECE8DE\] {
-            border-color: #23332C !important;
-        }
-
-        html.dark-studio .text-\[\#0D1512\] {
-            color: #F4F1EA !important;
-        }
-
-        html.dark-studio .text-\[\#5C6661\] {
-            color: #98A39D !important;
-        }
-
-        html.dark-studio .bg-\[\#0D1512\] {
-            background-color: #1A2621 !important;
-            border: 1px solid #2A3D35;
-        }
-
-        html.dark-studio .page-face,
-        html.dark-studio .page-grid-bg {
-            background-color: #121B17 !important;
-            border-color: #23332C !important;
-            background-image:
-                linear-gradient(to right, rgba(244, 241, 234, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(244, 241, 234, 0.03) 1px, transparent 1px) !important;
-        }
-
-        html.dark-studio .shoe-card-3d {
-            background-color: #18241F !important;
-            border-color: #283A32 !important;
-        }
+        html.dark-theme .bg-\[\#F4F1EA\] { background-color: var(--bg-canvas) !important; }
+        html.dark-theme .bg-\[\#FCFBF8\] { background-color: var(--bg-surface) !important; }
+        html.dark-theme .bg-\[\#E7E3D8\],
+        html.dark-theme .bg-\[\#ECE8DE\] { background-color: var(--bg-muted) !important; }
+        html.dark-theme .text-\[\#0D1512\] { color: var(--ink-primary) !important; }
+        html.dark-theme .text-\[\#5C6661\] { color: var(--ink-secondary) !important; }
+        html.dark-theme .border-\[\#DFDBD0\],
+        html.dark-theme .border-\[\#E7E3D8\],
+        html.dark-theme .border-\[\#ECE8DE\] { border-color: var(--border-hairline) !important; }
+        html.dark-theme .bg-\[\#0D1512\] { background-color: #16231E !important; color: #F4F1EA !important; }
 
         .reveal-up {
             opacity: 0;
             transform: translateY(22px);
-            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
         }
-
         .reveal-up.is-visible {
             opacity: 1;
             transform: translateY(0);
@@ -127,659 +84,627 @@
 
         .tilt-surface {
             transform-style: preserve-3d;
-            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.35s ease;
+            transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, border-color 0.25s ease;
             will-change: transform;
         }
-
         .tilt-surface:hover {
-            border-color: var(--accent-blaze) !important;
-            box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 77, 28, 0.32);
+            border-color: rgba(255, 77, 28, 0.55) !important;
+            box-shadow: 0 24px 48px -18px rgba(13, 21, 18, 0.28);
         }
-
         .tilt-pop {
             transform: translateZ(26px);
-            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .magnetic-btn {
-            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s ease, box-shadow 0.25s ease;
             will-change: transform;
         }
-
         .blaze-glow {
-            box-shadow: 0 10px 28px -8px rgba(255, 77, 28, 0.55);
+            box-shadow: 0 10px 28px -6px rgba(255, 77, 28, 0.45);
         }
         .blaze-glow:hover {
-            box-shadow: 0 14px 34px -6px rgba(255, 77, 28, 0.75);
+            box-shadow: 0 16px 36px -6px rgba(255, 77, 28, 0.65);
+        }
+
+        #scrollProgressBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, #FF4D1C, #FF8A3D);
+            z-index: 80;
+            pointer-events: none;
         }
     </style>
+    <script>
+        (function () {
+            const saved = localStorage.getItem('ak_theme');
+            if (saved === 'dark') document.documentElement.classList.add('dark-theme');
+        })();
+    </script>
 </head>
-<body class="studio-grid-bg min-h-screen flex flex-col justify-between selection:bg-[#FF4D1C] selection:text-white">
+<body class="min-h-screen flex flex-col">
+    <div id="scrollProgressBar"></div>
 
-    <!-- TOP STUDIO ANNOUNCEMENT BAR -->
-    <div class="bg-[#0D1512] text-[#E6E2D8] text-[11px] font-mono-tech tracking-wider uppercase border-b border-[#1E2E28]">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-8 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-[#FF4D1C] animate-pulse shadow-[0_0_10px_#FF4D1C]"></span>
-                <span>ATELIER ARCHIVE 2026 // NAIROBI &amp; GLOBAL DISPATCH</span>
+    <!-- TOP EDITORIAL & CURRENCY RIBBON -->
+    <div class="border-b border-[#DFDBD0] bg-[#FCFBF8]/80 backdrop-blur-sm text-[11px]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-9 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 truncate">
+                <span class="inline-block w-2 h-2 rounded-full bg-[#FF4D1C] animate-pulse"></span>
+                <span class="font-mono-tech uppercase tracking-wider text-[#5C6661] truncate">
+                    FREE DISPATCH OVER {{ format_price(200) }} &bull; M-PESA EXPRESS &amp; CARD READY
+                </span>
             </div>
-            <div class="hidden sm:flex items-center gap-5 text-[#9BA6A0]">
-                <button type="button" onclick="openCommandPalette()" class="hover:text-white transition">
-                    SEARCH [CTRL+K]
+
+            <div class="flex items-center gap-3 shrink-0">
+                <button type="button" onclick="openCommandPalette()"
+                        class="hidden sm:inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-[10px] text-[#5C6661] hover:border-[#FF4D1C] hover:text-[#FF4D1C] transition">
+                    <span>Search</span>
+                    <kbd class="px-1.5 py-0.2 rounded bg-[#FCFBF8] border border-[#DFDBD0] text-[9px] font-bold">Ctrl K</kbd>
                 </button>
-                <button type="button" onclick="openSizeDrawer()" class="hover:text-white underline underline-offset-4 transition">
-                    SIZE MATRIX
+
+                <button type="button" onclick="openSizeDrawer()"
+                        class="font-mono-tech text-[10px] uppercase tracking-wider font-bold text-[#5C6661] hover:text-[#FF4D1C] transition">
+                    Size Guide
                 </button>
-                <span class="text-[#FF4D1C] font-bold">M-PESA EXPRESS</span>
+
+                <button type="button" id="soundToggleBtn" onclick="StudioAudio.toggle()"
+                        class="font-mono-tech text-[10px] uppercase tracking-wider font-bold text-[#5C6661] hover:text-[#FF4D1C] transition">
+                    SFX: OFF
+                </button>
+
+                <button type="button" id="themeToggleBtn" onclick="toggleTheme()"
+                        class="font-mono-tech text-[10px] uppercase tracking-wider font-bold text-[#0D1512] hover:text-[#FF4D1C] transition">
+                    Nocturne
+                </button>
+
+                <form method="POST" action="/currency" class="flex items-center gap-1">
+                    <input type="hidden" name="next" value="{{ request.full_path }}">
+                    <button type="submit" name="currency" value="KES"
+                            onclick="StudioAudio.click(520)"
+                            class="px-2 py-0.5 rounded font-mono-tech font-bold transition {% if currency == 'KES' %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
+                        KES
+                    </button>
+                    <button type="submit" name="currency" value="USD"
+                            onclick="StudioAudio.click(640)"
+                            class="px-2 py-0.5 rounded font-mono-tech font-bold transition {% if currency == 'USD' %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
+                        USD
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- MAIN GLASS NAVIGATION -->
-    <header class="sticky top-0 z-40 bg-[#F4F1EA]/88 backdrop-blur-xl border-b border-[#DFDBD0] transition-colors">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-3">
-            <a href="/" onclick="StudioAudio.click()" class="flex items-center gap-2.5 group shrink-0">
-                <div class="w-8 h-8 rounded-lg bg-[#0D1512] text-[#FF4D1C] flex items-center justify-center font-black text-sm tracking-tighter group-hover:rotate-6 transition-transform border border-[#1E2E28]">
+    <!-- STICKY GLASS NAVIGATION -->
+    <header class="sticky top-0 z-40 border-b border-[#DFDBD0] backdrop-blur-md" style="background: var(--nav-bg);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+            <a href="/" onclick="StudioAudio.click(480)" class="flex items-center gap-2.5 group">
+                <span class="w-8 h-8 rounded-lg bg-[#0D1512] text-[#F4F1EA] flex items-center justify-center font-mono-tech font-extrabold text-xs group-hover:bg-[#FF4D1C] transition">
                     AK
-                </div>
-                <div class="leading-none">
-                    <span class="font-black tracking-tight text-base uppercase block text-[#0D1512]">ATELIER KICKS</span>
-                    <span class="font-mono-tech text-[9px] uppercase tracking-widest text-[#5C6661] block">FOOTWEAR STUDIO</span>
-                </div>
+                </span>
+                <span class="font-display font-bold text-lg tracking-tight uppercase">ATELIER KICKS</span>
             </a>
 
-            <nav class="hidden xl:flex items-center gap-1 bg-[#FCFBF8]/95 border border-[#DFDBD0] rounded-full p-1">
-                <a href="/" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path == '/' %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
-                    Overview
-                </a>
-                <a href="/shop" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path.startswith('/shop') or request.path.startswith('/sneaker') %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
-                    Catalog
-                </a>
-                <a href="/lookbook" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 {% if request.path.startswith('/lookbook') %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
+            <nav class="hidden md:flex items-center gap-7 text-xs font-bold uppercase tracking-wider">
+                <a href="/" class="hover:text-[#FF4D1C] transition {% if request.path == '/' %}text-[#FF4D1C]{% endif %}">Home</a>
+                <a href="/shop" class="hover:text-[#FF4D1C] transition {% if request.path.startswith('/shop') %}text-[#FF4D1C]{% endif %}">Catalog</a>
+                <a href="/lookbook" class="inline-flex items-center gap-1.5 hover:text-[#FF4D1C] transition {% if request.path.startswith('/lookbook') %}text-[#FF4D1C]{% endif %}">
                     <span>3D Lookbook</span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#FF4D1C]"></span>
+                    <span class="px-1.5 py-0.5 rounded-full bg-[#FF4D1C] text-white font-mono-tech text-[9px] font-extrabold">3D</span>
                 </a>
-                <a href="/orders" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path.startswith('/orders') %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
-                    Orders
-                </a>
-                <a href="/admin" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition {% if request.path.startswith('/admin') %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
-                    Studio
-                </a>
+                <a href="/orders" class="hover:text-[#FF4D1C] transition {% if request.path.startswith('/orders') %}text-[#FF4D1C]{% endif %}">Orders</a>
+                <a href="/admin" class="hover:text-[#FF4D1C] transition {% if request.path.startswith('/admin') %}text-[#FF4D1C]{% endif %}">Admin</a>
             </nav>
 
-            <div class="flex items-center gap-1.5 sm:gap-2">
-                <!-- Command Palette Trigger -->
-                <button type="button" onclick="openCommandPalette()" title="Quick Search (Ctrl+K)"
-                        class="px-2.5 py-1.5 rounded-full bg-[#FCFBF8] border border-[#DFDBD0] font-mono-tech text-[11px] font-bold text-[#0D1512] hover:border-[#FF4D1C] hover:text-[#FF4D1C] transition flex items-center gap-1.5">
-                    <span>&#8984;K</span>
-                </button>
-
-                <!-- Tactile Audio Engine Toggle -->
-                <button type="button" id="audioToggleBtn" onclick="toggleStudioAudio()" title="Toggle Tactile Studio Audio"
-                        class="w-8 h-8 rounded-full bg-[#FCFBF8] border border-[#DFDBD0] font-mono-tech text-[11px] font-bold text-[#0D1512] hover:border-[#FF4D1C] hover:text-[#FF4D1C] transition flex items-center justify-center">
-                    <span id="audioIcon">&#9834;</span>
-                </button>
-
-                <!-- Classy Dark Mode Toggle -->
-                <button type="button" id="themeToggleBtn" onclick="toggleStudioTheme()" title="Toggle Nocturne Dark Mode"
-                        class="px-2.5 py-1.5 rounded-full bg-[#FCFBF8] border border-[#DFDBD0] font-mono-tech text-[11px] font-bold text-[#0D1512] hover:border-[#FF4D1C] hover:text-[#FF4D1C] transition flex items-center gap-1">
-                    <span id="themeIcon">&#9790;</span>
-                    <span id="themeLabel" class="hidden md:inline">Nocturne</span>
-                </button>
-
-                <!-- Currency Switcher -->
-                <form method="POST" action="/currency" class="flex items-center bg-[#FCFBF8] border border-[#DFDBD0] rounded-full p-0.5 text-[11px] font-mono-tech font-bold">
-                    <input type="hidden" name="next" value="{{ request.full_path }}">
-                    <button type="submit" name="currency" value="KES"
-                            class="px-2 py-1 rounded-full transition {% if currency == 'KES' %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
-                        KES
-                    </button>
-                    <button type="submit" name="currency" value="USD"
-                            class="px-2 py-1 rounded-full transition {% if currency == 'USD' %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
-                        USD
-                    </button>
-                </form>
-
-                <!-- Wishlist -->
-                <a href="/wishlist" title="Saved Silhouettes"
-                   class="w-8 h-8 rounded-full bg-[#FCFBF8] border border-[#DFDBD0] flex items-center justify-center text-xs font-bold text-[#0D1512] hover:border-[#FF4D1C] hover:text-[#FF4D1C] transition relative">
-                    <span>&hearts;</span>
-                    {% if wishlist_count and wishlist_count > 0 %}
-                        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#0D1512] text-[#F4F1EA] text-[9px] font-mono-tech flex items-center justify-center">
-                            {{ wishlist_count }}
-                        </span>
-                    {% endif %}
+            <div class="flex items-center gap-2.5">
+                <a href="/wishlist" onclick="StudioAudio.click(560)"
+                   class="px-3.5 py-2 rounded-full border border-[#DFDBD0] bg-[#FCFBF8] text-xs font-bold hover:border-[#FF4D1C] transition">
+                    Saved (<span id="navWishlistCount" class="font-mono-tech">{{ wishlist_count }}</span>)
                 </a>
-
-                <!-- Slide-Out Bag Drawer Trigger -->
                 <button type="button" onclick="openBagDrawer()"
-                        class="magnetic-btn blaze-glow px-3.5 py-2 rounded-full bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider hover:bg-[#E63E10] flex items-center gap-2">
-                    <span>Bag</span>
-                    <span id="navBagCount" class="px-1.5 py-0.5 rounded-full bg-[#0D1512] text-[#F4F1EA] font-mono-tech text-[10px]">
-                        {{ cart_count }}
-                    </span>
+                        class="magnetic-btn blaze-glow px-4 py-2 rounded-full bg-[#FF4D1C] text-white text-xs font-extrabold uppercase tracking-wider hover:bg-[#E63E10]">
+                    Bag (<span id="navBagCount" class="font-mono-tech">{{ cart_count }}</span>)
                 </button>
             </div>
         </div>
-
-        <!-- Mobile Sub-Nav -->
-        <div class="xl:hidden border-t border-[#DFDBD0] bg-[#FCFBF8]/95 px-4 py-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider overflow-x-auto gap-4">
-            <a href="/" class="{% if request.path == '/' %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">Overview</a>
-            <a href="/shop" class="{% if request.path.startswith('/shop') %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">Catalog</a>
-            <a href="/lookbook" class="{% if request.path.startswith('/lookbook') %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">3D Book</a>
-            <button type="button" onclick="openSizeDrawer()" class="text-[#0D1512] uppercase font-bold">Fit Guide</button>
-            <a href="/orders" class="{% if request.path.startswith('/orders') %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">Orders</a>
-            <a href="/admin" class="{% if request.path.startswith('/admin') %}text-[#FF4D1C] underline underline-offset-4{% else %}text-[#5C6661]{% endif %}">Studio</a>
-        </div>
     </header>
 
-    <!-- FLASH MESSAGES -->
     {% with messages = get_flashed_messages() %}
         {% if messages %}
-            <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-4 w-full">
                 {% for msg in messages %}
-                    <div class="mb-2 px-4 py-3 rounded-2xl bg-[#0D1512] text-[#F4F1EA] border border-[#243830] flex items-center justify-between text-xs font-mono-tech">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-2 h-2 rounded-full bg-[#FF4D1C]"></span>
-                            <span>{{ msg }}</span>
-                        </div>
-                        <button type="button" onclick="this.parentElement.remove()" class="text-[#9BA6A0] hover:text-white">&times;</button>
+                    <div class="mb-2 px-4 py-3 rounded-2xl bg-[#0D1512] text-[#F4F1EA] text-xs font-medium flex items-center justify-between border border-[#22302A]">
+                        <span>{{ msg }}</span>
+                        <span class="font-mono-tech text-[10px] uppercase text-[#FF4D1C] font-bold">ATELIER NOTICE</span>
                     </div>
                 {% endfor %}
             </div>
         {% endif %}
     {% endwith %}
 
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-10">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- 1. COMMAND PALETTE MODAL (CTRL+K / CMD+K) -->
-    <div id="cmdPaletteBackdrop" onclick="closeCommandPalette()" class="fixed inset-0 bg-[#0D1512]/75 backdrop-blur-md z-50 hidden opacity-0 transition-opacity duration-200 flex items-start justify-center pt-16 sm:pt-24 px-4">
-        <div onclick="event.stopPropagation()" class="w-full max-w-2xl rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] shadow-2xl overflow-hidden">
-            <div class="p-4 sm:p-5 border-b border-[#DFDBD0] flex items-center gap-3">
-                <span class="font-mono-tech text-xs font-black px-2 py-1 rounded bg-[#0D1512] text-[#FF4D1C]">CMD</span>
-                <input type="text" id="cmdSearchInput" oninput="filterCommandPalette(this.value)" placeholder="Search sneakers, jump to 3D Lookbook, toggle Nocturne..."
-                       class="w-full bg-transparent text-sm font-semibold text-[#0D1512] focus:outline-none">
-                <button type="button" onclick="closeCommandPalette()" class="font-mono-tech text-[11px] px-2 py-1 rounded border border-[#DFDBD0] text-[#5C6661]">ESC</button>
-            </div>
-
-            <div class="max-h-96 overflow-y-auto p-3 space-y-4">
-                <div>
-                    <div class="px-2 pb-1.5 font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">Quick Studio Actions</div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                        <a href="/lookbook" class="p-2.5 rounded-xl bg-[#F4F1EA] border border-[#DFDBD0] font-bold text-[#0D1512] hover:border-[#FF4D1C] transition text-center">3D Lookbook</a>
-                        <button type="button" onclick="closeCommandPalette(); toggleStudioTheme();" class="p-2.5 rounded-xl bg-[#F4F1EA] border border-[#DFDBD0] font-bold text-[#0D1512] hover:border-[#FF4D1C] transition">Switch Theme</button>
-                        <button type="button" onclick="closeCommandPalette(); openSizeDrawer();" class="p-2.5 rounded-xl bg-[#F4F1EA] border border-[#DFDBD0] font-bold text-[#0D1512] hover:border-[#FF4D1C] transition">Fit Guide</button>
-                        <a href="/cart" class="p-2.5 rounded-xl bg-[#FF4D1C] text-white font-black transition text-center">Checkout Bag</a>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="px-2 pb-1.5 font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">Archive Silhouettes</div>
-                    <div id="cmdResultsList" class="space-y-1.5">
-                        <div class="px-3 py-4 text-xs font-mono-tech text-[#5C6661]">Loading archive index...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 2. SLIDE-OUT INSTANT BAG DRAWER -->
-    <div id="bagDrawerBackdrop" onclick="closeBagDrawer()" class="fixed inset-0 bg-[#0D1512]/70 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
-    <aside id="bagDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-[#FCFBF8] border-l border-[#DFDBD0] z-50 transform translate-x-full transition-transform duration-300 ease-out flex flex-col justify-between p-6 sm:p-7">
-        <div>
-            <div class="flex items-center justify-between pb-4 border-b border-[#DFDBD0]">
-                <div>
-                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C] font-bold">INSTANT DISPATCH</div>
-                    <h2 class="text-2xl font-black uppercase tracking-tight text-[#0D1512]">Your Bag</h2>
-                </div>
-                <button type="button" onclick="closeBagDrawer()" class="w-9 h-9 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] flex items-center justify-center text-sm font-bold text-[#0D1512] hover:border-[#FF4D1C]">
-                    &times;
-                </button>
-            </div>
-
-            <!-- Free Shipping Progress Bar -->
-            <div class="my-4 p-3.5 rounded-2xl bg-[#0D1512] text-[#F4F1EA] space-y-2">
-                <div id="bagShipText" class="font-mono-tech text-[11px] text-[#C4C0B5]">Calculating dispatch tier...</div>
-                <div class="w-full h-1.5 rounded-full bg-[#1E2E28] overflow-hidden">
-                    <div id="bagShipBar" class="h-full bg-[#FF4D1C] transition-all duration-500" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <div id="bagDrawerItems" class="space-y-3 max-h-[52vh] overflow-y-auto pr-1"></div>
-        </div>
-
-        <div class="pt-4 border-t border-[#DFDBD0] space-y-3">
-            <div class="flex items-center justify-between font-mono-tech text-sm font-black text-[#0D1512]">
-                <span>SUBTOTAL ({{ currency }})</span>
-                <span id="bagDrawerSubtotal">—</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                <a href="/cart" class="py-3 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] text-center text-xs font-bold uppercase tracking-wider text-[#0D1512] hover:border-[#0D1512]">
-                    Full Bag
-                </a>
-                <a href="/cart" class="blaze-glow py-3 rounded-full bg-[#FF4D1C] text-white text-center text-xs font-black uppercase tracking-wider hover:bg-[#E63E10]">
-                    Checkout &rarr;
-                </a>
-            </div>
-        </div>
-    </aside>
-
-    <!-- 3. QUICK-VIEW 3D SPOTLIGHT MODAL -->
-    <div id="quickViewBackdrop" onclick="closeQuickView()" class="fixed inset-0 bg-[#0D1512]/75 backdrop-blur-md z-50 hidden opacity-0 transition-opacity duration-200 flex items-center justify-center p-4">
-        <div onclick="event.stopPropagation()" class="w-full max-w-2xl rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-6 sm:p-8 shadow-2xl relative">
-            <button type="button" onclick="closeQuickView()" class="absolute top-5 right-5 w-9 h-9 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] flex items-center justify-center text-sm font-bold text-[#0D1512] hover:border-[#FF4D1C]">
-                &times;
-            </button>
-            <div id="quickViewBody" class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center"></div>
-        </div>
-    </div>
-
-    <!-- 4. SLIDE-OUT SIZE & FIT DRAWER -->
-    <div id="sizeDrawerBackdrop" onclick="closeSizeDrawer()" class="fixed inset-0 bg-[#0D1512]/70 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
-    <aside id="sizeDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-[#FCFBF8] border-l border-[#DFDBD0] z-50 transform translate-x-full transition-transform duration-300 ease-out flex flex-col justify-between p-6 sm:p-8 overflow-y-auto">
-        <div>
-            <div class="flex items-center justify-between pb-5 border-b border-[#DFDBD0]">
-                <div>
-                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C] font-bold">CALIBRATION // FIT MATRIX</div>
-                    <h2 class="text-2xl font-black uppercase tracking-tight text-[#0D1512]">Sizing &amp; Fit Guide</h2>
-                </div>
-                <button type="button" onclick="closeSizeDrawer()" class="w-9 h-9 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] flex items-center justify-center text-sm font-bold text-[#0D1512] hover:border-[#FF4D1C]">
-                    &times;
-                </button>
-            </div>
-
-            <div class="my-5 p-4 rounded-2xl bg-[#0D1512] text-[#F4F1EA] text-xs space-y-1.5">
-                <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C]">STUDIO FIT ADVISORY</div>
-                <p class="text-[#C4C0B5] leading-relaxed">
-                    All silhouettes are listed in <strong>EU Sizing</strong>. Carbon race runners and technical trail models feature a locked-in midfoot—go <strong>+0.5 EU</strong> up if you prefer wider toe splay.
+    <!-- ARCHITECTURAL FOOTER -->
+    <footer class="border-t border-[#DFDBD0] bg-[#FCFBF8] mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8 text-xs">
+            <div class="md:col-span-2">
+                <div class="font-display font-bold text-xl tracking-tight uppercase mb-2">ATELIER KICKS</div>
+                <p class="text-[#5C6661] max-w-md leading-relaxed">
+                    Precision footwear archive featuring carbon race silhouettes, terrace icons, technical trail builds, and an interactive 3D lookbook.
                 </p>
             </div>
+            <div>
+                <div class="font-mono-tech font-bold uppercase tracking-wider text-[#5C6661] mb-3">Navigation</div>
+                <ul class="space-y-2 font-semibold">
+                    <li><a href="/shop" class="hover:text-[#FF4D1C]">Full Footwear Catalog</a></li>
+                    <li><a href="/lookbook" class="hover:text-[#FF4D1C]">Interactive 3D Lookbook</a></li>
+                    <li><a href="/wishlist" class="hover:text-[#FF4D1C]">Saved Wishlist</a></li>
+                    <li><a href="/cart" class="hover:text-[#FF4D1C]">Shopping Bag &amp; Checkout</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="font-mono-tech font-bold uppercase tracking-wider text-[#5C6661] mb-3">Studio &amp; Payments</div>
+                <ul class="space-y-2 text-[#5C6661]">
+                    <li>M-PESA Express (STK Push)</li>
+                    <li>Card &amp; Demo Settlement</li>
+                    <li>Live {{ currency }} Currency Switcher</li>
+                    <li><a href="/admin" class="font-semibold text-[#0D1512] hover:text-[#FF4D1C]">Inventory Admin Console &rarr;</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-[#ECE8DE] py-4 text-center font-mono-tech text-[11px] text-[#5C6661]">
+            ATELIER KICKS &bull; ENGINEERED FOOTWEAR SHOWROOM &bull; 2026
+        </div>
+    </footer>
 
-            <div class="rounded-2xl border border-[#DFDBD0] overflow-hidden bg-[#F4F1EA]">
-                <table class="w-full text-left font-mono-tech text-xs">
-                    <thead class="bg-[#0D1512] text-[#F4F1EA] text-[10px] uppercase tracking-wider">
-                        <tr>
-                            <th class="py-3 px-3.5">EU</th>
-                            <th class="py-3 px-3.5">UK</th>
-                            <th class="py-3 px-3.5">US (M)</th>
-                            <th class="py-3 px-3.5">CM</th>
+    <!-- 1. COMMAND PALETTE (CTRL+K / CMD+K) -->
+    <div id="commandPaletteModal" class="fixed inset-0 bg-[#0D1512]/70 backdrop-blur-sm z-50 hidden items-start justify-center pt-20 p-4" onclick="if(event.target===this)closeCommandPalette()">
+        <div class="w-full max-w-xl rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] shadow-2xl overflow-hidden">
+            <div class="flex items-center gap-3 px-4 py-3.5 border-b border-[#DFDBD0]">
+                <span class="font-mono-tech text-xs font-bold text-[#FF4D1C]">CMD</span>
+                <input id="cmdSearchInput" type="text" oninput="renderCommandResults(this.value)"
+                       placeholder="Jump to a sneaker, brand, or discipline (e.g. Samba, Trail, 990)..."
+                       class="w-full bg-transparent text-sm font-medium text-[#0D1512] focus:outline-none">
+                <button type="button" onclick="closeCommandPalette()" class="font-mono-tech text-[10px] uppercase px-2 py-1 rounded bg-[#F4F1EA] text-[#5C6661]">ESC</button>
+            </div>
+            <div id="cmdResultsList" class="max-h-80 overflow-y-auto divide-y divide-[#ECE8DE]"></div>
+        </div>
+    </div>
+
+    <!-- 2. QUICK-VIEW MODAL WITH 3D TILT STAGE -->
+    <div id="quickViewModal" class="fixed inset-0 bg-[#0D1512]/75 backdrop-blur-sm z-50 hidden items-center justify-center p-4" onclick="if(event.target===this)closeQuickView()">
+        <div class="w-full max-w-2xl rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] shadow-2xl p-6 sm:p-8 grid grid-cols-1 sm:grid-cols-12 gap-6 items-center">
+            <div class="sm:col-span-6">
+                <div id="qvTiltCard" onmousemove="qvTilt(event, this)" onmouseleave="qvReset(this)"
+                     class="h-60 rounded-2xl bg-[#F4F1EA] border border-[#E7E3D8] p-5 flex items-center justify-center transition-transform duration-150" style="transform-style: preserve-3d;">
+                    <img id="qvImg" src="" alt="" class="max-h-full max-w-full object-contain" style="transform: translateZ(28px);">
+                </div>
+            </div>
+            <div class="sm:col-span-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <span id="qvBadge" class="font-mono-tech text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-[#0D1512] text-[#F4F1EA]"></span>
+                    <button type="button" onclick="closeQuickView()" class="font-mono-tech text-xs text-[#5C6661] hover:text-[#FF4D1C]">Close &times;</button>
+                </div>
+                <div>
+                    <div id="qvMeta" class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]"></div>
+                    <h3 id="qvTitle" class="font-display text-2xl font-bold text-[#0D1512]"></h3>
+                    <div id="qvPrice" class="font-mono-tech text-lg font-extrabold text-[#FF4D1C] mt-1"></div>
+                </div>
+                <p id="qvDesc" class="text-xs text-[#5C6661] leading-relaxed"></p>
+                <div class="flex items-center gap-2">
+                    <select id="qvSizeSelect" class="px-3 py-2.5 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]"></select>
+                    <button type="button" id="qvAddBtn" class="flex-1 py-2.5 px-4 rounded-full bg-[#FF4D1C] text-white text-xs font-extrabold uppercase tracking-wider hover:bg-[#E63E10] transition">
+                        Add to Bag
+                    </button>
+                </div>
+                <a id="qvDetailLink" href="#" class="inline-block font-mono-tech text-[11px] font-bold uppercase text-[#5C6661] hover:text-[#FF4D1C] underline underline-offset-4">
+                    Open Full Spec Page &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. SLIDE-OUT BAG DRAWER WITH FREE-SHIPPING PROGRESS BAR -->
+    <div id="bagDrawerBackdrop" class="fixed inset-0 bg-[#0D1512]/60 backdrop-blur-xs z-50 hidden justify-end" onclick="if(event.target===this)closeBagDrawer()">
+        <aside id="bagDrawerPanel" class="w-full max-w-md bg-[#FCFBF8] h-full border-l border-[#DFDBD0] p-6 flex flex-col justify-between translate-x-full transition-transform duration-300">
+            <div class="space-y-4 overflow-y-auto pr-1">
+                <div class="flex items-center justify-between pb-3 border-b border-[#DFDBD0]">
+                    <div>
+                        <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">LIVE BAG</div>
+                        <h3 class="font-display text-xl font-bold uppercase text-[#0D1512]">Your Bag (<span id="drawerItemCount" class="font-mono-tech">{{ cart_count }}</span>)</h3>
+                    </div>
+                    <button type="button" onclick="closeBagDrawer()" class="font-mono-tech text-xs font-bold uppercase text-[#5C6661] hover:text-[#FF4D1C]">Close &times;</button>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-[#F4F1EA] border border-[#E7E3D8] space-y-2">
+                    <div id="freeShipLabel" class="font-mono-tech text-[11px] font-bold text-[#0D1512]">
+                        Add items to unlock free express dispatch
+                    </div>
+                    <div class="h-2 rounded-full bg-[#DFDBD0] overflow-hidden">
+                        <div id="freeShipBar" class="h-full bg-[#FF4D1C] transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div id="drawerItemsContainer" class="space-y-3"></div>
+            </div>
+
+            <div class="pt-4 border-t border-[#DFDBD0] space-y-3">
+                <div class="flex items-center justify-between font-mono-tech text-sm font-extrabold">
+                    <span>SUBTOTAL</span>
+                    <span id="drawerSubtotal" class="text-[#FF4D1C]">{{ format_price(0) }}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <a href="/cart" class="py-3 text-center rounded-full border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-bold uppercase tracking-wider text-[#0D1512] hover:border-[#0D1512]">
+                        Full Bag
+                    </a>
+                    <a href="/cart" class="py-3 text-center rounded-full bg-[#FF4D1C] text-white text-xs font-extrabold uppercase tracking-wider hover:bg-[#E63E10]">
+                        Checkout &rarr;
+                    </a>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 4. EU / US / UK / CM SIZE MATRIX DRAWER -->
+    <div id="sizeDrawerModal" class="fixed inset-0 bg-[#0D1512]/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4" onclick="if(event.target===this)closeSizeDrawer()">
+        <div class="w-full max-w-lg rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-6 sm:p-7 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C] font-bold">CALIBRATION MATRIX</div>
+                    <h3 class="font-display text-2xl font-bold uppercase text-[#0D1512]">Footwear Size Guide</h3>
+                </div>
+                <button type="button" onclick="closeSizeDrawer()" class="font-mono-tech text-xs text-[#5C6661] hover:text-[#FF4D1C]">Close &times;</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left font-mono-tech text-xs border-collapse">
+                    <thead>
+                        <tr class="border-b border-[#DFDBD0] text-[#5C6661]">
+                            <th class="py-2">EU</th>
+                            <th class="py-2">US (M)</th>
+                            <th class="py-2">UK</th>
+                            <th class="py-2">CM (JP)</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-[#DFDBD0] text-[#0D1512]">
-                        <tr><td class="py-2.5 px-3.5 font-bold">EU 39</td><td class="py-2.5 px-3.5">6.0</td><td class="py-2.5 px-3.5">6.5</td><td class="py-2.5 px-3.5 text-[#5C6661]">24.5 cm</td></tr>
-                        <tr><td class="py-2.5 px-3.5 font-bold">EU 40</td><td class="py-2.5 px-3.5">6.5</td><td class="py-2.5 px-3.5">7.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">25.0 cm</td></tr>
-                        <tr><td class="py-2.5 px-3.5 font-bold">EU 41</td><td class="py-2.5 px-3.5">7.5</td><td class="py-2.5 px-3.5">8.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">26.0 cm</td></tr>
-                        <tr><td class="py-2.5 px-3.5 font-bold text-[#FF4D1C]">EU 42</td><td class="py-2.5 px-3.5">8.0</td><td class="py-2.5 px-3.5">8.5</td><td class="py-2.5 px-3.5 text-[#5C6661]">26.5 cm</td></tr>
-                        <tr><td class="py-2.5 px-3.5 font-bold">EU 43</td><td class="py-2.5 px-3.5">9.0</td><td class="py-2.5 px-3.5">9.5</td><td class="py-2.5 px-3.5 text-[#5C6661]">27.5 cm</td></tr>
-                        <tr><td class="py-2.5 px-3.5 font-bold">EU 44</td><td class="py-2.5 px-3.5">9.5</td><td class="py-2.5 px-3.5">10.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">28.0 cm</td></tr>
-                        <tr><td class="py-2.5 px-3.5 font-bold">EU 45</td><td class="py-2.5 px-3.5">10.5</td><td class="py-2.5 px-3.5">11.0</td><td class="py-2.5 px-3.5 text-[#5C6661]">29.0 cm</td></tr>
+                    <tbody class="divide-y divide-[#ECE8DE] font-semibold">
+                        <tr><td class="py-2">39</td><td>6.5</td><td>6</td><td>24.5 cm</td></tr>
+                        <tr><td class="py-2">40</td><td>7</td><td>6.5</td><td>25.0 cm</td></tr>
+                        <tr><td class="py-2">41</td><td>8</td><td>7</td><td>26.0 cm</td></tr>
+                        <tr><td class="py-2">42</td><td>8.5</td><td>7.5</td><td>26.5 cm</td></tr>
+                        <tr><td class="py-2">43</td><td>9.5</td><td>8.5</td><td>27.5 cm</td></tr>
+                        <tr><td class="py-2">44</td><td>10.5</td><td>9.5</td><td>28.0 cm</td></tr>
+                        <tr><td class="py-2">45</td><td>11</td><td>10</td><td>29.0 cm</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
-
-        <div class="pt-5 border-t border-[#DFDBD0] flex items-center justify-between gap-3">
-            <span class="font-mono-tech text-[10px] text-[#5C6661] uppercase">FREE SIZE EXCHANGES WITHIN 14 DAYS</span>
-            <button type="button" onclick="closeSizeDrawer()" class="px-5 py-2.5 rounded-full bg-[#0D1512] text-[#F4F1EA] text-xs font-bold uppercase tracking-wider hover:bg-[#FF4D1C] transition">
-                Done
-            </button>
-        </div>
-    </aside>
-
-    <!-- STUDIO FOOTER -->
-    <footer class="border-t border-[#1E2E28] bg-[#0D1512] text-[#F4F1EA] mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-[#1E2E28]">
-                <div class="md:col-span-5">
-                    <div class="flex items-center gap-2.5 mb-3">
-                        <div class="w-7 h-7 rounded-md bg-[#FF4D1C] text-white flex items-center justify-center font-black text-xs">AK</div>
-                        <span class="font-black uppercase tracking-tight text-sm text-[#F4F1EA]">ATELIER KICKS</span>
-                    </div>
-                    <p class="text-xs text-[#9BA6A0] leading-relaxed max-w-sm">
-                        Independent footwear curation and digital showroom. Engineered with tactile 3D inspection, instant currency conversion, and seamless checkout.
-                    </p>
-                </div>
-
-                <div class="md:col-span-3 space-y-2 text-xs">
-                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#6D7A73] mb-2">Navigation</div>
-                    <div><a href="/shop" class="font-semibold text-[#D6D1C4] hover:text-[#FF4D1C] transition">Full Catalog</a></div>
-                    <div><a href="/lookbook" class="font-semibold text-[#D6D1C4] hover:text-[#FF4D1C] transition">3D Interactive Lookbook</a></div>
-                    <div><a href="/wishlist" class="font-semibold text-[#D6D1C4] hover:text-[#FF4D1C] transition">Saved Wishlist</a></div>
-                    <div><a href="/orders" class="font-semibold text-[#D6D1C4] hover:text-[#FF4D1C] transition">Order Ledger</a></div>
-                </div>
-
-                <div class="md:col-span-4 space-y-2 text-xs">
-                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#6D7A73] mb-2">System Status</div>
-                    <div class="p-3.5 rounded-xl bg-[#14201B] border border-[#1E2E28] font-mono-tech text-[11px] space-y-1.5">
-                        <div class="flex justify-between">
-                            <span class="text-[#9BA6A0]">ACTIVE CURRENCY</span>
-                            <span class="font-bold text-[#F4F1EA]">{{ currency }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-[#9BA6A0]">SHOWROOM ENGINE</span>
-                            <span class="font-bold text-[#FF4D1C]">ONLINE // 3D READY</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-mono-tech text-[#6D7A73]">
-                <span>&copy; 2026 ATELIER KICKS STUDIO. ALL RIGHTS RESERVED.</span>
-                <span class="text-[#9BA6A0]">PRESS CTRL+K FOR COMMAND PALETTE</span>
-            </div>
-        </div>
-    </footer>
+    </div>
 
     <script>
-        /* --- 1. TACTILE WEB AUDIO ENGINE (Zero External MP3s) --- */
-        const StudioAudio = {
-            ctx: null,
-            enabled: localStorage.getItem('ak-sound') !== 'off',
-            init() {
-                if (!this.ctx && (window.AudioContext || window.webkitAudioContext)) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const StudioAudio = (() => {
+            let enabled = false;
+            let ctx = null;
+            function ensureCtx() {
+                if (!ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) ctx = new AudioCtx();
                 }
-            },
-            click(freq = 520, duration = 0.035) {
-                if (!this.enabled) return;
-                try {
-                    this.init();
-                    if (!this.ctx) return;
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(140, this.ctx.currentTime + duration);
-                    gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start();
-                    osc.stop(this.ctx.currentTime + duration);
-                } catch (e) {}
-            },
-            pageFlip() {
-                if (!this.enabled) return;
-                this.click(240, 0.08);
-            },
-            chime() {
-                if (!this.enabled) return;
-                this.click(680, 0.07);
+                if (ctx && ctx.state === 'suspended') ctx.resume();
+                return ctx;
             }
-        };
+            function toggle() {
+                enabled = !enabled;
+                const btn = document.getElementById('soundToggleBtn');
+                if (btn) btn.textContent = enabled ? 'SFX: ON' : 'SFX: OFF';
+                if (enabled) chime();
+            }
+            function click(freq = 520) {
+                if (!enabled) return;
+                const c = ensureCtx();
+                if (!c) return;
+                const osc = c.createOscillator();
+                const gain = c.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, c.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(freq * 0.65, c.currentTime + 0.045);
+                gain.gain.setValueAtTime(0.06, c.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.045);
+                osc.connect(gain);
+                gain.connect(c.destination);
+                osc.start();
+                osc.stop(c.currentTime + 0.05);
+            }
+            function pageFlip() {
+                if (!enabled) return;
+                const c = ensureCtx();
+                if (!c) return;
+                const osc = c.createOscillator();
+                const gain = c.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(240, c.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(520, c.currentTime + 0.09);
+                gain.gain.setValueAtTime(0.05, c.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.09);
+                osc.connect(gain);
+                gain.connect(c.destination);
+                osc.start();
+                osc.stop(c.currentTime + 0.095);
+            }
+            function chime() {
+                if (!enabled) return;
+                const c = ensureCtx();
+                if (!c) return;
+                [587.33, 880].forEach((f, idx) => {
+                    const osc = c.createOscillator();
+                    const gain = c.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(f, c.currentTime + idx * 0.06);
+                    gain.gain.setValueAtTime(0.05, c.currentTime + idx * 0.06);
+                    gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + idx * 0.06 + 0.14);
+                    osc.connect(gain);
+                    gain.connect(c.destination);
+                    osc.start(c.currentTime + idx * 0.06);
+                    osc.stop(c.currentTime + idx * 0.06 + 0.15);
+                });
+            }
+            return { toggle, click, pageFlip, chime };
+        })();
 
-        function toggleStudioAudio() {
-            StudioAudio.enabled = !StudioAudio.enabled;
-            localStorage.setItem('ak-sound', StudioAudio.enabled ? 'on' : 'off');
-            syncAudioButton();
-            if (StudioAudio.enabled) StudioAudio.chime();
-        }
-
-        function syncAudioButton() {
-            const btn = document.getElementById('audioToggleBtn');
-            const icon = document.getElementById('audioIcon');
-            if (!btn || !icon) return;
-            icon.innerHTML = StudioAudio.enabled ? '&#9834;' : '&#10005;';
-            btn.style.opacity = StudioAudio.enabled ? '1' : '0.55';
-        }
-
-        /* --- 2. THEME SWITCHER --- */
-        function syncThemeButton() {
-            const isDark = document.documentElement.classList.contains('dark-studio');
-            const icon = document.getElementById('themeIcon');
-            const label = document.getElementById('themeLabel');
-            if (!icon || !label) return;
-            icon.innerHTML = isDark ? '&#9728;' : '&#9790;';
-            label.textContent = isDark ? 'Alabaster' : 'Nocturne';
-        }
-
-        function toggleStudioTheme() {
-            const root = document.documentElement;
-            const willBeDark = !root.classList.contains('dark-studio');
-            root.classList.toggle('dark-studio', willBeDark);
-            localStorage.setItem('ak-theme', willBeDark ? 'dark' : 'light');
-            syncThemeButton();
-            StudioAudio.click(440);
-        }
-
-        /* --- 3. CATALOG CACHE FOR COMMAND PALETTE & QUICK-VIEW --- */
-        let cachedCatalog = null;
-        async function getCatalogData() {
-            if (cachedCatalog) return cachedCatalog;
-            const res = await fetch('/api/catalog');
-            const data = await res.json();
-            cachedCatalog = data.sneakers || [];
-            return cachedCatalog;
-        }
-
-        /* --- 4. COMMAND PALETTE (CTRL+K) --- */
-        async function openCommandPalette() {
+        function toggleTheme() {
             StudioAudio.click(600);
-            const backdrop = document.getElementById('cmdPaletteBackdrop');
+            const html = document.documentElement;
+            html.classList.toggle('dark-theme');
+            const isDark = html.classList.contains('dark-theme');
+            localStorage.setItem('ak_theme', isDark ? 'dark' : 'light');
+            updateThemeButtonLabel();
+        }
+        function updateThemeButtonLabel() {
+            const btn = document.getElementById('themeToggleBtn');
+            if (!btn) return;
+            const isDark = document.documentElement.classList.contains('dark-theme');
+            btn.textContent = isDark ? 'Daylight' : 'Nocturne';
+        }
+        updateThemeButtonLabel();
+
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const pct = docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0;
+            const bar = document.getElementById('scrollProgressBar');
+            if (bar) bar.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+        }, { passive: true });
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.08 });
+        document.querySelectorAll('.reveal-up').forEach(el => revealObserver.observe(el));
+
+        document.querySelectorAll('[data-tilt]').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const r = card.getBoundingClientRect();
+                const px = (e.clientX - r.left) / r.width - 0.5;
+                const py = (e.clientY - r.top) / r.height - 0.5;
+                card.style.transform = `perspective(1000px) rotateY(${px * 10}deg) rotateX(${-py * 10}deg) translateY(-4px)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) translateY(0px)';
+            });
+        });
+
+        document.querySelectorAll('.magnetic-btn').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const r = btn.getBoundingClientRect();
+                const dx = (e.clientX - (r.left + r.width / 2)) * 0.22;
+                const dy = (e.clientY - (r.top + r.height / 2)) * 0.22;
+                btn.style.transform = `translate(${dx}px, ${dy}px)`;
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translate(0px, 0px)';
+            });
+        });
+
+        let catalogCache = [];
+        async function loadCatalogCache() {
+            if (catalogCache.length) return catalogCache;
+            try {
+                const res = await fetch('/api/catalog');
+                const data = await res.json();
+                catalogCache = data.sneakers || [];
+            } catch (_) {}
+            return catalogCache;
+        }
+
+        async function openCommandPalette() {
+            StudioAudio.click(680);
+            await loadCatalogCache();
+            const modal = document.getElementById('commandPaletteModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
             const input = document.getElementById('cmdSearchInput');
-            backdrop.classList.remove('hidden');
-            requestAnimationFrame(() => backdrop.classList.remove('opacity-0'));
             input.value = '';
             input.focus();
-            const list = await getCatalogData();
-            renderCommandResults(list);
+            renderCommandResults('');
         }
-
         function closeCommandPalette() {
-            const backdrop = document.getElementById('cmdPaletteBackdrop');
-            backdrop.classList.add('opacity-0');
-            setTimeout(() => backdrop.classList.add('hidden'), 200);
+            const modal = document.getElementById('commandPaletteModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
-
-        async function filterCommandPalette(query) {
-            const list = await getCatalogData();
-            const q = query.trim().toLowerCase();
-            const filtered = !q ? list : list.filter(s =>
+        function renderCommandResults(query) {
+            const q = (query || '').trim().toLowerCase();
+            const list = document.getElementById('cmdResultsList');
+            const matches = catalogCache.filter(s =>
+                !q ||
                 s.name.toLowerCase().includes(q) ||
                 s.brand.toLowerCase().includes(q) ||
                 s.category.toLowerCase().includes(q)
-            );
-            renderCommandResults(filtered);
-        }
+            ).slice(0, 7);
 
-        function renderCommandResults(items) {
-            const container = document.getElementById('cmdResultsList');
-            if (!items.length) {
-                container.innerHTML = '<div class="px-3 py-4 text-xs font-mono-tech text-[#5C6661]">No matching silhouettes found.</div>';
+            if (!matches.length) {
+                list.innerHTML = `<div class="p-6 text-center font-mono-tech text-xs text-[#5C6661]">No matching silhouettes</div>`;
                 return;
             }
-            container.innerHTML = items.slice(0, 8).map(s => `
-                <a href="/sneaker/${s.id}" class="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-[#F4F1EA] border border-[#DFDBD0] hover:border-[#FF4D1C] transition">
+            list.innerHTML = matches.map(s => `
+                <a href="/sneaker/${s.id}" class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-[#F4F1EA] transition">
                     <div class="flex items-center gap-3 min-w-0">
-                        <img src="${s.image_url}" alt="${s.name}" class="w-10 h-10 object-contain rounded-lg bg-white/80 p-1">
+                        <img src="${s.image_url}" alt="${s.name}" class="w-11 h-11 rounded-lg bg-[#F4F1EA] p-1 object-contain shrink-0">
                         <div class="min-w-0">
-                            <div class="text-xs font-black text-[#0D1512] truncate">${s.name}</div>
-                            <div class="font-mono-tech text-[10px] text-[#5C6661]">${s.brand} &bull; ${s.category}</div>
+                            <div class="text-xs font-bold text-[#0D1512] truncate">${s.name}</div>
+                            <div class="font-mono-tech text-[10px] text-[#5C6661] uppercase">${s.brand} &bull; ${s.category}</div>
                         </div>
                     </div>
-                    <span class="font-mono-tech text-xs font-black text-[#FF4D1C] shrink-0">${s.price_formatted}</span>
+                    <span class="font-mono-tech text-xs font-bold text-[#FF4D1C] shrink-0">${s.price_formatted}</span>
                 </a>
             `).join('');
         }
 
-        /* --- 5. SLIDE-OUT INSTANT BAG DRAWER --- */
-        async function openBagDrawer() {
-            StudioAudio.click(560);
-            const backdrop = document.getElementById('bagDrawerBackdrop');
-            const drawer = document.getElementById('bagDrawer');
-            backdrop.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                backdrop.classList.remove('opacity-0');
-                drawer.classList.remove('translate-x-full');
+        async function openQuickView(sneakerId) {
+            StudioAudio.click(620);
+            const list = await loadCatalogCache();
+            const shoe = list.find(s => Number(s.id) === Number(sneakerId));
+            if (!shoe) return;
+
+            document.getElementById('qvImg').src = shoe.image_url;
+            document.getElementById('qvImg').alt = shoe.name;
+            document.getElementById('qvBadge').textContent = shoe.badge;
+            document.getElementById('qvMeta').textContent = `${shoe.brand} • ${shoe.category}`;
+            document.getElementById('qvTitle').textContent = shoe.name;
+            document.getElementById('qvPrice').textContent = shoe.price_formatted;
+            document.getElementById('qvDesc').textContent = shoe.description;
+            document.getElementById('qvDetailLink').href = `/sneaker/${shoe.id}`;
+
+            const sel = document.getElementById('qvSizeSelect');
+            sel.innerHTML = (shoe.sizes || ['40', '41', '42', '43', '44']).map(sz => `<option value="${sz}">EU ${sz}</option>`).join('');
+
+            const addBtn = document.getElementById('qvAddBtn');
+            addBtn.onclick = async () => {
+                StudioAudio.chime();
+                await quickAddToBag(shoe.id, sel.value, 1);
+                closeQuickView();
+                openBagDrawer();
+            };
+
+            const modal = document.getElementById('quickViewModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        function closeQuickView() {
+            const modal = document.getElementById('quickViewModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        function qvTilt(e, card) {
+            const r = card.getBoundingClientRect();
+            const px = (e.clientX - r.left) / r.width - 0.5;
+            const py = (e.clientY - r.top) / r.height - 0.5;
+            card.style.transform = `rotateY(${px * 18}deg) rotateX(${-py * 18}deg)`;
+        }
+        function qvReset(card) {
+            card.style.transform = 'rotateY(0deg) rotateX(0deg)';
+        }
+
+        async function refreshBagDrawer() {
+            try {
+                const res = await fetch('/api/cart/state');
+                const data = await res.json();
+                const navCount = document.getElementById('navBagCount');
+                const drawerCount = document.getElementById('drawerItemCount');
+                const subtotalEl = document.getElementById('drawerSubtotal');
+                const barEl = document.getElementById('freeShipBar');
+                const labelEl = document.getElementById('freeShipLabel');
+                const container = document.getElementById('drawerItemsContainer');
+
+                if (navCount) navCount.textContent = data.count;
+                if (drawerCount) drawerCount.textContent = data.count;
+                if (subtotalEl) subtotalEl.textContent = data.subtotal_formatted;
+                if (barEl) barEl.style.width = `${data.progress_pct}%`;
+
+                if (labelEl) {
+                    if (data.free_shipping_unlocked) {
+                        labelEl.textContent = '✓ Free express dispatch unlocked';
+                    } else if (data.count > 0) {
+                        labelEl.textContent = `Add ${data.remaining_formatted} more for free express dispatch`;
+                    } else {
+                        labelEl.textContent = 'Add items to unlock free express dispatch';
+                    }
+                }
+
+                if (container) {
+                    if (!data.items || !data.items.length) {
+                        container.innerHTML = `<div class="py-10 text-center font-mono-tech text-xs text-[#5C6661]">Your bag is currently empty.</div>`;
+                    } else {
+                        container.innerHTML = data.items.map(it => `
+                            <div class="flex items-center gap-3 p-3 rounded-2xl bg-[#F4F1EA] border border-[#E7E3D8]">
+                                <img src="${it.image_url}" alt="${it.name}" class="w-14 h-14 rounded-xl bg-[#FCFBF8] p-1.5 object-contain shrink-0">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-xs font-bold text-[#0D1512] truncate">${it.name}</div>
+                                    <div class="font-mono-tech text-[10px] text-[#5C6661]">EU ${it.size} &times; ${it.qty}</div>
+                                </div>
+                                <div class="font-mono-tech text-xs font-extrabold text-[#0D1512]">${it.line_total_formatted}</div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (_) {}
+        }
+
+        async function quickAddToBag(sneakerId, size = '42', qty = 1) {
+            await fetch(`/api/cart/add/${sneakerId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ size, qty })
             });
             await refreshBagDrawer();
         }
 
+        async function openBagDrawer() {
+            StudioAudio.click(640);
+            await refreshBagDrawer();
+            const backdrop = document.getElementById('bagDrawerBackdrop');
+            const panel = document.getElementById('bagDrawerPanel');
+            backdrop.classList.remove('hidden');
+            backdrop.classList.add('flex');
+            requestAnimationFrame(() => panel.classList.remove('translate-x-full'));
+        }
         function closeBagDrawer() {
             const backdrop = document.getElementById('bagDrawerBackdrop');
-            const drawer = document.getElementById('bagDrawer');
-            backdrop.classList.add('opacity-0');
-            drawer.classList.add('translate-x-full');
-            setTimeout(() => backdrop.classList.add('hidden'), 300);
+            const panel = document.getElementById('bagDrawerPanel');
+            panel.classList.add('translate-x-full');
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+                backdrop.classList.remove('flex');
+            }, 260);
         }
 
-        async function refreshBagDrawer() {
-            const res = await fetch('/api/cart/state');
-            const state = await res.json();
-            const countBadge = document.getElementById('navBagCount');
-            if (countBadge) countBadge.textContent = state.count;
-
-            document.getElementById('bagDrawerSubtotal').textContent = state.subtotal_formatted;
-            document.getElementById('bagShipBar').style.width = `${state.progress_pct}%`;
-            document.getElementById('bagShipText').innerHTML = state.free_shipping_unlocked
-                ? '<span class="text-[#FF4D1C] font-bold">COMPLIMENTARY EXPRESS DISPATCH UNLOCKED</span>'
-                : `Add <strong class="text-white">${state.remaining_formatted}</strong> more for complimentary dispatch`;
-
-            const list = document.getElementById('bagDrawerItems');
-            if (!state.items.length) {
-                list.innerHTML = '<div class="p-6 rounded-2xl bg-[#F4F1EA] border border-[#DFDBD0] text-center text-xs text-[#5C6661]">Your bag is currently empty.</div>';
-                return;
-            }
-            list.innerHTML = state.items.map(it => `
-                <div class="p-3 rounded-2xl bg-[#F4F1EA] border border-[#DFDBD0] flex items-center gap-3">
-                    <img src="${it.image_url}" alt="${it.name}" class="w-14 h-14 object-contain rounded-xl bg-white/80 p-1.5 shrink-0">
-                    <div class="flex-1 min-w-0">
-                        <div class="text-xs font-black text-[#0D1512] truncate">${it.name}</div>
-                        <div class="font-mono-tech text-[10px] text-[#5C6661]">EU ${it.size} &bull; QTY ${it.qty}</div>
-                        <div class="font-mono-tech text-xs font-bold text-[#FF4D1C] mt-0.5">${it.line_total_formatted}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function quickAddToBag(sneakerId, size) {
-            StudioAudio.chime();
-            await fetch(`/api/cart/add/${sneakerId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ size: size, qty: 1 })
-            });
-            closeQuickView();
-            await openBagDrawer();
-        }
-
-        /* --- 6. QUICK-VIEW 3D SPOTLIGHT MODAL --- */
-        async function openQuickView(sneakerId) {
-            StudioAudio.click(580);
-            const list = await getCatalogData();
-            const shoe = list.find(s => s.id === sneakerId);
-            if (!shoe) return;
-
-            const sizeOptions = shoe.sizes.map(sz => `<option value="${sz}">EU ${sz}</option>`).join('');
-            document.getElementById('quickViewBody').innerHTML = `
-                <div class="rounded-2xl bg-[#F4F1EA] border border-[#DFDBD0] p-6 flex items-center justify-center h-64">
-                    <img src="${shoe.image_url}" alt="${shoe.name}" class="max-h-full max-w-full object-contain drop-shadow-xl">
-                </div>
-                <div class="space-y-4">
-                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C] font-bold">${shoe.brand} &bull; ${shoe.category}</div>
-                    <h3 class="text-2xl font-black uppercase tracking-tight text-[#0D1512]">${shoe.name}</h3>
-                    <div class="font-mono-tech text-xl font-black text-[#0D1512]">${shoe.price_formatted}</div>
-                    <p class="text-xs text-[#5C6661] leading-relaxed">${shoe.description}</p>
-                    <div class="flex items-center gap-2 pt-2">
-                        <select id="qvSizeSelect" class="px-3 py-2.5 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
-                            ${sizeOptions}
-                        </select>
-                        <button type="button" onclick="quickAddToBag(${shoe.id}, document.getElementById('qvSizeSelect').value)"
-                                class="blaze-glow flex-1 py-2.5 px-4 rounded-full bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider hover:bg-[#E63E10]">
-                            + Add to Bag
-                        </button>
-                    </div>
-                    <a href="/sneaker/${shoe.id}" class="block text-center font-mono-tech text-[11px] font-bold uppercase underline underline-offset-4 text-[#5C6661] hover:text-[#0D1512]">
-                        Open Full Telemetry Page &rarr;
-                    </a>
-                </div>
-            `;
-            const backdrop = document.getElementById('quickViewBackdrop');
-            backdrop.classList.remove('hidden');
-            requestAnimationFrame(() => backdrop.classList.remove('opacity-0'));
-        }
-
-        function closeQuickView() {
-            const backdrop = document.getElementById('quickViewBackdrop');
-            backdrop.classList.add('opacity-0');
-            setTimeout(() => backdrop.classList.add('hidden'), 200);
-        }
-
-        /* --- 7. SIZE DRAWER --- */
         function openSizeDrawer() {
-            StudioAudio.click(500);
-            const backdrop = document.getElementById('sizeDrawerBackdrop');
-            const drawer = document.getElementById('sizeDrawer');
-            backdrop.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                backdrop.classList.remove('opacity-0');
-                drawer.classList.remove('translate-x-full');
-            });
+            StudioAudio.click(540);
+            const m = document.getElementById('sizeDrawerModal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
         }
-
         function closeSizeDrawer() {
-            const backdrop = document.getElementById('sizeDrawerBackdrop');
-            const drawer = document.getElementById('sizeDrawer');
-            backdrop.classList.add('opacity-0');
-            drawer.classList.add('translate-x-full');
-            setTimeout(() => backdrop.classList.add('hidden'), 300);
+            const m = document.getElementById('sizeDrawerModal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
         }
 
-        /* --- GLOBAL KEYBOARD SHORTCUTS --- */
         document.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
                 e.preventDefault();
                 openCommandPalette();
-            }
-            if (e.key === 'Escape') {
+            } else if (e.key === 'Escape') {
                 closeCommandPalette();
-                closeBagDrawer();
                 closeQuickView();
+                closeBagDrawer();
                 closeSizeDrawer();
             }
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            syncThemeButton();
-            syncAudioButton();
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.08 });
-
-            document.querySelectorAll('.reveal-up').forEach((el) => observer.observe(el));
-
-            document.querySelectorAll('[data-tilt]').forEach((card) => {
-                card.addEventListener('mousemove', (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = (e.clientX - rect.left) / rect.width - 0.5;
-                    const y = (e.clientY - rect.top) / rect.height - 0.5;
-                    card.style.transform = `perspective(1000px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg) translateY(-2px)`;
-                });
-                card.addEventListener('mouseleave', () => {
-                    card.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) translateY(0px)';
-                });
-            });
-
-            document.querySelectorAll('.magnetic-btn').forEach((btn) => {
-                btn.addEventListener('mousemove', (e) => {
-                    const rect = btn.getBoundingClientRect();
-                    const dx = (e.clientX - (rect.left + rect.width / 2)) * 0.18;
-                    const dy = (e.clientY - (rect.top + rect.height / 2)) * 0.18;
-                    btn.style.transform = `translate(${dx}px, ${dy}px)`;
-                });
-                btn.addEventListener('mouseleave', () => {
-                    btn.style.transform = 'translate(0px, 0px)';
-                });
-            });
         });
     </script>
 </body>
