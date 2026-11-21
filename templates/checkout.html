@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Order History — ATELIER KICKS{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-black tracking-tight uppercase mb-6">Order History</h1>
+
+{% if orders %}
+    <div class="space-y-4">
+        {% for order in orders %}
+            <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-2">
+                    <span class="text-base font-black">Order #{{ order.id }} &mdash; {{ order.customer_name }}</span>
+                    <div class="flex items-center gap-3">
+                        <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">{{ order.status }}</span>
+                        <span class="text-base font-black">${{ "%.2f"|format(order.total) }}</span>
+                    </div>
+                </div>
+                <p class="text-sm text-neutral-700 mb-2"><strong>Items:</strong> {{ order.items_summary }}</p>
+                <p class="text-xs text-neutral-500">Destination: {{ order.city }} &bull; Placed: {{ order.created_at }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="bg-white rounded-2xl border border-neutral-200 p-12 text-center">
+        <p class="text-sm text-neutral-500 mb-4">No orders recorded yet.</p>
+        <a href="/shop" class="bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full">Browse Catalog</a>
+    </div>
+{% endif %}
+{% endblock %}

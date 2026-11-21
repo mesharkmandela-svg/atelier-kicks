@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Your Bag & Checkout — ATELIER KICKS{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-black tracking-tight uppercase mb-6">Your Bag</h1>
+
+{% if confirmed_order %}
+    <div class="bg-white border-l-4 border-emerald-600 rounded-2xl p-6 sm:p-8 shadow-sm mb-8">
+        <h2 class="text-xl font-black uppercase mb-2">Order #{{ confirmed_order.id }} Confirmed</h2>
+        <p class="text-sm text-neutral-700 mb-2">
+            Thank you, <strong>{{ confirmed_order.customer_name }}</strong>. Total paid: <strong>{{ confirmed_order.total_formatted }}</strong> via <strong>{{ confirmed_order.payment_method }}</strong>
+            {% if confirmed_order.mpesa_phone %}({{ confirmed_order.mpesa_phone }}){% endif %}.
+        </p>
+        <p class="text-xs text-neutral-500 mb-5">Shipping Destination: {{ confirmed_order.city }}</p>
+        <div class="flex flex-wrap gap-3">
+            <a href="/orders" class="bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-full">View Order History</a>
+            <a href="/shop" class="border border-neutral-300 text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-full">Continue Shopping</a>
+        </div>
+    </div>
+{% endif %}
+
+{% if cart %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-neutral-200 p-6 divide-y divide-neutral-100">
+            {% for item in cart %}
+                <div class="py-4 first:pt-0 last:pb-0 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <span class="w-14 h-14 rounded-xl border border-neutral-200 flex-shrink-0" style="background: {{ item.accent_hex }};"></span>
+                        <div>
+                            <div class="text-xs font-bold text-neutral-500 uppercase">{{ item.brand }}</div>
+                            <div class="text-base font-extrabold">{{ item.name }}</div>
+                            <div class="text-xs text-neutral-500">{{ item.colorway }} &bull; Size EU {{ item.size }}</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <form method="POST" action="/cart/update/{{ loop.index0 }}/dec">
+                            <button type="submit" class="w-8 h-8 rounded-full border border-neutral-300 font-bold hover:border-neutral-950">-</button>
+                        </form>
+                        <span class="text-sm font-bold w-5 text-center">{{ item.qty }}</span>
+                        <form method="POST" action="/cart/update/{{ loop.index0 }}/inc">
+                            <button type="submit" class="w-8 h-8 rounded-full border border-neutral-300 font-bold hover:border-neutral-950">+</button>
+                        </form>
+                        <span class="text-sm font-black w-28 text-right">{{ format_price(item.price * item.qty) }}</span>
+                        <form method="POST" action="/cart/update/{{ loop.index0 }}/remove">
+                            <button type="submit" class="text-xs font-bold text-neutral-400 hover:text-red-600 ml-2">Remove</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+            <h2 class="text-lg font-black uppercase mb-4">Checkout Summary</h2>
+
+            <form method="POST" action="/cart" class="flex gap-2 mb-5">
+                <input type="hidden" name="form_type" value="promo">
+                <input type="text" name="promo_code" value="{{ promo_code }}" placeholder="Promo (KICKS15 / VIP25)" class="flex-1 px-3.5 py-2 rounded-full border border-neutral-300 text-xs font-bold uppercase">
+                <button type="submit" class="bg-neutral-900 text-white text-xs font-bold uppercase px-4 py-2 rounded-full">Apply</button>
+            </form>
+
+            <div class="space-y-2 text-sm mb-4">
+                <div class="flex justify-between"><span class="text-neutral-600">Subtotal</span><strong>{{ format_price(subtotal) }}</strong></div>
+                {% if discount_amt > 0 %}
+                    <div class="flex justify-between text-emerald-700"><span>Discount ({{ promo_code }})</span><strong>-{{ format_price(discount_amt) }}</strong></div>
+                {% endif %}
+                <div class="flex justify-between"><span class="text-neutral-600">Delivery</span><strong>{{ "FREE" if shipping == 0 else format_price(shipping) }}</strong></div>
+                <div class="border-t border-neutral-200 pt-3 flex justify-between text-base font-black">
+                    <span>Total</span><span>{{ format_price(total) }}</span>
+                </div>
+            </div>
+
+            <form method="POST" action="/cart" id="checkoutForm" class="space-y-3 mt-6">
+                <input type="hidden" name="form_type" value="checkout">
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Full Name</label>
+                    <input type="text" name="customer_name" required class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Email</label>
+                    <input type="email" name="email" required class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Delivery Location (e.g. Nairobi / Juja)</label>
+                    <input type="text" name="city" required class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Payment Method</label>
+                    <select name="payment_method" id="payMethod" onchange="toggleMpesaField()" class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm font-bold">
+                        <option value="M-PESA Express">M-PESA Express (STK Push)</option>
+                        <option value="Visa / Mastercard">Visa / Mastercard</option>
+                    </select>
+                </div>
+
+                <div id="mpesaBox" class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+                    <label class="block text-xs font-bold uppercase text-emerald-900 mb-1">M-PESA Phone Number</label>
+                    <input type="tel" name="mpesa_phone" id="mpesaPhone" placeholder="07XX XXX XXX" required class="w-full px-3.5 py-2 rounded-lg border border-emerald-300 bg-white text-sm font-mono">
+                    <p class="text-[11px] text-emerald-800 mt-1">An instant STK prompt simulation will trigger on submit.</p>
+                </div>
+
+                <button type="button" onclick="handlePaymentSubmit()" class="w-full bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider py-4 rounded-full hover:bg-emerald-700 transition mt-2">
+                    Pay {{ format_price(total) }} Now
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- M-PESA STK Push Simulation Modal -->
+    <div id="stkModal" class="fixed inset-0 bg-black/65 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl">
+            <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 font-black flex items-center justify-center mx-auto mb-3 text-lg">M</div>
+            <h3 class="text-lg font-black uppercase mb-1">M-PESA Prompt Sent</h3>
+            <p class="text-xs text-neutral-600 mb-4">Check phone <strong id="stkPhoneDisplay"></strong> and enter your M-PESA PIN to authorize <strong>{{ format_price(total) }}</strong>.</p>
+            <button type="button" onclick="document.getElementById('checkoutForm').submit()" class="w-full bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider py-3.5 rounded-full hover:bg-emerald-700">
+                Confirm PIN Entered &rarr;
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function toggleMpesaField() {
+            const method = document.getElementById('payMethod').value;
+            const box = document.getElementById('mpesaBox');
+            const phone = document.getElementById('mpesaPhone');
+            if (method === 'M-PESA Express') {
+                box.classList.remove('hidden');
+                phone.required = true;
+            } else {
+                box.classList.add('hidden');
+                phone.required = false;
+            }
+        }
+
+        function handlePaymentSubmit() {
+            const form = document.getElementById('checkoutForm');
+            if (!form.reportValidity()) return;
+
+            const method = document.getElementById('payMethod').value;
+            if (method === 'M-PESA Express') {
+                document.getElementById('stkPhoneDisplay').textContent = document.getElementById('mpesaPhone').value;
+                const modal = document.getElementById('stkModal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                form.submit();
+            }
+        }
+    </script>
+{% elif not confirmed_order %}
+    <div class="bg-white rounded-2xl border border-neutral-200 p-12 text-center">
+        <h2 class="text-xl font-bold mb-2">Your bag is empty</h2>
+        <p class="text-sm text-neutral-500 mb-6">Explore the catalog and select your size to add pairs.</p>
+        <a href="/shop" class="bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full">Shop Footwear</a>
+    </div>
+{% endif %}
+{% endblock %}

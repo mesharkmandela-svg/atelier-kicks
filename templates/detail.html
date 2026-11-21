@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}{{ shoe.name }} — ATELIER KICKS{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="/shop" class="text-xs font-bold uppercase tracking-wider text-neutral-600 hover:text-neutral-950">&larr; Back to All Footwear</a>
+</div>
+
+<div class="bg-white rounded-3xl border border-neutral-200 p-6 sm:p-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-start mb-12">
+    <div>
+        <div id="stageBox" class="h-80 sm:h-96 rounded-2xl bg-neutral-100 flex flex-col items-center justify-center p-8 relative overflow-hidden transition-colors duration-300">
+            <span class="absolute top-5 left-5 bg-neutral-950 text-white text-xs font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full">
+                {{ shoe.badge }}
+            </span>
+
+            <img id="mainShoeImg"
+                 src="{{ url_for('static', filename='images/' + shoe.image_file) }}"
+                 alt="{{ shoe.name }}"
+                 onerror="this.style.display='none'; document.getElementById('fallbackSvg').style.display='block';"
+                 class="w-full h-full object-contain transition-transform duration-300">
+
+            <svg id="fallbackSvg" style="display:none;" viewBox="0 0 260 120" class="w-72 drop-shadow-xl transition-transform duration-300">
+                <path d="M22 86 C45 86, 75 52, 118 48 C148 45, 175 64, 232 72 C244 74, 248 92, 234 96 L24 96 C14 96, 12 86, 22 86 Z" fill="#18181b"/>
+                <path d="M18 96 L240 96 C244 104, 236 110, 224 110 L26 110 C16 110, 14 102, 18 96 Z" fill="#ffffff"/>
+                <path d="M78 76 Q135 84 198 74" stroke="{{ shoe.accent_hex }}" stroke-width="7" stroke-linecap="round" fill="none"/>
+            </svg>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 mt-4">
+            <button type="button" onclick="setAngle('rotate(0deg) scale(1)', '#f5f5f5')" class="border border-neutral-300 hover:border-neutral-950 rounded-xl py-2.5 text-xs font-bold uppercase">Profile View</button>
+            <button type="button" onclick="setAngle('rotate(-12deg) scale(1.08)', '#e5e5e5')" class="border border-neutral-300 hover:border-neutral-950 rounded-xl py-2.5 text-xs font-bold uppercase">Dynamic Tilt</button>
+            <button type="button" onclick="setAngle('scaleX(-1) rotate(-6deg)', '#f5f5f5')" class="border border-neutral-300 hover:border-neutral-950 rounded-xl py-2.5 text-xs font-bold uppercase">Medial Side</button>
+        </div>
+
+        <!-- Technical Specs Grid -->
+        <div class="grid grid-cols-3 gap-3 mt-6 bg-neutral-50 border border-neutral-200 rounded-2xl p-4 text-center">
+            <div>
+                <div class="text-[11px] font-bold uppercase text-neutral-400">Weight</div>
+                <div class="text-base font-black mt-0.5">{{ shoe.weight_g }}g</div>
+            </div>
+            <div>
+                <div class="text-[11px] font-bold uppercase text-neutral-400">Heel-Toe Drop</div>
+                <div class="text-base font-black mt-0.5">{{ shoe.drop_mm }}mm</div>
+            </div>
+            <div>
+                <div class="text-[11px] font-bold uppercase text-neutral-400">Rating</div>
+                <div class="text-base font-black mt-0.5">{{ avg_rating }} / 5.0</div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="text-xs font-extrabold uppercase tracking-widest text-neutral-500 mb-1">
+            {{ shoe.brand }} &bull; {{ shoe.category }}
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-black tracking-tight mb-2">{{ shoe.name }}</h1>
+        <div class="text-2xl font-black mb-4">${{ "%.2f"|format(shoe.price) }}</div>
+        <p class="text-sm text-neutral-600 leading-relaxed mb-6">{{ shoe.description }}</p>
+
+        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider mb-6">
+            <span class="w-4 h-4 rounded-full border border-neutral-400" style="background: {{ shoe.accent_hex }};"></span>
+            <span>Colorway: {{ shoe.colorway }}</span>
+        </div>
+
+        <form method="POST" action="/cart/add/{{ shoe.id }}">
+            <input type="hidden" name="size" id="selectedSizeInput" value="{{ sizes[0] }}">
+
+            <div class="mb-6">
+                <div class="flex justify-between text-xs font-bold uppercase tracking-wider mb-3">
+                    <span>Select Size (EU)</span>
+                    <button type="button" onclick="document.getElementById('sizeGuideModal').classList.remove('hidden'); document.getElementById('sizeGuideModal').classList.add('flex');" class="underline text-neutral-500 hover:text-neutral-950">Size Guide</button>
+                </div>
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+                    {% for sz in sizes %}
+                        <button type="button"
+                                onclick="pickSize(this, '{{ sz }}')"
+                                class="size-pill py-3 rounded-xl text-sm font-bold border transition {% if loop.first %}bg-neutral-950 text-white border-neutral-950{% else %}bg-white text-neutral-900 border-neutral-300 hover:border-neutral-950{% endif %}">
+                            EU {{ sz }}
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label for="qty" class="block text-xs font-bold uppercase tracking-wider mb-2">Quantity</label>
+                <input id="qty" type="number" name="qty" value="1" min="1" max="10"
+                       class="w-24 px-4 py-2.5 rounded-xl border border-neutral-300 font-bold text-sm">
+            </div>
+
+            <button type="submit" class="w-full bg-neutral-950 text-white font-bold text-sm uppercase tracking-wider py-4 rounded-full hover:bg-neutral-800 transition">
+                Add to Bag &mdash; {{ format_price(shoe.price) }}
+            </button>
+        </form>
+
+        <form method="POST" action="/wishlist/toggle/{{ shoe.id }}" class="mt-3">
+            <button type="submit" class="w-full border border-neutral-300 hover:border-neutral-950 text-neutral-900 font-bold text-sm uppercase tracking-wider py-3.5 rounded-full transition">
+                {{ "Remove from Saved" if in_wishlist else "Save to Wishlist" }}
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Verified Customer Reviews Section -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-14">
+    <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+        <h2 class="text-lg font-black uppercase mb-1">Write a Review</h2>
+        <p class="text-xs text-neutral-500 mb-4">Share how this silhouette fits and performs.</p>
+        <form method="POST" class="space-y-3">
+            <div>
+                <label class="block text-xs font-bold uppercase mb-1">Your Name</label>
+                <input type="text" name="author" required placeholder="e.g. Alex M." class="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-sm">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Rating</label>
+                    <select name="rating" class="w-full px-3 py-2 rounded-xl border border-neutral-300 text-sm font-bold">
+                        <option value="5">5 Stars</option>
+                        <option value="4">4 Stars</option>
+                        <option value="3">3 Stars</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Fit</label>
+                    <select name="fit" class="w-full px-3 py-2 rounded-xl border border-neutral-300 text-sm font-bold">
+                        <option value="True to size">True to size</option>
+                        <option value="Runs small">Runs small</option>
+                        <option value="Runs wide">Runs wide</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold uppercase mb-1">Review</label>
+                <textarea name="comment" rows="3" required placeholder="Cushioning, grip, daily comfort..." class="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-sm"></textarea>
+            </div>
+            <button type="submit" class="w-full bg-neutral-950 text-white text-xs font-bold uppercase tracking-wider py-3 rounded-full">Post Review</button>
+        </form>
+    </div>
+
+    <div class="lg:col-span-2 space-y-4">
+        <h2 class="text-xl font-black uppercase">Member Reviews ({{ reviews|length }})</h2>
+        {% if reviews %}
+            {% for r in reviews %}
+                <div class="bg-white rounded-2xl border border-neutral-200 p-5">
+                    <div class="flex justify-between items-center mb-1">
+                        <strong class="text-sm">{{ r.author }} &bull; <span class="text-amber-500">{{ "★" * r.rating }}</span></strong>
+                        <span class="text-xs font-bold bg-neutral-100 px-2.5 py-1 rounded-full">{{ r.fit }}</span>
+                    </div>
+                    <p class="text-sm text-neutral-700">{{ r.comment }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="bg-white rounded-2xl border border-neutral-200 p-6 text-sm text-neutral-500">No reviews yet. Be the first to review this pair!</div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Size Guide Modal -->
+<div id="sizeGuideModal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-black uppercase">EU / US / UK Size Conversion</h3>
+            <button type="button" onclick="document.getElementById('sizeGuideModal').classList.add('hidden');" class="text-xs font-bold bg-neutral-100 px-3 py-1 rounded-full">Close</button>
+        </div>
+        <table class="w-full text-xs text-left border-collapse">
+            <thead>
+                <tr class="border-b border-neutral-200 font-black">
+                    <th class="py-2">EU</th><th class="py-2">US Men</th><th class="py-2">UK</th><th class="py-2">CM</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-neutral-100">
+                <tr><td class="py-2">40</td><td>7</td><td>6</td><td>25.0</td></tr>
+                <tr><td class="py-2">41</td><td>8</td><td>7</td><td>26.0</td></tr>
+                <tr><td class="py-2">42</td><td>8.5</td><td>7.5</td><td>26.5</td></tr>
+                <tr><td class="py-2">43</td><td>9.5</td><td>8.5</td><td>27.5</td></tr>
+                <tr><td class="py-2">44</td><td>10</td><td>9</td><td>28.0</td></tr>
+                <tr><td class="py-2">45</td><td>11</td><td>10</td><td>29.0</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function pickSize(btn, size) {
+        document.getElementById('selectedSizeInput').value = size;
+        document.querySelectorAll('.size-pill').forEach(el => {
+            el.classList.remove('bg-neutral-950', 'text-white', 'border-neutral-950');
+            el.classList.add('bg-white', 'text-neutral-900', 'border-neutral-300');
+        });
+        btn.classList.remove('bg-white', 'text-neutral-900', 'border-neutral-300');
+        btn.classList.add('bg-neutral-950', 'text-white', 'border-neutral-950');
+    }
+
+    function setAngle(transformVal, bgColor) {
+        const img = document.getElementById('mainShoeImg');
+        const svg = document.getElementById('fallbackSvg');
+        const stage = document.getElementById('stageBox');
+        if (img) img.style.transform = transformVal;
+        if (svg) svg.style.transform = transformVal;
+        stage.style.backgroundColor = bgColor;
+    }
+</script>
+{% endblock %}
