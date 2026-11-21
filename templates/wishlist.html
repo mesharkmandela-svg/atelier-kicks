@@ -31,7 +31,7 @@
             </div>
 
             <a href="/sneaker/{{ shoe.id }}" class="block h-48 rounded-xl bg-[#F4F1EA] border border-[#E7E3D8] p-4 flex items-center justify-center mb-5">
-                <img src="{{ url_for('static', filename='images/' + shoe.image_file) }}" alt="{{ shoe.name }}" class="tilt-pop max-h-full max-w-full object-contain">
+                <img src="{{ resolve_image_url(shoe.image_file) }}" alt="{{ shoe.name }}" class="tilt-pop max-h-full max-w-full object-contain">
             </a>
 
             <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">{{ shoe.brand }} &bull; {{ shoe.category }}</div>
@@ -47,7 +47,7 @@
                         <option value="{{ sz }}">EU {{ sz }}</option>
                     {% endfor %}
                 </select>
-                <button type="submit" class="px-4 py-2 rounded-full bg-[#FF4D1C] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#E63E10] transition">
+                <button type="submit" onclick="StudioAudio.chime()" class="px-4 py-2 rounded-full bg-[#FF4D1C] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#E63E10] transition">
                     Move to Bag
                 </button>
             </form>
