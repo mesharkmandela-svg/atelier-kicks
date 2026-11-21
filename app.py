@@ -60,6 +60,17 @@ KEYWORD_ALIASES = {
 }
 
 
+def compute_telemetry(category: str) -> dict:
+    cat = (category or "").strip()
+    if cat == "Running":
+        return {"cushion": 94, "response": 96, "traction": 84}
+    if cat == "Basketball":
+        return {"cushion": 88, "response": 90, "traction": 92}
+    if cat == "Trail":
+        return {"cushion": 84, "response": 82, "traction": 98}
+    return {"cushion": 78, "response": 76, "traction": 85}
+
+
 def resolve_image_url(image_file: str) -> str:
     clean = (image_file or "").strip()
     stem = os.path.splitext(clean)[0] if clean else "ak"
@@ -419,6 +430,24 @@ def get_cart_summary() -> tuple[list[dict], float, float, float, int]:
     return items, subtotal, shipping, total, total_qty
 
 
+def get_recent_sneakers(exclude_id: int | None = None, limit: int = 4) -> list[dict]:
+    recent_ids = session.get("recently_viewed", [])
+    if not recent_ids:
+        return []
+    conn = get_db()
+    result = []
+    for sid in recent_ids:
+        if exclude_id is not None and int(sid) == int(exclude_id):
+            continue
+        row = conn.execute("SELECT * FROM sneakers WHERE id = ?", (sid,)).fetchone()
+        if row:
+            result.append(dict(row))
+        if len(result) >= limit:
+            break
+    conn.close()
+    return result
+
+
 @app.context_processor
 def inject_globals():
     _, _, _, _, cart_count = get_cart_summary()
@@ -478,6 +507,7 @@ def shop():
         filtered.sort(key=lambda s: (-int(s.get("featured", 0)), s["id"]))
 
     conn.close()
+    recently_viewed = get_recent_sneakers(limit=4)
     return render_template(
         "shop.html",
         sneakers=filtered,
@@ -487,6 +517,7 @@ def shop():
         selected_category=category,
         selected_brand=brand,
         sort_by=sort_by,
+        recently_viewed=recently_viewed,
     )
 
 
@@ -507,6 +538,12 @@ def sneaker_detail(sneaker_id: int):
         flash("Silhouette not found in archive.")
         return redirect(url_for("shop"))
 
+    # Record Recently Viewed rotation history
+    rv = [int(x) for x in session.get("recently_viewed", []) if int(x) != sneaker_id]
+    rv.insert(0, sneaker_id)
+    session["recently_viewed"] = rv[:6]
+    session.modified = True
+
     reviews = [
         dict(r)
         for r in conn.execute(
@@ -518,11 +555,13 @@ def sneaker_detail(sneaker_id: int):
     avg_rating = (
         round(sum(r["rating"] for r in reviews) / len(reviews), 1) if reviews else None
     )
+    recently_viewed = get_recent_sneakers(exclude_id=sneaker_id, limit=4)
     return render_template(
         "detail.html",
         sneaker=dict(row),
         reviews=reviews,
         avg_rating=avg_rating,
+        recently_viewed=recently_viewed,
     )
 
 
@@ -830,6 +869,7 @@ def api_catalog():
     conn.close()
     items = []
     for r in rows:
+        telemetry = compute_telemetry(r["category"])
         items.append(
             {
                 "id": r["id"],
@@ -843,6 +883,7 @@ def api_catalog():
                 "sizes": [s.strip() for s in r["sizes"].split(",") if s.strip()],
                 "description": r["description"],
                 "stock": r["stock"],
+                "telemetry": telemetry,
             }
         )
     return jsonify({"sneakers": items, "currency": get_currency()})
@@ -895,6 +936,32 @@ def api_cart_add(sneaker_id: int):
         cart[key] = {"sneaker_id": sneaker_id, "size": size, "qty": qty}
     session["cart"] = cart
     session.modified = True
+    return api_cart_state()
+
+
+@app.route("/api/cart/update/<path:item_key>", methods=["POST"])
+def api_cart_update(item_key: str):
+    data = request.get_json(silent=True) or {}
+    delta = int(data.get("delta", 0))
+    cart = session.get("cart", {})
+    if item_key in cart:
+        new_qty = int(cart[item_key].get("qty", 1)) + delta
+        if new_qty <= 0:
+            del cart[item_key]
+        else:
+            cart[item_key]["qty"] = new_qty
+        session["cart"] = cart
+        session.modified = True
+    return api_cart_state()
+
+
+@app.route("/api/cart/remove/<path:item_key>", methods=["POST"])
+def api_cart_remove(item_key: str):
+    cart = session.get("cart", {})
+    if item_key in cart:
+        del cart[item_key]
+        session["cart"] = cart
+        session.modified = True
     return api_cart_state()
 
 

@@ -109,13 +109,17 @@
             </form>
         </div>
 
-        <div class="pt-6 mt-6 border-t border-[#ECE8DE] flex items-center justify-between">
+        <div class="pt-6 mt-6 border-t border-[#ECE8DE] flex flex-wrap items-center justify-between gap-3">
             <form method="POST" action="/wishlist/toggle/{{ sneaker.id }}">
                 <input type="hidden" name="next" value="/sneaker/{{ sneaker.id }}">
                 <button type="submit" class="text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">
                     {% if sneaker.id in wishlist_ids %}&hearts; Saved in Wishlist{% else %}&hearts; Save to Wishlist{% endif %}
                 </button>
             </form>
+            <button type="button" data-compare-btn="{{ sneaker.id }}" onclick="toggleCompare({{ sneaker.id }})"
+                    class="px-3.5 py-1.5 rounded-full border border-[#DFDBD0] font-mono-tech text-[11px] font-bold uppercase text-[#5C6661] hover:border-[#FF4D1C] hover:text-[#FF4D1C] transition">
+                Compare
+            </button>
             <a href="/lookbook" class="font-mono-tech text-[11px] font-bold uppercase text-[#0D1512] hover:text-[#FF4D1C] underline underline-offset-4 transition">
                 View in 3D Book
             </a>
@@ -166,6 +170,29 @@
         </div>
     </div>
 </section>
+
+{% if recently_viewed %}
+<section class="reveal-up pt-10 border-t border-[#DFDBD0]">
+    <div class="mb-5">
+        <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">SESSION ROTATION HISTORY</div>
+        <h2 class="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#0D1512]">Recently Inspected</h2>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {% for rv in recently_viewed %}
+        <a href="/sneaker/{{ rv.id }}" class="rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-4 hover:border-[#FF4D1C] transition flex flex-col justify-between">
+            <div class="h-28 rounded-xl bg-[#F4F1EA] p-3 flex items-center justify-center mb-3">
+                <img src="{{ resolve_image_url(rv.image_file) }}" alt="{{ rv.name }}" class="max-h-full max-w-full object-contain">
+            </div>
+            <div>
+                <div class="font-mono-tech text-[10px] uppercase text-[#5C6661]">{{ rv.brand }}</div>
+                <div class="text-xs font-bold text-[#0D1512] truncate">{{ rv.name }}</div>
+                <div class="font-mono-tech text-xs font-extrabold text-[#FF4D1C] mt-0.5">{{ format_price(rv.price) }}</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 
 <script>
     function setStageLighting(mode, btn) {
