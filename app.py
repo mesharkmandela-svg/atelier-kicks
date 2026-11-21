@@ -45,18 +45,18 @@ def _norm(text: str) -> str:
 
 
 KEYWORD_ALIASES = {
-    "alphafly": ["alphafly", "airzoom", "next3", "nike1", "runner1"],
-    "samba": ["samba", "terrace", "adidas1"],
-    "xt6": ["xt6", "salomon", "goretex", "trail1"],
-    "primex": ["primex", "adizero", "strung"],
-    "dunkhigh": ["dunk", "varsity", "retro", "high"],
-    "990v6": ["990", "newbalance", "nb990"],
-    "kayano31": ["kayano", "gelkayano", "asics"],
-    "cloudultra2": ["cloudultra", "cloud", "onrunning", "oncloud"],
-    "ae1": ["ae1", "anthony", "hardwood"],
-    "gazelle": ["gazelle", "indoor"],
-    "vaporfly3": ["vaporfly", "proto"],
-    "speedgoat5": ["speedgoat", "hoka", "vibram"],
+    "alphafly": ["alphafly"],
+    "samba": ["samba"],
+    "terrex": ["terrex", "xt6", "salomon", "trail"],
+    "adizero": ["adizero", "primex", "prime"],
+    "dunk": ["dunk", "dunkhigh"],
+    "nb990": ["nb990", "990v6", "990"],
+    "jordan1": ["jordan1", "jordan", "kayano", "kayano31"],
+    "cloud": ["cloud", "cloudultra", "cloudultra2"],
+    "ae1": ["ae1"],
+    "gazelle": ["gazelle"],
+    "kiger": ["kiger", "vaporfly", "vaporfly3"],
+    "metcon": ["metcon", "speedgoat", "speedgoat5"],
 }
 
 
@@ -81,12 +81,10 @@ def resolve_image_url(image_file: str) -> str:
     norm_stem = _norm(stem)
     aliases = KEYWORD_ALIASES.get(norm_stem, [norm_stem])
 
-    # 1. Exact normalized stem match
     for fname in available:
         if _norm(os.path.splitext(fname)[0]) == norm_stem:
             return url_for("static", filename="images/" + fname)
 
-    # 2. Alias / substring keyword match (e.g., salomon_xt6.jpg matches xt6.png)
     for alias in aliases:
         if not alias:
             continue
@@ -145,7 +143,7 @@ DEFAULT_SNEAKERS = [
         285.0,
         "CARBON RACE",
         "#FF4D1C",
-        "alphafly.png",
+        "alphafly.jpg",
         "39,40,41,42,43,44,45",
         12,
         "Dual Air Zoom units paired with full-length carbon fiber plate and ZoomX foam for marathon propulsion.",
@@ -158,23 +156,23 @@ DEFAULT_SNEAKERS = [
         115.0,
         "TERRACE ICON",
         "#0D1512",
-        "samba.png",
+        "samba.jpg",
         "39,40,41,42,43,44",
         18,
         "Low-profile full-grain leather upper with suede T-toe overlay and gum rubber outsole.",
         1,
     ),
     (
-        "XT-6 Gore-Tex Trail",
-        "Salomon-Style",
+        "Terrex Gore-Tex Trail",
+        "Outdoor-Style",
         "Trail",
         220.0,
         "ALL-TERRAIN",
         "#16231E",
-        "xt6.png",
+        "terrex.jpg",
         "40,41,42,43,44,45",
         9,
-        "Weather-sealed membrane, Quicklace lock system, and Agile Chassis Skeleton for technical mountain terrain.",
+        "Weather-sealed membrane, rapid lace lock system, and rugged outsole lugs for technical mountain terrain.",
         1,
     ),
     (
@@ -184,7 +182,7 @@ DEFAULT_SNEAKERS = [
         230.0,
         "HIGH STACK",
         "#E63E10",
-        "primex.png",
+        "adizero.jpg",
         "40,41,42,43,44",
         7,
         "Data-driven Strung textile upper locked onto high-rebound Lightstrike Pro foam for long-distance tempo runs.",
@@ -197,7 +195,7 @@ DEFAULT_SNEAKERS = [
         135.0,
         "COURT ARCHIVE",
         "#0D1512",
-        "dunkhigh.png",
+        "dunk.jpg",
         "39,40,41,42,43,44,45",
         14,
         "Crisp heritage leather paneling, padded high-top collar, and classic pivot-circle rubber tread.",
@@ -210,23 +208,23 @@ DEFAULT_SNEAKERS = [
         200.0,
         "STUDIO CRAFT",
         "#16231E",
-        "990v6.png",
+        "nb990.jpg",
         "40,41,42,43,44,45",
         11,
         "Pigskin suede and breathable mesh over FuelCell midsole cushioning for all-day architectural comfort.",
         1,
     ),
     (
-        "Gel-Kayano 31 Stability",
-        "ASICS-Style",
-        "Running",
+        "Jordan 1 Court Classic",
+        "Jordan-Style",
+        "Basketball",
         165.0,
-        "DAILY TRAINER",
+        "COURT ICON",
         "#0D1512",
-        "kayano31.png",
+        "jordan1.jpg",
         "39,40,41,42,43,44",
         15,
-        "4D Guidance System stability paired with FF Blast Plus Eco cushioning and PureGel heel impact absorption.",
+        "Structured leather upper, encapsulated heel cushioning, and durable rubber cup-sole traction.",
         0,
     ),
     (
@@ -236,10 +234,10 @@ DEFAULT_SNEAKERS = [
         180.0,
         "ULTRA READY",
         "#FF4D1C",
-        "cloudultra2.png",
+        "cloud.jpg",
         "40,41,42,43,44",
         8,
-        "Flip-tongue sock fit, dual-layer Helion superfoam, and Missiongrip lugs built for endurance trail miles.",
+        "Flip-tongue sock fit, dual-layer superfoam, and high-grip outsole lugs built for endurance miles.",
         0,
     ),
     (
@@ -249,10 +247,10 @@ DEFAULT_SNEAKERS = [
         120.0,
         "HARDWOOD",
         "#0D1512",
-        "ae1.png",
+        "ae1.jpg",
         "40,41,42,43,44,45",
         13,
-        "Generative support wing and Jet Boost + Lightstrike hybrid midsole engineered for explosive court cuts.",
+        "Generative support wing and hybrid midsole cushioning engineered for explosive court cuts.",
         0,
     ),
     (
@@ -262,36 +260,36 @@ DEFAULT_SNEAKERS = [
         125.0,
         "CLASSIC",
         "#16231E",
-        "gazelle.png",
+        "gazelle.jpg",
         "39,40,41,42,43,44",
         16,
-        "Supple suede upper, translucent gum sole, and gold foil branding inspired by indoor training heritage.",
+        "Supple suede upper, gum sole, and clean terrace proportions inspired by indoor training heritage.",
         0,
     ),
     (
-        "Vaporfly Next% 3 Proto",
+        "Kiger Trail Race",
         "Nike-Style",
-        "Running",
-        260.0,
-        "RACE DAY",
+        "Trail",
+        160.0,
+        "TRAIL SPEED",
         "#E63E10",
-        "vaporfly3.png",
+        "kiger.jpg",
         "40,41,42,43,44",
         6,
-        "Waffle-inspired outsole traction, tapered carbon Flyplate, and responsive ZoomX foam for race-day speed.",
+        "Lightweight breathable mesh, rock-shield protection, and multi-directional lugs for fast off-road pace.",
         0,
     ),
     (
-        "Speedgoat 5 Vibram",
-        "Hoka-Style",
-        "Trail",
+        "Metcon Training Studio",
+        "Reebok-Style",
+        "Running",
         155.0,
         "GRIP LAB",
         "#0D1512",
-        "speedgoat5.png",
+        "metcon.jpg",
         "40,41,42,43,44,45",
         10,
-        "Vibram Megagrip with Traction Lug and CMEVA midsole designed for steep ascents and loose descents.",
+        "Stable heel platform, flexible forefoot, and high-abrasion tread designed for dynamic studio sessions.",
         0,
     ),
 ]
@@ -361,6 +359,26 @@ def init_db() -> None:
             """,
             DEFAULT_SNEAKERS,
         )
+    else:
+        legacy_to_jpg = {
+            "alphafly.png": "alphafly.jpg",
+            "samba.png": "samba.jpg",
+            "xt6.png": "terrex.jpg",
+            "primex.png": "adizero.jpg",
+            "dunkhigh.png": "dunk.jpg",
+            "990v6.png": "nb990.jpg",
+            "kayano31.png": "jordan1.jpg",
+            "cloudultra2.png": "cloud.jpg",
+            "ae1.png": "ae1.jpg",
+            "gazelle.png": "gazelle.jpg",
+            "vaporfly3.png": "kiger.jpg",
+            "speedgoat5.png": "metcon.jpg",
+        }
+        for old_name, new_name in legacy_to_jpg.items():
+            cur.execute(
+                "UPDATE sneakers SET image_file = ? WHERE image_file = ?",
+                (new_name, old_name),
+            )
 
     conn.commit()
     conn.close()
@@ -761,7 +779,7 @@ def admin_add():
     description = (request.form.get("description") or "").strip()
     featured = 1 if request.form.get("featured") else 0
 
-    image_file = "samba.png"
+    image_file = "samba.jpg"
     file = request.files.get("image")
     if file and file.filename and allowed_file(file.filename):
         safe_name = f"{uuid.uuid4().hex[:8]}_{secure_filename(file.filename)}"
