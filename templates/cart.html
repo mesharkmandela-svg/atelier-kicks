@@ -70,7 +70,7 @@
                 </div>
             </div>
 
-            <form method="POST" action="/checkout" class="space-y-4">
+            <form method="POST" action="/checkout" onsubmit="handleMpesaCheckout(event)" class="space-y-4">
                 <div>
                     <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Full Name</label>
                     <input type="text" name="customer_name" required placeholder="Mandela Kimeu"
@@ -121,9 +121,51 @@
     </div>
 </div>
 
+<!-- LIVE M-PESA EXPRESS STK PUSH OVERLAY -->
+<div id="mpesaStkModal" class="fixed inset-0 bg-[#0D1512]/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-3xl bg-[#0D1512] text-[#F4F1EA] border border-[#243830] p-7 text-center space-y-5 shadow-2xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#14201B] border border-[#243830] font-mono-tech text-[10px] uppercase tracking-widest text-emerald-400">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>SAFARICOM DARAJA // STK PUSH SENT</span>
+        </div>
+
+        <h3 class="text-2xl font-black uppercase tracking-tight">Check Your Phone</h3>
+        <p class="text-xs text-[#9BA6A0] leading-relaxed">
+            An M-PESA Express prompt for <strong class="text-white">{{ format_price(total) }}</strong> has been dispatched to <strong id="stkTargetPhone" class="text-[#FF4D1C] font-mono-tech">your number</strong>. Enter your M-PESA PIN to authorize dispatch.
+        </p>
+
+        <div class="p-4 rounded-2xl bg-[#14201B] border border-[#1E2E28] font-mono-tech">
+            <div class="text-[10px] text-[#9BA6A0] uppercase">AUTHORIZATION WINDOW</div>
+            <div id="stkCountdown" class="text-3xl font-black text-[#FF4D1C] mt-1">00:45</div>
+        </div>
+    </div>
+</div>
+
 <script>
     function toggleMpesaField(show) {
         document.getElementById('mpesaPhoneBox').style.display = show ? 'block' : 'none';
+    }
+
+    function handleMpesaCheckout(e) {
+        const method = document.querySelector('input[name="payment_method"]:checked')?.value;
+        if (method !== 'mpesa') return;
+        e.preventDefault();
+        if (typeof StudioAudio !== 'undefined') StudioAudio.chime();
+        const phone = document.querySelector('input[name="mpesa_phone"]')?.value || '2547XXXXXXXX';
+        document.getElementById('stkTargetPhone').textContent = phone;
+        const modal = document.getElementById('mpesaStkModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        let secs = 45;
+        const timer = setInterval(() => {
+            secs--;
+            document.getElementById('stkCountdown').textContent = `00:${String(Math.max(0, secs)).padStart(2, '0')}`;
+            if (secs <= 42) {
+                clearInterval(timer);
+                e.target.submit();
+            }
+        }, 1000);
     }
 </script>
 {% else %}
