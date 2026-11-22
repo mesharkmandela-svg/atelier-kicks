@@ -1,16 +1,21 @@
 ﻿import base64
+from collections import defaultdict
 from datetime import datetime
+import hmac
 import json
 import os
 import re
+import secrets
 import shutil
 import sqlite3
+import time
 import uuid
 
 from dotenv import load_dotenv
 from flask import (
     Flask,
     Response,
+    abort,
     flash,
     jsonify,
     redirect,
@@ -21,12 +26,33 @@ from flask import (
     url_for,
 )
 import requests
+from werkzeug.exceptions import RequestEntityTooLarge
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.utils import secure_filename
 
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "atelier-kicks-studio-secret-2026")
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
+IS_PROD = (
+    os.getenv("FLASK_ENV", "").lower() == "production"
+    or os.getenv("RENDER", "").lower() == "true"
+)
+
+raw_secret = os.getenv("SECRET_KEY", "").strip()
+if not raw_secret:
+    # Ephemeral strong secret fallback if SECRET_KEY is not configured in environment
+    raw_secret = secrets.token_hex(32)
+app.secret_key = raw_secret
+
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=IS_PROD,
+    MAX_CONTENT_LENGTH=5 * 1024 * 1024,  # 5 MB hard cap on uploads & payloads
+    PERMANENT_SESSION_LIFETIME=86400 * 7,
+)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.getenv("DATA_DIR", "").strip() or BASE_DIR
@@ -48,9 +74,119 @@ ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "gif"}
 USD_TO_KES = float(os.getenv("USD_TO_KES", "129.0"))
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "").strip()
 
+# In-memory sliding-window rate limiter store: {bucket_key: [timestamps]}
+_RATE_BUCKETS: dict[str, list[float]] = defaultdict(list)
+
+
+def get_client_ip() -> str:
+    forwarded = (request.headers.get("X-Forwarded-For") or "").split(",")[0].strip()
+    return forwarded or request.remote_addr or "unknown"
+
+
+def check_rate_limit(scope: str, limit: int, window_seconds: int) -> tuple[bool, int]:
+    now = time.time()
+    key = f"{scope}:{get_client_ip()}"
+    recent = [ts for ts in _RATE_BUCKETS[key] if now - ts < window_seconds]
+    if len(recent) >= limit:
+        _RATE_BUCKETS[key] = recent
+        retry_after = max(1, int(window_seconds - (now - recent[0])))
+        return False, retry_after
+    recent.append(now)
+    _RATE_BUCKETS[key] = recent
+    return True, 0
+
+
+def reset_rate_limit(scope: str) -> None:
+    key = f"{scope}:{get_client_ip()}"
+    _RATE_BUCKETS.pop(key, None)
+
+
+def get_csrf_token() -> str:
+    token = session.get("_csrf_token")
+    if not token:
+        token = secrets.token_urlsafe(32)
+        session["_csrf_token"] = token
+        session.modified = True
+    return token
+
+
+app.jinja_env.globals["csrf_token"] = get_csrf_token
+
+
+@app.before_request
+def enforce_security_policies():
+    # Exempt external Safaricom Daraja webhook if ever added under /webhooks/
+    if request.path.startswith("/webhooks/"):
+        return None
+
+    if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+        expected = session.get("_csrf_token") or ""
+        provided = (
+            request.form.get("csrf_token")
+            or request.headers.get("X-CSRFToken")
+            or ""
+        )
+        if not expected or not provided or not hmac.compare_digest(expected, provided):
+            if request.path.startswith("/api/") or request.is_json:
+                return jsonify({"error": "Invalid or missing CSRF security token."}), 403
+            flash("Security check failed (expired session token). Please try again.")
+            return redirect(request.referrer or url_for("home"))
+    return None
+
+
+@app.after_request
+def attach_security_headers(response: Response) -> Response:
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data: blob:; "
+        "connect-src 'self'; "
+        "object-src 'none'; "
+        "base-uri 'self'; "
+        "frame-ancestors 'none';"
+    )
+    if IS_PROD:
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
+
+
+@app.errorhandler(RequestEntityTooLarge)
+def handle_large_payload(_err):
+    flash("Upload rejected: maximum file size is 5 MB.")
+    return redirect(request.referrer or url_for("admin_view"))
+
 
 def allowed_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def verify_image_magic_bytes(file_storage) -> bool:
+    """Verify actual binary header magic bytes so disguised scripts/HTML cannot be uploaded."""
+    pos = file_storage.stream.tell()
+    header = file_storage.stream.read(16)
+    file_storage.stream.seek(pos)
+    if not header:
+        return False
+    # JPEG: FF D8 FF
+    if header.startswith(b"\xff\xd8\xff"):
+        return True
+    # PNG: 89 50 4E 47 0D 0A 1A 0A
+    if header.startswith(b"\x89PNG\r\n\x1a\n"):
+        return True
+    # GIF: GIF87a / GIF89a
+    if header.startswith((b"GIF87a", b"GIF89a")):
+        return True
+    # WEBP: RIFF....WEBP
+    if len(header) >= 12 and header[:4] == b"RIFF" and header[8:12] == b"WEBP":
+        return True
+    return False
 
 
 def is_admin_authenticated() -> bool:
@@ -92,11 +228,14 @@ def compute_telemetry(category: str) -> dict:
 
 @app.route("/media/uploads/<path:filename>")
 def uploaded_media(filename: str):
-    return send_from_directory(UPLOAD_FOLDER, filename)
+    safe = secure_filename(filename)
+    if not safe or not allowed_file(safe):
+        abort(404)
+    return send_from_directory(UPLOAD_FOLDER, safe)
 
 
 def resolve_image_url(image_file: str) -> str:
-    clean = (image_file or "").strip()
+    clean = os.path.basename((image_file or "").strip())
     stem = os.path.splitext(clean)[0] if clean else "ak"
 
     if clean:
@@ -332,7 +471,6 @@ DEFAULT_SNEAKERS = [
 
 
 def init_db() -> None:
-    # Migrate existing local store.db if DATA_DIR was newly configured
     legacy_db = os.path.join(BASE_DIR, "store.db")
     if DB_PATH != legacy_db and not os.path.exists(DB_PATH) and os.path.exists(legacy_db):
         shutil.copy2(legacy_db, DB_PATH)
@@ -438,7 +576,7 @@ def get_cart_summary() -> tuple[list[dict], float, float, float, int]:
     for key, entry in cart.items():
         sid = entry.get("sneaker_id")
         size = entry.get("size", "42")
-        qty = max(1, int(entry.get("qty", 1)))
+        qty = max(1, min(20, int(entry.get("qty", 1))))
         row = conn.execute("SELECT * FROM sneakers WHERE id = ?", (sid,)).fetchone()
         if row:
             line_total = float(row["price"]) * qty
@@ -501,10 +639,10 @@ def home():
 
 @app.route("/shop")
 def shop():
-    q = (request.args.get("q") or "").strip()
-    category = request.args.get("category") or "All"
-    brand = request.args.get("brand") or "All"
-    sort_by = request.args.get("sort") or "featured"
+    q = (request.args.get("q") or "").strip()[:80]
+    category = (request.args.get("category") or "All")[:40]
+    brand = (request.args.get("brand") or "All")[:40]
+    sort_by = (request.args.get("sort") or "featured")[:20]
 
     conn = get_db()
     all_rows = [dict(r) for r in conn.execute("SELECT * FROM sneakers").fetchall()]
@@ -596,9 +734,14 @@ def sneaker_detail(sneaker_id: int):
 
 @app.route("/sneaker/<int:sneaker_id>/review", methods=["POST"])
 def add_review(sneaker_id: int):
-    author = (request.form.get("author") or "Anonymous").strip()
+    allowed, wait = check_rate_limit("review", limit=5, window_seconds=300)
+    if not allowed:
+        flash(f"Too many notes submitted. Please wait {wait}s before posting again.")
+        return redirect(url_for("sneaker_detail", sneaker_id=sneaker_id))
+
+    author = (request.form.get("author") or "Anonymous").strip()[:60]
     rating = max(1, min(5, int(request.form.get("rating") or 5)))
-    comment = (request.form.get("comment") or "").strip()
+    comment = (request.form.get("comment") or "").strip()[:600]
     if comment:
         conn = get_db()
         conn.execute(
@@ -618,7 +761,7 @@ def switch_currency():
         session["currency"] = curr
         session.modified = True
     nxt = request.form.get("next") or url_for("home")
-    if not nxt.startswith("/"):
+    if not nxt.startswith("/") or nxt.startswith("//"):
         nxt = url_for("home")
     return redirect(nxt)
 
@@ -648,7 +791,7 @@ def toggle_wishlist(sneaker_id: int):
     session["wishlist"] = wl
     session.modified = True
     nxt = request.form.get("next") or url_for("shop")
-    if not nxt.startswith("/"):
+    if not nxt.startswith("/") or nxt.startswith("//"):
         nxt = url_for("shop")
     return redirect(nxt)
 
@@ -667,12 +810,12 @@ def cart_view():
 
 @app.route("/cart/add/<int:sneaker_id>", methods=["POST"])
 def cart_add(sneaker_id: int):
-    size = (request.form.get("size") or "42").strip()
-    qty = max(1, int(request.form.get("qty") or 1))
+    size = (request.form.get("size") or "42").strip()[:10]
+    qty = max(1, min(10, int(request.form.get("qty") or 1)))
     cart = session.get("cart", {})
     key = f"{sneaker_id}_{size}"
     if key in cart:
-        cart[key]["qty"] = int(cart[key]["qty"]) + qty
+        cart[key]["qty"] = min(20, int(cart[key]["qty"]) + qty)
     else:
         cart[key] = {"sneaker_id": sneaker_id, "size": size, "qty": qty}
     session["cart"] = cart
@@ -754,18 +897,23 @@ def trigger_daraja_stk_push(phone: str, amount_kes: int, account_ref: str) -> tu
 
 @app.route("/checkout", methods=["POST"])
 def checkout():
+    allowed, wait = check_rate_limit("checkout", limit=6, window_seconds=300)
+    if not allowed:
+        flash(f"Checkout rate limit reached. Please wait {wait}s before trying again.")
+        return redirect(url_for("cart_view"))
+
     items, subtotal, shipping, total, _ = get_cart_summary()
     if not items:
         flash("Your bag is empty.")
         return redirect(url_for("shop"))
 
-    customer_name = (request.form.get("customer_name") or "Guest Client").strip()
-    customer_email = (request.form.get("customer_email") or "").strip()
-    shipping_address = (request.form.get("shipping_address") or "").strip()
-    payment_method = (request.form.get("payment_method") or "mpesa").strip()
-    mpesa_phone = (request.form.get("mpesa_phone") or "").strip()
+    customer_name = (request.form.get("customer_name") or "Guest Client").strip()[:80]
+    customer_email = (request.form.get("customer_email") or "").strip()[:120]
+    shipping_address = (request.form.get("shipping_address") or "").strip()[:200]
+    payment_method = (request.form.get("payment_method") or "mpesa").strip()[:20]
+    mpesa_phone = (request.form.get("mpesa_phone") or "").strip()[:25]
 
-    order_number = f"AK-{uuid.uuid4().hex[:8].upper()}"
+    order_number = f"AK-{secrets.token_hex(4).upper()}"
     status = "Awaiting M-PESA PIN" if payment_method == "mpesa" else "Confirmed"
 
     if payment_method == "mpesa":
@@ -808,6 +956,10 @@ def checkout():
     conn.commit()
     conn.close()
 
+    # Track customer's own session order numbers for immediate private viewing
+    my_orders = session.get("my_orders", [])
+    my_orders.insert(0, order_number)
+    session["my_orders"] = my_orders[:10]
     session["cart"] = {}
     session.modified = True
     return redirect(url_for("orders_view"))
@@ -815,22 +967,74 @@ def checkout():
 
 @app.route("/orders")
 def orders_view():
+    """
+    Privacy-hardened Order Ledger:
+    - Unlocked Studio Admin (when ADMIN_PASSWORD is set) sees full order ledger.
+    - Regular shoppers see only orders placed in their current session OR an order verified by Order ID + Email/Phone.
+    """
     conn = get_db()
-    rows = [dict(r) for r in conn.execute("SELECT * FROM orders ORDER BY id DESC").fetchall()]
+    lookup_id = (request.args.get("order_number") or "").strip().upper()
+    lookup_contact = (request.args.get("contact") or "").strip().lower()
+
+    rows = []
+    if ADMIN_PASSWORD and is_admin_authenticated():
+        rows = [dict(r) for r in conn.execute("SELECT * FROM orders ORDER BY id DESC").fetchall()]
+    else:
+        matched_numbers = set(session.get("my_orders", []))
+        if lookup_id and lookup_contact:
+            candidate = conn.execute(
+                "SELECT * FROM orders WHERE UPPER(order_number) = ?", (lookup_id,)
+            ).fetchone()
+            if candidate:
+                email_match = hmac.compare_digest(
+                    (candidate["customer_email"] or "").strip().lower(),
+                    lookup_contact,
+                )
+                phone_digits = "".join(c for c in (candidate["mpesa_phone"] or "") if c.isdigit())
+                contact_digits = "".join(c for c in lookup_contact if c.isdigit())
+                phone_match = bool(phone_digits and contact_digits and phone_digits[-9:] == contact_digits[-9:])
+                if email_match or phone_match:
+                    matched_numbers.add(candidate["order_number"])
+                else:
+                    flash("Order verification failed: Order ID and email/phone did not match.")
+            else:
+                flash("No order found with that reference number.")
+
+        if matched_numbers:
+            placeholders = ",".join("?" for _ in matched_numbers)
+            rows = [
+                dict(r)
+                for r in conn.execute(
+                    f"SELECT * FROM orders WHERE order_number IN ({placeholders}) ORDER BY id DESC",
+                    tuple(matched_numbers),
+                ).fetchall()
+            ]
+
     conn.close()
     for r in rows:
         try:
             r["items_list"] = json.loads(r.get("items_json") or "[]")
         except Exception:
             r["items_list"] = []
-    return render_template("orders.html", orders=rows)
+    return render_template(
+        "orders.html",
+        orders=rows,
+        lookup_id=lookup_id,
+        lookup_contact=lookup_contact,
+    )
 
 
 # --- STUDIO ADMIN CONSOLE & PRODUCTION READINESS ---
 @app.route("/admin/login", methods=["POST"])
 def admin_login():
+    allowed, wait = check_rate_limit("admin_login", limit=5, window_seconds=900)
+    if not allowed:
+        flash(f"Too many failed passcode attempts. Locked for {wait} seconds.")
+        return redirect(url_for("admin_view"))
+
     pw = (request.form.get("password") or "").strip()
-    if not ADMIN_PASSWORD or pw == ADMIN_PASSWORD:
+    if not ADMIN_PASSWORD or hmac.compare_digest(pw, ADMIN_PASSWORD):
+        reset_rate_limit("admin_login")
         session["admin_authed"] = True
         session.modified = True
         flash("Studio Admin unlocked.")
@@ -878,19 +1082,22 @@ def admin_add():
     if not is_admin_authenticated():
         return redirect(url_for("admin_view"))
 
-    name = (request.form.get("name") or "").strip()
-    brand = (request.form.get("brand") or "Atelier").strip()
-    category = (request.form.get("category") or "Lifestyle").strip()
-    price = float(request.form.get("price") or 150.0)
+    name = (request.form.get("name") or "").strip()[:100]
+    brand = (request.form.get("brand") or "Atelier").strip()[:60]
+    category = (request.form.get("category") or "Lifestyle").strip()[:40]
+    price = max(1.0, float(request.form.get("price") or 150.0))
     stock = max(0, int(request.form.get("stock") or 10))
-    badge = (request.form.get("badge") or "NEW DROP").strip()
-    sizes = (request.form.get("sizes") or "40,41,42,43,44").strip()
-    description = (request.form.get("description") or "").strip()
+    badge = (request.form.get("badge") or "NEW DROP").strip()[:30]
+    sizes = (request.form.get("sizes") or "40,41,42,43,44").strip()[:60]
+    description = (request.form.get("description") or "").strip()[:600]
     featured = 1 if request.form.get("featured") else 0
 
     image_file = "samba.jpg"
     file = request.files.get("image")
-    if file and file.filename and allowed_file(file.filename):
+    if file and file.filename:
+        if not allowed_file(file.filename) or not verify_image_magic_bytes(file):
+            flash("Upload blocked: file must be a valid PNG, JPG, WEBP, or GIF image.")
+            return redirect(url_for("admin_view"))
         safe_name = f"{uuid.uuid4().hex[:8]}_{secure_filename(file.filename)}"
         file.save(os.path.join(app.config["UPLOAD_FOLDER"], safe_name))
         image_file = safe_name
@@ -929,8 +1136,8 @@ def admin_edit(sneaker_id: int):
 
     price = max(1.0, float(request.form.get("price") or 150.0))
     stock = max(0, int(request.form.get("stock") or 0))
-    badge = (request.form.get("badge") or "ARCHIVE").strip()
-    sizes = (request.form.get("sizes") or "40,41,42,43,44").strip()
+    badge = (request.form.get("badge") or "ARCHIVE").strip()[:30]
+    sizes = (request.form.get("sizes") or "40,41,42,43,44").strip()[:60]
     featured = 1 if request.form.get("featured") else 0
 
     conn = get_db()
@@ -1004,16 +1211,16 @@ def admin_import():
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    s["name"],
-                    s.get("brand", "Atelier"),
-                    s.get("category", "Lifestyle"),
-                    float(s.get("price", 150.0)),
-                    s.get("badge", "ARCHIVE"),
-                    s.get("accent_hex", "#FF4D1C"),
-                    s.get("image_file", "samba.jpg"),
-                    s.get("sizes", "40,41,42,43,44"),
-                    int(s.get("stock", 10)),
-                    s.get("description", ""),
+                    str(s["name"])[:100],
+                    str(s.get("brand", "Atelier"))[:60],
+                    str(s.get("category", "Lifestyle"))[:40],
+                    max(1.0, float(s.get("price", 150.0))),
+                    str(s.get("badge", "ARCHIVE"))[:30],
+                    str(s.get("accent_hex", "#FF4D1C"))[:12],
+                    os.path.basename(str(s.get("image_file", "samba.jpg"))),
+                    str(s.get("sizes", "40,41,42,43,44"))[:60],
+                    max(0, int(s.get("stock", 10))),
+                    str(s.get("description", ""))[:600],
                     int(s.get("featured", 0)),
                 ),
             )
@@ -1095,12 +1302,12 @@ def api_cart_state():
 @app.route("/api/cart/add/<int:sneaker_id>", methods=["POST"])
 def api_cart_add(sneaker_id: int):
     data = request.get_json(silent=True) or request.form
-    size = str(data.get("size", "42")).strip()
-    qty = max(1, int(data.get("qty", 1)))
+    size = str(data.get("size", "42")).strip()[:10]
+    qty = max(1, min(10, int(data.get("qty", 1))))
     cart = session.get("cart", {})
     key = f"{sneaker_id}_{size}"
     if key in cart:
-        cart[key]["qty"] = int(cart[key]["qty"]) + qty
+        cart[key]["qty"] = min(20, int(cart[key]["qty"]) + qty)
     else:
         cart[key] = {"sneaker_id": sneaker_id, "size": size, "qty": qty}
     session["cart"] = cart
@@ -1114,7 +1321,7 @@ def api_cart_update(item_key: str):
     delta = int(data.get("delta", 0))
     cart = session.get("cart", {})
     if item_key in cart:
-        new_qty = int(cart[item_key].get("qty", 1)) + delta
+        new_qty = min(20, int(cart[item_key].get("qty", 1)) + delta)
         if new_qty <= 0:
             del cart[item_key]
         else:
@@ -1135,4 +1342,4 @@ def api_cart_remove(item_key: str):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=os.getenv("FLASK_DEBUG", "0") == "1")

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{% block title %}ATELIER KICKS{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -122,6 +123,20 @@
         (function () {
             const saved = localStorage.getItem('ak_theme');
             if (saved === 'dark') document.documentElement.classList.add('dark-theme');
+
+            // Automatically attach X-CSRFToken header to all same-origin fetch() calls
+            const origFetch = window.fetch;
+            window.fetch = function (resource, config = {}) {
+                const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                const token = csrfMeta ? csrfMeta.getAttribute('content') : '';
+                const urlStr = typeof resource === 'string' ? resource : (resource && resource.url) || '';
+                if (token && (!urlStr.startsWith('http') || urlStr.startsWith(window.location.origin))) {
+                    const headers = new Headers(config.headers || {});
+                    if (!headers.has('X-CSRFToken')) headers.set('X-CSRFToken', token);
+                    config = Object.assign({}, config, { headers });
+                }
+                return origFetch.call(this, resource, config);
+            };
         })();
     </script>
 </head>
@@ -161,6 +176,7 @@
                 </button>
 
                 <form method="POST" action="/currency" class="flex items-center gap-1">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="next" value="{{ request.full_path }}">
                     <button type="submit" name="currency" value="KES"
                             onclick="StudioAudio.click(520)"
@@ -420,6 +436,22 @@
     </div>
 
     <script>
+        // Inject hidden CSRF token automatically into every POST form on the page
+        (function injectCsrfIntoForms() {
+            const meta = document.querySelector('meta[name="csrf-token"]');
+            const token = meta ? meta.getAttribute('content') : '';
+            if (!token) return;
+            document.querySelectorAll('form').forEach(form => {
+                if ((form.method || '').toUpperCase() === 'POST' && !form.querySelector('input[name="csrf_token"]')) {
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'csrf_token';
+                    hidden.value = token;
+                    form.appendChild(hidden);
+                }
+            });
+        })();
+
         const StudioAudio = (() => {
             let enabled = false;
             let ctx = null;
@@ -557,7 +589,6 @@
             return catalogCache;
         }
 
-        // --- COMMAND PALETTE ---
         async function openCommandPalette() {
             StudioAudio.click(680);
             await loadCatalogCache();
@@ -602,7 +633,6 @@
             `).join('');
         }
 
-        // --- QUICK-VIEW MODAL ---
         async function openQuickView(sneakerId) {
             StudioAudio.click(620);
             const list = await loadCatalogCache();
@@ -648,7 +678,6 @@
             card.style.transform = 'rotateY(0deg) rotateX(0deg)';
         }
 
-        // --- LIVE SLIDE-OUT BAG DRAWER WITH +/- & REMOVE ---
         function renderBagData(data) {
             const navCount = document.getElementById('navBagCount');
             const drawerCount = document.getElementById('drawerItemCount');
@@ -759,7 +788,6 @@
             }, 260);
         }
 
-        // --- SIDE-BY-SIDE SILHOUETTE COMPARISON ---
         function getCompareIds() {
             try {
                 return JSON.parse(localStorage.getItem('ak_compare_ids') || '[]').map(Number);
@@ -898,7 +926,6 @@
             modal.classList.remove('flex');
         }
 
-        // --- SIZE GUIDE DRAWER ---
         function openSizeDrawer() {
             StudioAudio.click(540);
             const m = document.getElementById('sizeDrawerModal');

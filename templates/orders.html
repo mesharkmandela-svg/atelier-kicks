@@ -5,42 +5,74 @@
 {% block content %}
 <div class="reveal-up flex flex-wrap items-end justify-between gap-4 mb-8">
     <div>
-        <div class="font-mono-tech text-[11px] uppercase tracking-widest text-[#5C6661]">DISPATCH RECORDS // {{ orders|length }} ENTRIES</div>
+        <div class="font-mono-tech text-[11px] uppercase tracking-widest text-[#5C6661]">PRIVATE DISPATCH VERIFICATION</div>
         <h1 class="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#0D1512]">Order Ledger</h1>
     </div>
-    <a href="/shop" class="px-4 py-2 rounded-full bg-[#0D1512] text-[#F4F1EA] text-xs font-bold uppercase tracking-wider hover:bg-[#FF4D1C] transition">
-        New Order +
+    <a href="/shop" class="font-mono-tech text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">
+        &larr; Back to Catalog
     </a>
 </div>
 
+<!-- PRIVATE ORDER LOOKUP BAR -->
+<form method="GET" action="/orders" class="reveal-up rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-5 mb-8 grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+    <div class="md:col-span-4">
+        <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661] mb-1">Order Number</label>
+        <input type="text" name="order_number" value="{{ lookup_id }}" required placeholder="e.g. AK-9F2A1B4C"
+               class="w-full px-3.5 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
+    </div>
+    <div class="md:col-span-5">
+        <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661] mb-1">Order Email or M-PESA Phone</label>
+        <input type="text" name="contact" value="{{ lookup_contact }}" required placeholder="e.g. you@example.com or 0712345678"
+               class="w-full px-3.5 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-medium text-[#0D1512]">
+    </div>
+    <div class="md:col-span-3">
+        <button type="submit" class="w-full py-2.5 px-5 rounded-xl bg-[#0D1512] text-[#F4F1EA] text-xs font-black uppercase tracking-wider hover:bg-[#FF4D1C] hover:text-white transition">
+            Verify &amp; Track &rarr;
+        </button>
+    </div>
+</form>
+
 {% if orders %}
-<div class="reveal-up space-y-4">
+<div class="space-y-4">
     {% for order in orders %}
-    <div class="rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-6">
+    <div class="reveal-up rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-6 sm:p-8 space-y-5">
         <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#ECE8DE]">
             <div>
-                <div class="font-mono-tech text-xs font-black text-[#0D1512]">{{ order.order_number }}</div>
-                <div class="text-xs text-[#5C6661]">{{ order.customer_name }} &bull; {{ order.shipping_address }}</div>
+                <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">DISPATCH REFERENCE</div>
+                <div class="font-mono-tech text-xl font-extrabold text-[#0D1512]">{{ order.order_number }}</div>
+                <div class="font-mono-tech text-[11px] text-[#5C6661] mt-0.5">{{ order.created_at }} UTC &bull; {{ order.payment_method|upper }}</div>
             </div>
 
             <div class="flex items-center gap-3">
-                <span class="font-mono-tech text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[#0D1512] text-[#FF4D1C]">
+                <span class="font-mono-tech text-xs font-bold uppercase px-3.5 py-1.5 rounded-full bg-[#0D1512] text-[#FF4D1C]">
                     {{ order.status }}
                 </span>
-                <span class="font-mono-tech text-base font-black text-[#0D1512]">
-                    {{ format_price(order.total_usd) }}
-                </span>
+                <div class="font-mono-tech text-lg font-extrabold text-[#0D1512]">{{ format_price(order.total_usd) }}</div>
             </div>
         </div>
 
-        <div class="pt-4 flex flex-wrap items-center justify-between gap-4 text-xs">
-            <div class="space-y-1 text-[#5C6661]">
-                {% for item in order.items_list %}
-                    <div>&bull; <strong class="text-[#0D1512]">{{ item.name }}</strong> (EU {{ item.size }}) &times; {{ item.qty }}</div>
-                {% endfor %}
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 text-xs">
+            <div class="md:col-span-5 space-y-1 text-[#5C6661]">
+                <div class="font-mono-tech text-[10px] uppercase tracking-widest font-bold text-[#0D1512]">Recipient</div>
+                <div class="font-bold text-[#0D1512]">{{ order.customer_name }}</div>
+                <div>{{ order.customer_email }}</div>
+                <div>{{ order.shipping_address }}</div>
+                {% if order.mpesa_phone %}
+                <div class="font-mono-tech text-[11px] text-[#FF4D1C]">M-PESA: {{ order.mpesa_phone }}</div>
+                {% endif %}
             </div>
-            <div class="font-mono-tech text-[11px] text-[#5C6661]">
-                {{ order.created_at }}
+
+            <div class="md:col-span-7 space-y-2">
+                <div class="font-mono-tech text-[10px] uppercase tracking-widest font-bold text-[#0D1512]">Line Items</div>
+                {% for it in order.items_list %}
+                <div class="flex items-center justify-between py-2 px-3.5 rounded-xl bg-[#F4F1EA] border border-[#E7E3D8]">
+                    <div>
+                        <span class="font-bold text-[#0D1512]">{{ it.name }}</span>
+                        <span class="font-mono-tech text-[11px] text-[#5C6661] ml-2">EU {{ it.size }} &times; {{ it.qty }}</span>
+                    </div>
+                    <span class="font-mono-tech font-bold text-[#0D1512]">{{ format_price(it.price * it.qty) }}</span>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -48,11 +80,11 @@
 </div>
 {% else %}
 <div class="rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-12 text-center">
-    <div class="font-mono-tech text-xs uppercase tracking-widest text-[#5C6661] mb-2">LEDGER // CLEAN</div>
-    <h2 class="text-2xl font-black uppercase text-[#0D1512] mb-3">No orders recorded yet</h2>
-    <a href="/shop" class="inline-block mt-2 px-6 py-3 rounded-full bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider hover:bg-[#E63E10]">
-        Browse Catalog
-    </a>
+    <div class="font-mono-tech text-xs uppercase tracking-widest text-[#5C6661] mb-2">PRIVACY PROTECTED LEDGER</div>
+    <h2 class="text-2xl font-black uppercase text-[#0D1512] mb-2">No orders displayed</h2>
+    <p class="text-xs text-[#5C6661] max-w-md mx-auto">
+        For customer privacy, only orders placed in your active session or verified with your Order ID and email/phone appear here.
+    </p>
 </div>
 {% endif %}
 {% endblock %}
