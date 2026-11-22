@@ -61,6 +61,9 @@ DB_PATH = os.path.join(DATA_DIR, "store.db")
 STATIC_IMAGES_DIR = os.path.join(BASE_DIR, "static", "images")
 os.makedirs(STATIC_IMAGES_DIR, exist_ok=True)
 
+STATIC_MODELS_DIR = os.path.join(BASE_DIR, "static", "models")
+os.makedirs(STATIC_MODELS_DIR, exist_ok=True)
+
 UPLOAD_FOLDER = (
     os.path.join(DATA_DIR, "uploads")
     if DATA_DIR != BASE_DIR
@@ -140,11 +143,11 @@ def attach_security_headers(response: Response) -> Response:
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; "
+        "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://ajax.googleapis.com https://unpkg.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com; "
         "img-src 'self' data: blob:; "
-        "connect-src 'self'; "
+        "connect-src 'self' https://ajax.googleapis.com https://unpkg.com; "
         "object-src 'none'; "
         "base-uri 'self'; "
         "frame-ancestors 'none';"
@@ -218,7 +221,6 @@ def compute_telemetry(category: str) -> dict:
     return {"cushion": 78, "response": 76, "traction": 85}
 
 
-# Apple-inspired editorial & engineering profiles keyed by silhouette stem or category fallback
 SILHOUETTE_STORIES = {
     "alphafly": {
         "tagline": "Propulsion, tuned to the millisecond.",
@@ -568,6 +570,17 @@ def resolve_image_url(image_file: str) -> str:
     return url_for("fallback_sneaker_svg", label=(stem or "AK")[:10])
 
 
+def resolve_model_url(image_file: str) -> str:
+    clean = os.path.basename((image_file or "").strip())
+    stem = os.path.splitext(clean)[0] if clean else ""
+    if not stem:
+        return ""
+    glb_name = f"{stem}.glb"
+    if os.path.isfile(os.path.join(STATIC_MODELS_DIR, glb_name)):
+        return url_for("static", filename="models/" + glb_name)
+    return ""
+
+
 @app.route("/media/fallback/<label>.svg")
 def fallback_sneaker_svg(label: str):
     safe_label = "".join(ch for ch in label if ch.isalnum() or ch in (" ", "-")).upper()[:10] or "AK"
@@ -583,6 +596,7 @@ def fallback_sneaker_svg(label: str):
 
 
 app.jinja_env.globals["resolve_image_url"] = resolve_image_url
+app.jinja_env.globals["resolve_model_url"] = resolve_model_url
 
 
 def get_db() -> sqlite3.Connection:
@@ -995,6 +1009,34 @@ def lookbook():
     return render_template("lookbook.html", sneakers=sneakers)
 
 
+@app.route("/compare")
+def compare_view():
+    conn = get_db()
+    sneakers = [dict(r) for r in conn.execute("SELECT * FROM sneakers ORDER BY id ASC").fetchall()]
+    conn.close()
+
+    enriched = []
+    for s in sneakers:
+        story = get_silhouette_story(s)
+        telemetry = compute_telemetry(s["category"])
+        enriched.append(
+            {
+                **s,
+                "image_url": resolve_image_url(s["image_file"]),
+                "price_formatted": format_price(s["price"]),
+                "weight": story["weight"],
+                "drop": story["drop"],
+                "stack": story["stack"],
+                "surface": story["surface"],
+                "fit_note": story["fit_note"],
+                "cushion": telemetry["cushion"],
+                "response": telemetry["response"],
+                "traction": telemetry["traction"],
+            }
+        )
+    return render_template("compare.html", sneakers=enriched)
+
+
 @app.route("/sneaker/<int:sneaker_id>")
 def sneaker_detail(sneaker_id: int):
     conn = get_db()
@@ -1208,6 +1250,15 @@ def checkout():
         flash("Your bag is empty.")
         return redirect(url_for("shop"))
 
+    promo_code = (request.form.get("promo_code") or "").strip().upper()[:20]
+    discount_usd = 0.0
+    if promo_code == "ATELIER10":
+        discount_usd = round(subtotal * 0.10, 2)
+    elif promo_code == "NAIROBI":
+        shipping = 0.0
+
+    final_total = max(1.0, round(subtotal - discount_usd + shipping, 2))
+
     customer_name = (request.form.get("customer_name") or "Guest Client").strip()[:80]
     customer_email = (request.form.get("customer_email") or "").strip()[:120]
     shipping_address = (request.form.get("shipping_address") or "").strip()[:200]
@@ -1218,7 +1269,7 @@ def checkout():
     status = "Awaiting M-PESA PIN" if payment_method == "mpesa" else "Confirmed"
 
     if payment_method == "mpesa":
-        amount_kes = round(total * USD_TO_KES)
+        amount_kes = round(final_total * USD_TO_KES)
         _, msg = trigger_daraja_stk_push(mpesa_phone, amount_kes, order_number)
         flash(f"Order {order_number} created — {msg}.")
     else:
@@ -1248,7 +1299,7 @@ def checkout():
             shipping_address,
             payment_method,
             mpesa_phone,
-            total,
+            final_total,
             status,
             json.dumps(compact_items),
             datetime.utcnow().strftime("%Y-%m-%d %H:%M"),

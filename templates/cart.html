@@ -1,183 +1,185 @@
 {% extends "base.html" %}
 
-{% block title %}Bag & Checkout — ATELIER KICKS{% endblock %}
+{% block title %}Your Bag — ATELIER KICKS{% endblock %}
 
 {% block content %}
-<div class="reveal-up flex flex-wrap items-end justify-between gap-4 mb-8">
-    <div>
-        <div class="font-mono-tech text-[11px] uppercase tracking-widest text-[#5C6661]">DISPATCH BAG // {{ items|length }} LINE ITEMS</div>
-        <h1 class="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#0D1512]">Shopping Bag</h1>
-    </div>
-    <a href="/shop" class="font-mono-tech text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">
-        &larr; Continue Browsing
-    </a>
-</div>
-
-{% if items %}
-<div class="reveal-up grid grid-cols-1 lg:grid-cols-12 gap-8">
-    <div class="lg:col-span-7 space-y-4">
-        {% for item in items %}
-        <div class="rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-5 flex items-center gap-4 sm:gap-6">
-            <a href="/sneaker/{{ item.sneaker.id }}" class="w-24 h-24 rounded-xl bg-[#F4F1EA] border border-[#E7E3D8] p-2.5 flex items-center justify-center shrink-0">
-                <img src="{{ resolve_image_url(item.sneaker.image_file) }}" alt="{{ item.sneaker.name }}" class="max-h-full max-w-full object-contain">
-            </a>
-
-            <div class="flex-1 min-w-0">
-                <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">
-                    {{ item.sneaker.brand }} &bull; <span class="text-[#0D1512] font-bold">EU {{ item.size }}</span>
-                </div>
-                <a href="/sneaker/{{ item.sneaker.id }}" class="text-base sm:text-lg font-black text-[#0D1512] hover:text-[#FF4D1C] truncate block">
-                    {{ item.sneaker.name }}
-                </a>
-                <div class="font-mono-tech text-xs font-bold text-[#5C6661] mt-1">
-                    {{ format_price(item.sneaker.price) }} &times; {{ item.qty }}
-                </div>
+<div class="reveal-up max-w-6xl mx-auto">
+    <div class="border-b border-[#DFDBD0] pb-8 mb-10 text-center sm:text-left flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+            <div class="font-mono-tech text-[10px] font-bold uppercase tracking-widest text-[#FF4D1C] mb-1">
+                ATELIER BAG &amp; SETTLEMENT
             </div>
-
-            <div class="text-right space-y-2">
-                <div class="font-mono-tech text-sm sm:text-base font-black text-[#0D1512]">{{ format_price(item.line_total) }}</div>
-                <form method="POST" action="/cart/remove/{{ item.key }}">
-                    <button type="submit" class="font-mono-tech text-[10px] font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C]">
-                        Remove &times;
-                    </button>
-                </form>
-            </div>
+            <h1 class="font-display text-3xl sm:text-5xl font-bold tracking-tight text-[#0D1512]">
+                Review your bag.
+            </h1>
+            <p class="text-xs sm:text-sm text-[#5C6661] mt-1.5">
+                {% if subtotal >= 200 and items %}
+                    You’ve unlocked complimentary express courier delivery.
+                {% else %}
+                    Complimentary express courier delivery on orders over {{ format_price(200) }}.
+                {% endif %}
+            </p>
         </div>
-        {% endfor %}
+
+        <a href="/shop" class="font-mono-tech text-xs font-bold uppercase text-[#0D1512] hover:text-[#FF4D1C] transition">
+            &larr; Continue Browsing
+        </a>
     </div>
 
-    <div class="lg:col-span-5">
-        <div class="rounded-3xl bg-[#0D1512] text-[#F4F1EA] border border-[#1E2E28] p-6 sm:p-8 space-y-6">
-            <div>
-                <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C] font-bold">EXPRESS SETTLEMENT</div>
-                <h2 class="text-2xl font-black uppercase tracking-tight">Order Summary</h2>
+    {% if items %}
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        <div class="lg:col-span-7 space-y-5">
+            {% for it in items %}
+            {% set s = it.sneaker %}
+            <div class="rounded-[28px] bg-[#FCFBF8] border border-[#DFDBD0] p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-6">
+                <a href="/sneaker/{{ s.id }}" class="w-full sm:w-36 h-32 rounded-2xl bg-[#F4F1EA] border border-[#E7E3D8] p-4 flex items-center justify-center shrink-0">
+                    <img src="{{ resolve_image_url(s.image_file) }}" alt="{{ s.name }}" class="max-h-full max-w-full object-contain mix-blend-multiply">
+                </a>
+
+                <div class="flex-1 w-full">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">{{ s.brand }} &bull; EU {{ it.size }}</div>
+                            <a href="/sneaker/{{ s.id }}" class="font-display text-lg sm:text-xl font-bold text-[#0D1512] hover:text-[#FF4D1C] transition">
+                                {{ s.name }}
+                            </a>
+                        </div>
+                        <div class="font-mono-tech text-base font-extrabold text-[#0D1512] shrink-0">
+                            {{ format_price(it.line_total) }}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-[#ECE8DE] flex items-center justify-between text-xs">
+                        <span class="font-mono-tech text-[#5C6661]">Qty: <strong class="text-[#0D1512]">{{ it.qty }}</strong></span>
+                        <form method="POST" action="/cart/remove/{{ it.key }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="font-mono-tech text-[11px] font-bold uppercase text-[#5C6661] hover:text-[#FF4D1C] transition">
+                                Remove
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
+            {% endfor %}
+        </div>
 
-            <div class="space-y-2.5 font-mono-tech text-xs border-y border-[#1E2E28] py-4">
-                <div class="flex justify-between text-[#9BA6A0]">
-                    <span>SUBTOTAL</span>
-                    <span class="text-[#F4F1EA]">{{ format_price(subtotal) }}</span>
-                </div>
-                <div class="flex justify-between text-[#9BA6A0]">
-                    <span>DISPATCH SHIPPING</span>
-                    <span class="text-[#F4F1EA]">{{ 'FREE' if shipping == 0 else format_price(shipping) }}</span>
-                </div>
-                <div class="flex justify-between text-base font-black pt-2 border-t border-[#1E2E28]">
-                    <span>TOTAL ({{ currency }})</span>
-                    <span class="text-[#FF4D1C]">{{ format_price(total) }}</span>
-                </div>
-            </div>
-
-            <form method="POST" action="/checkout" onsubmit="handleMpesaCheckout(event)" class="space-y-4">
-                <div>
-                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Full Name</label>
-                    <input type="text" name="customer_name" required placeholder="Mandela Kimeu"
-                           class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] text-xs text-[#F4F1EA] focus:outline-none focus:border-[#FF4D1C]">
-                </div>
+        <div class="lg:col-span-5 lg:sticky lg:top-24">
+            <form method="POST" action="/checkout" class="rounded-[32px] bg-[#FCFBF8] border border-[#DFDBD0] p-6 sm:p-8 space-y-6">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                 <div>
-                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Email Address</label>
-                    <input type="email" name="customer_email" required placeholder="you@example.com"
-                           class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] text-xs text-[#F4F1EA] focus:outline-none focus:border-[#FF4D1C]">
+                    <label class="block font-mono-tech text-[10px] font-bold uppercase tracking-widest text-[#5C6661] mb-1.5">
+                        Promo / Studio Voucher
+                    </label>
+                    <div class="flex gap-2">
+                        <input id="promoInput" type="text" name="promo_code" placeholder="Try ATELIER10 or NAIROBI"
+                               class="flex-1 px-3.5 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs uppercase text-[#0D1512] focus:outline-none focus:border-[#FF4D1C]">
+                        <button type="button" onclick="previewPromo()"
+                                class="px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-[11px] font-bold uppercase text-[#0D1512] hover:border-[#FF4D1C] transition">
+                            Apply
+                        </button>
+                    </div>
+                    <div id="promoFeedback" class="font-mono-tech text-[10px] text-[#FF4D1C] mt-1.5 hidden"></div>
                 </div>
 
-                <div>
-                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">Delivery Address</label>
-                    <input type="text" name="shipping_address" required placeholder="Nairobi / Juja, Kenya"
-                           class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] text-xs text-[#F4F1EA] focus:outline-none focus:border-[#FF4D1C]">
+                <div class="space-y-2.5 pt-4 border-t border-[#ECE8DE] text-xs">
+                    <div class="flex justify-between text-[#5C6661]">
+                        <span>Subtotal</span>
+                        <span class="font-mono-tech font-bold text-[#0D1512]">{{ format_price(subtotal) }}</span>
+                    </div>
+                    <div class="flex justify-between text-[#5C6661]">
+                        <span>Express Courier</span>
+                        <span id="shippingDisplay" class="font-mono-tech font-bold text-[#0D1512]">
+                            {% if shipping == 0 %}FREE{% else %}{{ format_price(shipping) }}{% endif %}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-baseline pt-3 border-t border-[#ECE8DE]">
+                        <span class="font-display text-base font-bold text-[#0D1512]">Total</span>
+                        <span id="totalDisplay" class="font-mono-tech text-xl font-extrabold text-[#0D1512]">
+                            {{ format_price(total) }}
+                        </span>
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1.5">Payment Method</label>
-                    <div class="grid grid-cols-2 gap-2 font-mono-tech text-xs">
+                <div class="space-y-3 pt-4 border-t border-[#ECE8DE]">
+                    <div class="font-mono-tech text-[10px] font-bold uppercase tracking-widest text-[#5C6661]">
+                        STEP 1 // CLIENT &amp; DISPATCH
+                    </div>
+                    <input type="text" name="customer_name" required placeholder="Full Name"
+                           class="w-full px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-medium text-[#0D1512]">
+                    <input type="email" name="customer_email" required placeholder="Email for Receipt & Order Tracking"
+                           class="w-full px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-medium text-[#0D1512]">
+                    <input type="text" name="shipping_address" required placeholder="Delivery Location (e.g. Westlands, Nairobi)"
+                           class="w-full px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-medium text-[#0D1512]">
+                </div>
+
+                <div class="space-y-3 pt-4 border-t border-[#ECE8DE]">
+                    <div class="font-mono-tech text-[10px] font-bold uppercase tracking-widest text-[#5C6661]">
+                        STEP 2 // SETTLEMENT METHOD
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
                         <label class="cursor-pointer">
-                            <input type="radio" name="payment_method" value="mpesa" checked class="peer sr-only" onchange="toggleMpesaField(true)">
-                            <div class="py-2.5 text-center rounded-xl border border-[#243830] bg-[#14201B] font-bold peer-checked:border-[#FF4D1C] peer-checked:text-[#FF4D1C]">
+                            <input type="radio" name="payment_method" value="mpesa" checked onchange="toggleMpesaField(true)" class="peer sr-only">
+                            <div class="py-2.5 text-center rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512] peer-checked:bg-[#0D1512] peer-checked:text-[#FF4D1C] peer-checked:border-[#0D1512] transition">
                                 M-PESA Express
                             </div>
                         </label>
                         <label class="cursor-pointer">
-                            <input type="radio" name="payment_method" value="card" class="peer sr-only" onchange="toggleMpesaField(false)">
-                            <div class="py-2.5 text-center rounded-xl border border-[#243830] bg-[#14201B] font-bold peer-checked:border-[#FF4D1C] peer-checked:text-[#FF4D1C]">
-                                Card / Demo
+                            <input type="radio" name="payment_method" value="card" onchange="toggleMpesaField(false)" class="peer sr-only">
+                            <div class="py-2.5 text-center rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512] peer-checked:bg-[#0D1512] peer-checked:text-[#FF4D1C] peer-checked:border-[#0D1512] transition">
+                                Card / Global
                             </div>
                         </label>
                     </div>
+
+                    <div id="mpesaPhoneWrap">
+                        <input type="tel" name="mpesa_phone" placeholder="M-PESA Phone (e.g. 0712 345 678)"
+                               class="w-full px-4 py-2.5 rounded-xl border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs text-[#0D1512]">
+                    </div>
                 </div>
 
-                <div id="mpesaPhoneBox">
-                    <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#9BA6A0] mb-1">M-PESA Phone Number</label>
-                    <input type="tel" name="mpesa_phone" placeholder="07XX XXX XXX or 2547XXXXXXXX"
-                           class="w-full px-3.5 py-2.5 rounded-xl bg-[#14201B] border border-[#243830] font-mono-tech text-xs text-[#F4F1EA] focus:outline-none focus:border-[#FF4D1C]">
-                </div>
-
-                <button type="submit" class="magnetic-btn blaze-glow w-full py-3.5 rounded-full bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider hover:bg-[#E63E10]">
+                <button type="submit" onclick="StudioAudio.chime()"
+                        class="magnetic-btn blaze-glow w-full py-4 rounded-full bg-[#FF4D1C] text-white text-xs font-extrabold uppercase tracking-wider hover:bg-[#E63E10] transition">
                     Complete Order &rarr;
                 </button>
             </form>
         </div>
     </div>
-</div>
-
-<div id="mpesaStkModal" class="fixed inset-0 bg-[#0D1512]/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
-    <div class="w-full max-w-md rounded-3xl bg-[#0D1512] text-[#F4F1EA] border border-[#243830] p-7 text-center space-y-5 shadow-2xl">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#14201B] border border-[#243830] font-mono-tech text-[10px] uppercase tracking-widest text-emerald-400">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>SAFARICOM DARAJA // STK PUSH SENT</span>
-        </div>
-
-        <h3 class="text-2xl font-black uppercase tracking-tight">Check Your Phone</h3>
-        <p class="text-xs text-[#9BA6A0] leading-relaxed">
-            An M-PESA Express prompt for <strong class="text-white">{{ format_price(total) }}</strong> has been dispatched to <strong id="stkTargetPhone" class="text-[#FF4D1C] font-mono-tech">your number</strong>. Enter your M-PESA PIN to authorize dispatch.
+    {% else %}
+    <div class="rounded-[32px] bg-[#FCFBF8] border border-[#DFDBD0] p-14 text-center max-w-xl mx-auto">
+        <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661] mb-2">YOUR BAG IS EMPTY</div>
+        <h2 class="font-display text-2xl sm:text-3xl font-bold text-[#0D1512] mb-3">Nothing in your rotation yet.</h2>
+        <p class="text-xs sm:text-sm text-[#5C6661] mb-7 leading-relaxed">
+            Explore our curated archive of carbon race trainers, terrace classics, and all-terrain silhouettes.
         </p>
-
-        <div class="p-4 rounded-2xl bg-[#14201B] border border-[#1E2E28] font-mono-tech">
-            <div class="text-[10px] text-[#9BA6A0] uppercase">AUTHORIZATION WINDOW</div>
-            <div id="stkCountdown" class="text-3xl font-black text-[#FF4D1C] mt-1">00:45</div>
-        </div>
+        <a href="/shop" class="inline-block px-7 py-3.5 rounded-full bg-[#FF4D1C] text-white text-xs font-extrabold uppercase tracking-wider hover:bg-[#E63E10] transition">
+            Explore Catalog &rarr;
+        </a>
     </div>
+    {% endif %}
 </div>
 
 <script>
     function toggleMpesaField(show) {
-        document.getElementById('mpesaPhoneBox').style.display = show ? 'block' : 'none';
+        const wrap = document.getElementById('mpesaPhoneWrap');
+        if (wrap) wrap.classList.toggle('hidden', !show);
     }
 
-    function handleMpesaCheckout(e) {
-        const method = document.querySelector('input[name="payment_method"]:checked')?.value;
-        if (method !== 'mpesa') return;
-        e.preventDefault();
-        if (typeof StudioAudio !== 'undefined') StudioAudio.chime();
-        const phone = document.querySelector('input[name="mpesa_phone"]')?.value || '2547XXXXXXXX';
-        document.getElementById('stkTargetPhone').textContent = phone;
-        const modal = document.getElementById('mpesaStkModal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-
-        let secs = 45;
-        const timer = setInterval(() => {
-            secs--;
-            document.getElementById('stkCountdown').textContent = `00:${String(Math.max(0, secs)).padStart(2, '0')}`;
-            if (secs <= 42) {
-                clearInterval(timer);
-                e.target.submit();
-            }
-        }, 1000);
+    function previewPromo() {
+        StudioAudio.click(600);
+        const code = (document.getElementById('promoInput')?.value || '').trim().toUpperCase();
+        const fb = document.getElementById('promoFeedback');
+        if (!fb) return;
+        fb.classList.remove('hidden');
+        if (code === 'ATELIER10') {
+            fb.textContent = 'Voucher ATELIER10 verified — 10% studio discount will apply at settlement.';
+        } else if (code === 'NAIROBI') {
+            fb.textContent = 'Voucher NAIROBI verified — Complimentary local dispatch applied.';
+            const shipEl = document.getElementById('shippingDisplay');
+            if (shipEl) shipEl.textContent = 'FREE';
+        } else {
+            fb.textContent = 'Invalid voucher code. Try ATELIER10 or NAIROBI.';
+        }
     }
 </script>
-{% else %}
-<div class="rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-12 text-center">
-    <div class="font-mono-tech text-xs uppercase tracking-widest text-[#5C6661] mb-2">BAG STATUS // EMPTY</div>
-    <h2 class="text-2xl font-black uppercase text-[#0D1512] mb-3">Your bag has zero pairs</h2>
-    <p class="text-xs text-[#5C6661] mb-6">Explore the catalog or flip through the 3D lookbook to add silhouettes.</p>
-    <div class="flex justify-center gap-3">
-        <a href="/shop" class="px-6 py-3 rounded-full bg-[#0D1512] text-[#F4F1EA] text-xs font-bold uppercase tracking-wider hover:bg-[#FF4D1C] transition">
-            Open Catalog
-        </a>
-        <a href="/lookbook" class="px-6 py-3 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-bold uppercase tracking-wider text-[#0D1512] hover:border-[#0D1512]">
-            3D Lookbook
-        </a>
-    </div>
-</div>
-{% endif %}
 {% endblock %}

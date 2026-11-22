@@ -3,955 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{% block title %}ATELIER KICKS{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-canvas: #F4F1EA;
             --bg-surface: #FCFBF8;
-            --bg-muted: #ECE8DE;
-            --ink-primary: #0D1512;
-            --ink-secondary: #5C6661;
-            --border-hairline: #DFDBD0;
+            --border-subtle: #DFDBD0;
+            --text-primary: #0D1512;
+            --text-muted: #5C6661;
             --accent: #FF4D1C;
-            --accent-hover: #E63E10;
-            --nav-bg: rgba(244, 241, 234, 0.86);
-            --grid-line: rgba(13, 21, 18, 0.032);
+            --nav-bg: rgba(244, 241, 234, 0.82);
         }
-
-        html.dark-theme {
-            --bg-canvas: #0A0F0D;
-            --bg-surface: #121B17;
-            --bg-muted: #18241F;
-            --ink-primary: #F4F1EA;
-            --ink-secondary: #98A39D;
-            --border-hairline: #22302A;
-            --accent: #FF5A2C;
-            --accent-hover: #FF400A;
-            --nav-bg: rgba(10, 15, 13, 0.86);
-            --grid-line: rgba(244, 241, 234, 0.028);
-        }
-
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg-canvas);
-            background-image:
-                linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-                linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-            background-size: 32px 32px;
-            color: var(--ink-primary);
-            transition: background-color 0.3s ease, color 0.3s ease;
-            overflow-x: clip;
-            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+            color: var(--text-primary);
+            line-height: 1.6;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
-
-        h1, h2, h3, .font-display {
-            font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
             letter-spacing: -0.03em;
         }
-
         .font-mono-tech {
-            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-            font-variant-numeric: tabular-nums;
-            letter-spacing: -0.01em;
+            font-family: 'JetBrains Mono', monospace;
         }
-
-        html.dark-theme .bg-\[\#F4F1EA\] { background-color: var(--bg-canvas) !important; }
-        html.dark-theme .bg-\[\#FCFBF8\] { background-color: var(--bg-surface) !important; }
-        html.dark-theme .bg-\[\#E7E3D8\],
-        html.dark-theme .bg-\[\#ECE8DE\] { background-color: var(--bg-muted) !important; }
-        html.dark-theme .text-\[\#0D1512\] { color: var(--ink-primary) !important; }
-        html.dark-theme .text-\[\#5C6661\] { color: var(--ink-secondary) !important; }
-        html.dark-theme .border-\[\#DFDBD0\],
-        html.dark-theme .border-\[\#E7E3D8\],
-        html.dark-theme .border-\[\#ECE8DE\] { border-color: var(--border-hairline) !important; }
-        html.dark-theme .bg-\[\#0D1512\] { background-color: #16231E !important; color: #F4F1EA !important; }
-
         .reveal-up {
             opacity: 0;
             transform: translateY(22px);
-            transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+            transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+                        transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .reveal-up.is-visible {
             opacity: 1;
             transform: translateY(0);
         }
-
+        .blaze-glow {
+            box-shadow: 0 12px 28px -8px rgba(255, 77, 28, 0.45);
+        }
         .tilt-surface {
             transform-style: preserve-3d;
-            transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, border-color 0.25s ease;
-            will-change: transform;
-        }
-        .tilt-surface:hover {
-            border-color: rgba(255, 77, 28, 0.55) !important;
-            box-shadow: 0 24px 48px -18px rgba(13, 21, 18, 0.28);
-        }
-        .tilt-pop {
-            transform: translateZ(26px);
             transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
         }
-
-        .magnetic-btn {
-            transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s ease, box-shadow 0.25s ease;
-            will-change: transform;
-        }
-        .blaze-glow {
-            box-shadow: 0 10px 28px -6px rgba(255, 77, 28, 0.45);
-        }
-        .blaze-glow:hover {
-            box-shadow: 0 16px 36px -6px rgba(255, 77, 28, 0.65);
-        }
-
-        #scrollProgressBar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            width: 0%;
-            background: linear-gradient(90deg, #FF4D1C, #FF8A3D);
-            z-index: 80;
-            pointer-events: none;
-        }
     </style>
-    <script>
-        (function () {
-            const saved = localStorage.getItem('ak_theme');
-            if (saved === 'dark') document.documentElement.classList.add('dark-theme');
-
-            // Automatically attach X-CSRFToken header to all same-origin fetch() calls
-            const origFetch = window.fetch;
-            window.fetch = function (resource, config = {}) {
-                const csrfMeta = document.querySelector('meta[name="csrf-token"]');
-                const token = csrfMeta ? csrfMeta.getAttribute('content') : '';
-                const urlStr = typeof resource === 'string' ? resource : (resource && resource.url) || '';
-                if (token && (!urlStr.startsWith('http') || urlStr.startsWith(window.location.origin))) {
-                    const headers = new Headers(config.headers || {});
-                    if (!headers.has('X-CSRFToken')) headers.set('X-CSRFToken', token);
-                    config = Object.assign({}, config, { headers });
-                }
-                return origFetch.call(this, resource, config);
-            };
-        })();
-    </script>
 </head>
 <body class="min-h-screen flex flex-col">
-    <div id="scrollProgressBar"></div>
-
-    <!-- TOP EDITORIAL & CURRENCY RIBBON -->
-    <div class="border-b border-[#DFDBD0] bg-[#FCFBF8]/80 backdrop-blur-sm text-[11px]">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-9 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-2.5 truncate">
-                <span class="inline-block w-2 h-2 rounded-full bg-[#FF4D1C] animate-pulse"></span>
-                <span class="font-mono-tech uppercase tracking-wider text-[#5C6661] truncate">
-                    FREE DISPATCH OVER {{ format_price(200) }} &bull; M-PESA EXPRESS &amp; CARD READY
-                </span>
-            </div>
-
-            <div class="flex items-center gap-3 shrink-0">
-                <button type="button" onclick="openCommandPalette()"
-                        class="hidden sm:inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-[10px] text-[#5C6661] hover:border-[#FF4D1C] hover:text-[#FF4D1C] transition">
-                    <span>Search</span>
-                    <kbd class="px-1.5 py-0.2 rounded bg-[#FCFBF8] border border-[#DFDBD0] text-[9px] font-bold">Ctrl K</kbd>
-                </button>
-
-                <button type="button" onclick="openSizeDrawer()"
-                        class="font-mono-tech text-[10px] uppercase tracking-wider font-bold text-[#5C6661] hover:text-[#FF4D1C] transition">
-                    Size Guide
-                </button>
-
-                <button type="button" id="soundToggleBtn" onclick="StudioAudio.toggle()"
-                        class="font-mono-tech text-[10px] uppercase tracking-wider font-bold text-[#5C6661] hover:text-[#FF4D1C] transition">
-                    SFX: OFF
-                </button>
-
-                <button type="button" id="themeToggleBtn" onclick="toggleTheme()"
-                        class="font-mono-tech text-[10px] uppercase tracking-wider font-bold text-[#0D1512] hover:text-[#FF4D1C] transition">
-                    Nocturne
-                </button>
-
-                <form method="POST" action="/currency" class="flex items-center gap-1">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="next" value="{{ request.full_path }}">
-                    <button type="submit" name="currency" value="KES"
-                            onclick="StudioAudio.click(520)"
-                            class="px-2 py-0.5 rounded font-mono-tech font-bold transition {% if currency == 'KES' %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
-                        KES
-                    </button>
-                    <button type="submit" name="currency" value="USD"
-                            onclick="StudioAudio.click(640)"
-                            class="px-2 py-0.5 rounded font-mono-tech font-bold transition {% if currency == 'USD' %}bg-[#0D1512] text-[#F4F1EA]{% else %}text-[#5C6661] hover:text-[#0D1512]{% endif %}">
-                        USD
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- STICKY GLASS NAVIGATION -->
     <header class="sticky top-0 z-40 border-b border-[#DFDBD0] backdrop-blur-md" style="background: var(--nav-bg);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-            <a href="/" onclick="StudioAudio.click(480)" class="flex items-center gap-2.5 group">
-                <span class="w-8 h-8 rounded-lg bg-[#0D1512] text-[#F4F1EA] flex items-center justify-center font-mono-tech font-extrabold text-xs group-hover:bg-[#FF4D1C] transition">
-                    AK
-                </span>
-                <span class="font-display font-bold text-lg tracking-tight uppercase">ATELIER KICKS</span>
+            <a href="/" class="font-display text-lg sm:text-xl font-bold tracking-tight text-[#0D1512]">
+                ATELIER<span class="text-[#FF4D1C]">.</span>KICKS
             </a>
 
-            <nav class="hidden md:flex items-center gap-7 text-xs font-bold uppercase tracking-wider">
-                <a href="/" class="hover:text-[#FF4D1C] transition {% if request.path == '/' %}text-[#FF4D1C]{% endif %}">Home</a>
-                <a href="/shop" class="hover:text-[#FF4D1C] transition {% if request.path.startswith('/shop') %}text-[#FF4D1C]{% endif %}">Catalog</a>
-                <a href="/lookbook" class="inline-flex items-center gap-1.5 hover:text-[#FF4D1C] transition {% if request.path.startswith('/lookbook') %}text-[#FF4D1C]{% endif %}">
-                    <span>3D Lookbook</span>
-                    <span class="px-1.5 py-0.5 rounded-full bg-[#FF4D1C] text-white font-mono-tech text-[9px] font-extrabold">3D</span>
-                </a>
-                <a href="/orders" class="hover:text-[#FF4D1C] transition {% if request.path.startswith('/orders') %}text-[#FF4D1C]{% endif %}">Orders</a>
-                <a href="/admin" class="hover:text-[#FF4D1C] transition {% if request.path.startswith('/admin') %}text-[#FF4D1C]{% endif %}">Admin</a>
+            <nav class="hidden md:flex items-center gap-6">
+                <a href="/" class="text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">Home</a>
+                <a href="/shop" class="text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">Catalog</a>
+                <a href="/compare" class="text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">Compare</a>
+                <a href="/lookbook" class="text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">3D Book</a>
+                <a href="/orders" class="text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">Orders</a>
+                <a href="/admin" class="text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">Admin</a>
             </nav>
 
-            <div class="flex items-center gap-2.5">
-                <button type="button" onclick="openCompareModal()"
-                        class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[#DFDBD0] bg-[#FCFBF8] text-xs font-bold hover:border-[#FF4D1C] transition">
-                    <span>Compare</span>
-                    <span id="navCompareCount" class="font-mono-tech text-[#FF4D1C]">0</span>
-                </button>
-                <a href="/wishlist" onclick="StudioAudio.click(560)"
-                   class="px-3.5 py-2 rounded-full border border-[#DFDBD0] bg-[#FCFBF8] text-xs font-bold hover:border-[#FF4D1C] transition">
-                    Saved (<span id="navWishlistCount" class="font-mono-tech">{{ wishlist_count }}</span>)
+            <div class="flex items-center gap-3">
+                <form method="POST" action="/currency">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="next" value="{{ request.full_path }}">
+                    <button type="submit" name="currency" value="{{ 'USD' if currency == 'KES' else 'KES' }}"
+                            class="px-3 py-1.5 rounded-full border border-[#DFDBD0] bg-[#FCFBF8] font-mono-tech text-[11px] font-bold text-[#0D1512] hover:border-[#FF4D1C] transition">
+                        {{ currency }}
+                    </button>
+                </form>
+
+                <a href="/wishlist" class="px-3 py-1.5 rounded-full border border-[#DFDBD0] bg-[#FCFBF8] font-mono-tech text-[11px] font-bold text-[#0D1512] hover:border-[#FF4D1C] transition">
+                    &hearts; {{ wishlist_count }}
                 </a>
-                <button type="button" onclick="openBagDrawer()"
-                        class="magnetic-btn blaze-glow px-4 py-2 rounded-full bg-[#FF4D1C] text-white text-xs font-extrabold uppercase tracking-wider hover:bg-[#E63E10]">
-                    Bag (<span id="navBagCount" class="font-mono-tech">{{ cart_count }}</span>)
-                </button>
+
+                <a href="/cart" class="px-4 py-1.5 rounded-full bg-[#0D1512] text-[#F4F1EA] font-mono-tech text-[11px] font-bold hover:bg-[#FF4D1C] transition">
+                    Bag ({{ cart_count }})
+                </a>
             </div>
         </div>
     </header>
 
     {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-4 w-full">
-                {% for msg in messages %}
-                    <div class="mb-2 px-4 py-3 rounded-2xl bg-[#0D1512] text-[#F4F1EA] text-xs font-medium flex items-center justify-between border border-[#22302A]">
-                        <span>{{ msg }}</span>
-                        <span class="font-mono-tech text-[10px] uppercase text-[#FF4D1C] font-bold">ATELIER NOTICE</span>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+    {% if messages %}
+    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 pt-4">
+        {% for msg in messages %}
+        <div class="rounded-2xl bg-[#0D1512] text-[#F4F1EA] px-4 py-3 text-xs font-medium border border-[#22302A] mb-2">
+            {{ msg }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     {% endwith %}
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-10">
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- FLOATING SILHOUETTE COMPARISON DOCK -->
-    <div id="compareDock" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 hidden items-center gap-3 px-4 py-2.5 rounded-full bg-[#0D1512] text-[#F4F1EA] border border-[#243830] shadow-2xl">
-        <span class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C] font-bold">SPEC COMPARE</span>
-        <div id="compareDockThumbs" class="flex items-center gap-2"></div>
-        <button type="button" onclick="openCompareModal()"
-                class="px-3.5 py-1.5 rounded-full bg-[#FF4D1C] text-white font-mono-tech text-[11px] font-bold uppercase hover:bg-[#E63E10] transition">
-            Matrix &rarr;
-        </button>
-        <button type="button" onclick="clearCompare()"
-                class="font-mono-tech text-[10px] uppercase text-[#9BA6A0] hover:text-white px-1.5">
-            Clear
-        </button>
-    </div>
-
-    <!-- ARCHITECTURAL FOOTER -->
-    <footer class="border-t border-[#DFDBD0] bg-[#FCFBF8] mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8 text-xs">
-            <div class="md:col-span-2">
-                <div class="font-display font-bold text-xl tracking-tight uppercase mb-2">ATELIER KICKS</div>
-                <p class="text-[#5C6661] max-w-md leading-relaxed">
-                    Precision footwear archive featuring carbon race silhouettes, terrace icons, technical trail builds, and an interactive 3D lookbook.
-                </p>
+    <footer class="border-t border-[#DFDBD0] bg-[#FCFBF8] py-10 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#5C6661]">
+            <div class="font-display font-bold text-[#0D1512]">ATELIER KICKS // ENGINEERED FOOTWEAR</div>
+            <div class="flex items-center gap-5 font-mono-tech text-[11px]">
+                <a href="/shop" class="hover:text-[#FF4D1C]">Catalog</a>
+                <a href="/compare" class="hover:text-[#FF4D1C]">Compare</a>
+                <a href="/lookbook" class="hover:text-[#FF4D1C]">3D Book</a>
+                <a href="/orders" class="hover:text-[#FF4D1C]">Orders</a>
             </div>
-            <div>
-                <div class="font-mono-tech font-bold uppercase tracking-wider text-[#5C6661] mb-3">Navigation</div>
-                <ul class="space-y-2 font-semibold">
-                    <li><a href="/shop" class="hover:text-[#FF4D1C]">Full Footwear Catalog</a></li>
-                    <li><a href="/lookbook" class="hover:text-[#FF4D1C]">Interactive 3D Lookbook</a></li>
-                    <li><a href="/wishlist" class="hover:text-[#FF4D1C]">Saved Wishlist</a></li>
-                    <li><a href="/cart" class="hover:text-[#FF4D1C]">Shopping Bag &amp; Checkout</a></li>
-                </ul>
-            </div>
-            <div>
-                <div class="font-mono-tech font-bold uppercase tracking-wider text-[#5C6661] mb-3">Studio &amp; Payments</div>
-                <ul class="space-y-2 text-[#5C6661]">
-                    <li>M-PESA Express (STK Push)</li>
-                    <li>Card &amp; Demo Settlement</li>
-                    <li>Live {{ currency }} Currency Switcher</li>
-                    <li><a href="/admin" class="font-semibold text-[#0D1512] hover:text-[#FF4D1C]">Inventory Admin Console &rarr;</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="border-t border-[#ECE8DE] py-4 text-center font-mono-tech text-[11px] text-[#5C6661]">
-            ATELIER KICKS &bull; ENGINEERED FOOTWEAR SHOWROOM &bull; 2026
         </div>
     </footer>
 
-    <!-- 1. COMMAND PALETTE (CTRL+K / CMD+K) -->
-    <div id="commandPaletteModal" class="fixed inset-0 bg-[#0D1512]/70 backdrop-blur-sm z-50 hidden items-start justify-center pt-20 p-4" onclick="if(event.target===this)closeCommandPalette()">
-        <div class="w-full max-w-xl rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] shadow-2xl overflow-hidden">
-            <div class="flex items-center gap-3 px-4 py-3.5 border-b border-[#DFDBD0]">
-                <span class="font-mono-tech text-xs font-bold text-[#FF4D1C]">CMD</span>
-                <input id="cmdSearchInput" type="text" oninput="renderCommandResults(this.value)"
-                       placeholder="Jump to a sneaker, brand, or discipline (e.g. Samba, Trail, 990)..."
-                       class="w-full bg-transparent text-sm font-medium text-[#0D1512] focus:outline-none">
-                <button type="button" onclick="closeCommandPalette()" class="font-mono-tech text-[10px] uppercase px-2 py-1 rounded bg-[#F4F1EA] text-[#5C6661]">ESC</button>
-            </div>
-            <div id="cmdResultsList" class="max-h-80 overflow-y-auto divide-y divide-[#ECE8DE]"></div>
-        </div>
-    </div>
-
-    <!-- 2. QUICK-VIEW MODAL WITH 3D TILT STAGE -->
-    <div id="quickViewModal" class="fixed inset-0 bg-[#0D1512]/75 backdrop-blur-sm z-50 hidden items-center justify-center p-4" onclick="if(event.target===this)closeQuickView()">
-        <div class="w-full max-w-2xl rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] shadow-2xl p-6 sm:p-8 grid grid-cols-1 sm:grid-cols-12 gap-6 items-center">
-            <div class="sm:col-span-6">
-                <div id="qvTiltCard" onmousemove="qvTilt(event, this)" onmouseleave="qvReset(this)"
-                     class="h-60 rounded-2xl bg-[#F4F1EA] border border-[#E7E3D8] p-5 flex items-center justify-center transition-transform duration-150" style="transform-style: preserve-3d;">
-                    <img id="qvImg" src="" alt="" class="max-h-full max-w-full object-contain" style="transform: translateZ(28px);">
-                </div>
-            </div>
-            <div class="sm:col-span-6 space-y-4">
-                <div class="flex items-center justify-between">
-                    <span id="qvBadge" class="font-mono-tech text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-[#0D1512] text-[#F4F1EA]"></span>
-                    <button type="button" onclick="closeQuickView()" class="font-mono-tech text-xs text-[#5C6661] hover:text-[#FF4D1C]">Close &times;</button>
-                </div>
-                <div>
-                    <div id="qvMeta" class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]"></div>
-                    <h3 id="qvTitle" class="font-display text-2xl font-bold text-[#0D1512]"></h3>
-                    <div id="qvPrice" class="font-mono-tech text-lg font-extrabold text-[#FF4D1C] mt-1"></div>
-                </div>
-                <p id="qvDesc" class="text-xs text-[#5C6661] leading-relaxed"></p>
-                <div class="flex items-center gap-2">
-                    <select id="qvSizeSelect" class="px-3 py-2.5 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]"></select>
-                    <button type="button" id="qvAddBtn" class="flex-1 py-2.5 px-4 rounded-full bg-[#FF4D1C] text-white text-xs font-extrabold uppercase tracking-wider hover:bg-[#E63E10] transition">
-                        Add to Bag
-                    </button>
-                </div>
-                <a id="qvDetailLink" href="#" class="inline-block font-mono-tech text-[11px] font-bold uppercase text-[#5C6661] hover:text-[#FF4D1C] underline underline-offset-4">
-                    Open Full Spec Page &rarr;
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3. SLIDE-OUT BAG DRAWER WITH LIVE +/- QUANTITY CONTROLS -->
-    <div id="bagDrawerBackdrop" class="fixed inset-0 bg-[#0D1512]/60 backdrop-blur-xs z-50 hidden justify-end" onclick="if(event.target===this)closeBagDrawer()">
-        <aside id="bagDrawerPanel" class="w-full max-w-md bg-[#FCFBF8] h-full border-l border-[#DFDBD0] p-6 flex flex-col justify-between translate-x-full transition-transform duration-300">
-            <div class="space-y-4 overflow-y-auto pr-1">
-                <div class="flex items-center justify-between pb-3 border-b border-[#DFDBD0]">
-                    <div>
-                        <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">LIVE BAG</div>
-                        <h3 class="font-display text-xl font-bold uppercase text-[#0D1512]">Your Bag (<span id="drawerItemCount" class="font-mono-tech">{{ cart_count }}</span>)</h3>
-                    </div>
-                    <button type="button" onclick="closeBagDrawer()" class="font-mono-tech text-xs font-bold uppercase text-[#5C6661] hover:text-[#FF4D1C]">Close &times;</button>
-                </div>
-
-                <div class="p-3.5 rounded-2xl bg-[#F4F1EA] border border-[#E7E3D8] space-y-2">
-                    <div id="freeShipLabel" class="font-mono-tech text-[11px] font-bold text-[#0D1512]">
-                        Add items to unlock free express dispatch
-                    </div>
-                    <div class="h-2 rounded-full bg-[#DFDBD0] overflow-hidden">
-                        <div id="freeShipBar" class="h-full bg-[#FF4D1C] transition-all duration-300" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                <div id="drawerItemsContainer" class="space-y-3"></div>
-            </div>
-
-            <div class="pt-4 border-t border-[#DFDBD0] space-y-3">
-                <div class="flex items-center justify-between font-mono-tech text-sm font-extrabold">
-                    <span>SUBTOTAL</span>
-                    <span id="drawerSubtotal" class="text-[#FF4D1C]">{{ format_price(0) }}</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <a href="/cart" class="py-3 text-center rounded-full border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-bold uppercase tracking-wider text-[#0D1512] hover:border-[#0D1512]">
-                        Full Bag
-                    </a>
-                    <a href="/cart" class="py-3 text-center rounded-full bg-[#FF4D1C] text-white text-xs font-extrabold uppercase tracking-wider hover:bg-[#E63E10]">
-                        Checkout &rarr;
-                    </a>
-                </div>
-            </div>
-        </aside>
-    </div>
-
-    <!-- 4. SIDE-BY-SIDE SILHOUETTE COMPARISON MATRIX MODAL -->
-    <div id="compareModal" class="fixed inset-0 bg-[#0D1512]/75 backdrop-blur-sm z-50 hidden items-center justify-center p-4" onclick="if(event.target===this)closeCompareModal()">
-        <div class="w-full max-w-4xl rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-6 sm:p-8 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-[#DFDBD0] pb-4">
-                <div>
-                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C] font-bold">SIDE-BY-SIDE TELEMETRY</div>
-                    <h3 class="font-display text-2xl font-bold uppercase text-[#0D1512]">Silhouette Comparison Matrix</h3>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button type="button" onclick="clearCompare()" class="font-mono-tech text-[11px] uppercase text-[#5C6661] hover:text-[#FF4D1C]">Clear All</button>
-                    <button type="button" onclick="closeCompareModal()" class="font-mono-tech text-xs font-bold text-[#0D1512] hover:text-[#FF4D1C]">Close &times;</button>
-                </div>
-            </div>
-            <div id="compareMatrixBody"></div>
-        </div>
-    </div>
-
-    <!-- 5. EU / US / UK / CM SIZE MATRIX DRAWER -->
-    <div id="sizeDrawerModal" class="fixed inset-0 bg-[#0D1512]/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4" onclick="if(event.target===this)closeSizeDrawer()">
-        <div class="w-full max-w-lg rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-6 sm:p-7 space-y-4 shadow-2xl">
-            <div class="flex items-center justify-between">
-                <div>
-                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#FF4D1C] font-bold">CALIBRATION MATRIX</div>
-                    <h3 class="font-display text-2xl font-bold uppercase text-[#0D1512]">Footwear Size Guide</h3>
-                </div>
-                <button type="button" onclick="closeSizeDrawer()" class="font-mono-tech text-xs text-[#5C6661] hover:text-[#FF4D1C]">Close &times;</button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left font-mono-tech text-xs border-collapse">
-                    <thead>
-                        <tr class="border-b border-[#DFDBD0] text-[#5C6661]">
-                            <th class="py-2">EU</th>
-                            <th class="py-2">US (M)</th>
-                            <th class="py-2">UK</th>
-                            <th class="py-2">CM (JP)</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-[#ECE8DE] font-semibold">
-                        <tr><td class="py-2">39</td><td>6.5</td><td>6</td><td>24.5 cm</td></tr>
-                        <tr><td class="py-2">40</td><td>7</td><td>6.5</td><td>25.0 cm</td></tr>
-                        <tr><td class="py-2">41</td><td>8</td><td>7</td><td>26.0 cm</td></tr>
-                        <tr><td class="py-2">42</td><td>8.5</td><td>7.5</td><td>26.5 cm</td></tr>
-                        <tr><td class="py-2">43</td><td>9.5</td><td>8.5</td><td>27.5 cm</td></tr>
-                        <tr><td class="py-2">44</td><td>10.5</td><td>9.5</td><td>28.0 cm</td></tr>
-                        <tr><td class="py-2">45</td><td>11</td><td>10</td><td>29.0 cm</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // Inject hidden CSRF token automatically into every POST form on the page
-        (function injectCsrfIntoForms() {
-            const meta = document.querySelector('meta[name="csrf-token"]');
-            const token = meta ? meta.getAttribute('content') : '';
-            if (!token) return;
-            document.querySelectorAll('form').forEach(form => {
-                if ((form.method || '').toUpperCase() === 'POST' && !form.querySelector('input[name="csrf_token"]')) {
-                    const hidden = document.createElement('input');
-                    hidden.type = 'hidden';
-                    hidden.name = 'csrf_token';
-                    hidden.value = token;
-                    form.appendChild(hidden);
+        const StudioAudio = {
+            ctx: null,
+            ensure() {
+                if (!this.ctx) {
+                    const AC = window.AudioContext || window.webkitAudioContext;
+                    if (AC) this.ctx = new AC();
                 }
-            });
-        })();
-
-        const StudioAudio = (() => {
-            let enabled = false;
-            let ctx = null;
-            function ensureCtx() {
-                if (!ctx) {
-                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                    if (AudioCtx) ctx = new AudioCtx();
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume().catch(() => {});
                 }
-                if (ctx && ctx.state === 'suspended') ctx.resume();
-                return ctx;
-            }
-            function toggle() {
-                enabled = !enabled;
-                const btn = document.getElementById('soundToggleBtn');
-                if (btn) btn.textContent = enabled ? 'SFX: ON' : 'SFX: OFF';
-                if (enabled) chime();
-            }
-            function click(freq = 520) {
-                if (!enabled) return;
-                const c = ensureCtx();
-                if (!c) return;
-                const osc = c.createOscillator();
-                const gain = c.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, c.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(freq * 0.65, c.currentTime + 0.045);
-                gain.gain.setValueAtTime(0.06, c.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.045);
-                osc.connect(gain);
-                gain.connect(c.destination);
-                osc.start();
-                osc.stop(c.currentTime + 0.05);
-            }
-            function pageFlip() {
-                if (!enabled) return;
-                const c = ensureCtx();
-                if (!c) return;
-                const osc = c.createOscillator();
-                const gain = c.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(240, c.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(520, c.currentTime + 0.09);
-                gain.gain.setValueAtTime(0.05, c.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.09);
-                osc.connect(gain);
-                gain.connect(c.destination);
-                osc.start();
-                osc.stop(c.currentTime + 0.095);
-            }
-            function chime() {
-                if (!enabled) return;
-                const c = ensureCtx();
-                if (!c) return;
-                [587.33, 880].forEach((f, idx) => {
-                    const osc = c.createOscillator();
-                    const gain = c.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(f, c.currentTime + idx * 0.06);
-                    gain.gain.setValueAtTime(0.05, c.currentTime + idx * 0.06);
-                    gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + idx * 0.06 + 0.14);
+            },
+            click(freq = 540) {
+                try {
+                    this.ensure();
+                    if (!this.ctx) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.045);
                     osc.connect(gain);
-                    gain.connect(c.destination);
-                    osc.start(c.currentTime + idx * 0.06);
-                    osc.stop(c.currentTime + idx * 0.06 + 0.15);
-                });
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.05);
+                } catch (_) {}
+            },
+            chime() {
+                this.click(660);
+                setTimeout(() => this.click(880), 65);
             }
-            return { toggle, click, pageFlip, chime };
-        })();
-
-        function toggleTheme() {
-            StudioAudio.click(600);
-            const html = document.documentElement;
-            html.classList.toggle('dark-theme');
-            const isDark = html.classList.contains('dark-theme');
-            localStorage.setItem('ak_theme', isDark ? 'dark' : 'light');
-            updateThemeButtonLabel();
-        }
-        function updateThemeButtonLabel() {
-            const btn = document.getElementById('themeToggleBtn');
-            if (!btn) return;
-            const isDark = document.documentElement.classList.contains('dark-theme');
-            btn.textContent = isDark ? 'Daylight' : 'Nocturne';
-        }
-        updateThemeButtonLabel();
-
-        window.addEventListener('scroll', () => {
-            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const pct = docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0;
-            const bar = document.getElementById('scrollProgressBar');
-            if (bar) bar.style.width = `${Math.min(100, Math.max(0, pct))}%`;
-        }, { passive: true });
-
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                    revealObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.08 });
-        document.querySelectorAll('.reveal-up').forEach(el => revealObserver.observe(el));
-
-        document.querySelectorAll('[data-tilt]').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const r = card.getBoundingClientRect();
-                const px = (e.clientX - r.left) / r.width - 0.5;
-                const py = (e.clientY - r.top) / r.height - 0.5;
-                card.style.transform = `perspective(1000px) rotateY(${px * 10}deg) rotateX(${-py * 10}deg) translateY(-4px)`;
-            });
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) translateY(0px)';
-            });
-        });
-
-        document.querySelectorAll('.magnetic-btn').forEach(btn => {
-            btn.addEventListener('mousemove', (e) => {
-                const r = btn.getBoundingClientRect();
-                const dx = (e.clientX - (r.left + r.width / 2)) * 0.22;
-                const dy = (e.clientY - (r.top + r.height / 2)) * 0.22;
-                btn.style.transform = `translate(${dx}px, ${dy}px)`;
-            });
-            btn.addEventListener('mouseleave', () => {
-                btn.style.transform = 'translate(0px, 0px)';
-            });
-        });
-
-        let catalogCache = [];
-        async function loadCatalogCache() {
-            if (catalogCache.length) return catalogCache;
-            try {
-                const res = await fetch('/api/catalog');
-                const data = await res.json();
-                catalogCache = data.sneakers || [];
-            } catch (_) {}
-            return catalogCache;
-        }
-
-        async function openCommandPalette() {
-            StudioAudio.click(680);
-            await loadCatalogCache();
-            const modal = document.getElementById('commandPaletteModal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            const input = document.getElementById('cmdSearchInput');
-            input.value = '';
-            input.focus();
-            renderCommandResults('');
-        }
-        function closeCommandPalette() {
-            const modal = document.getElementById('commandPaletteModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-        function renderCommandResults(query) {
-            const q = (query || '').trim().toLowerCase();
-            const list = document.getElementById('cmdResultsList');
-            const matches = catalogCache.filter(s =>
-                !q ||
-                s.name.toLowerCase().includes(q) ||
-                s.brand.toLowerCase().includes(q) ||
-                s.category.toLowerCase().includes(q)
-            ).slice(0, 7);
-
-            if (!matches.length) {
-                list.innerHTML = `<div class="p-6 text-center font-mono-tech text-xs text-[#5C6661]">No matching silhouettes</div>`;
-                return;
-            }
-            list.innerHTML = matches.map(s => `
-                <a href="/sneaker/${s.id}" class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-[#F4F1EA] transition">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <img src="${s.image_url}" alt="${s.name}" class="w-11 h-11 rounded-lg bg-[#F4F1EA] p-1 object-contain shrink-0">
-                        <div class="min-w-0">
-                            <div class="text-xs font-bold text-[#0D1512] truncate">${s.name}</div>
-                            <div class="font-mono-tech text-[10px] text-[#5C6661] uppercase">${s.brand} &bull; ${s.category}</div>
-                        </div>
-                    </div>
-                    <span class="font-mono-tech text-xs font-bold text-[#FF4D1C] shrink-0">${s.price_formatted}</span>
-                </a>
-            `).join('');
-        }
-
-        async function openQuickView(sneakerId) {
-            StudioAudio.click(620);
-            const list = await loadCatalogCache();
-            const shoe = list.find(s => Number(s.id) === Number(sneakerId));
-            if (!shoe) return;
-
-            document.getElementById('qvImg').src = shoe.image_url;
-            document.getElementById('qvImg').alt = shoe.name;
-            document.getElementById('qvBadge').textContent = shoe.badge;
-            document.getElementById('qvMeta').textContent = `${shoe.brand} • ${shoe.category}`;
-            document.getElementById('qvTitle').textContent = shoe.name;
-            document.getElementById('qvPrice').textContent = shoe.price_formatted;
-            document.getElementById('qvDesc').textContent = shoe.description;
-            document.getElementById('qvDetailLink').href = `/sneaker/${shoe.id}`;
-
-            const sel = document.getElementById('qvSizeSelect');
-            sel.innerHTML = (shoe.sizes || ['40', '41', '42', '43', '44']).map(sz => `<option value="${sz}">EU ${sz}</option>`).join('');
-
-            const addBtn = document.getElementById('qvAddBtn');
-            addBtn.onclick = async () => {
-                StudioAudio.chime();
-                await quickAddToBag(shoe.id, sel.value, 1);
-                closeQuickView();
-                openBagDrawer();
-            };
-
-            const modal = document.getElementById('quickViewModal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-        function closeQuickView() {
-            const modal = document.getElementById('quickViewModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-        function qvTilt(e, card) {
-            const r = card.getBoundingClientRect();
-            const px = (e.clientX - r.left) / r.width - 0.5;
-            const py = (e.clientY - r.top) / r.height - 0.5;
-            card.style.transform = `rotateY(${px * 18}deg) rotateX(${-py * 18}deg)`;
-        }
-        function qvReset(card) {
-            card.style.transform = 'rotateY(0deg) rotateX(0deg)';
-        }
-
-        function renderBagData(data) {
-            const navCount = document.getElementById('navBagCount');
-            const drawerCount = document.getElementById('drawerItemCount');
-            const subtotalEl = document.getElementById('drawerSubtotal');
-            const barEl = document.getElementById('freeShipBar');
-            const labelEl = document.getElementById('freeShipLabel');
-            const container = document.getElementById('drawerItemsContainer');
-
-            if (navCount) navCount.textContent = data.count;
-            if (drawerCount) drawerCount.textContent = data.count;
-            if (subtotalEl) subtotalEl.textContent = data.subtotal_formatted;
-            if (barEl) barEl.style.width = `${data.progress_pct}%`;
-
-            if (labelEl) {
-                if (data.free_shipping_unlocked) {
-                    labelEl.textContent = '✓ Free express dispatch unlocked';
-                } else if (data.count > 0) {
-                    labelEl.textContent = `Add ${data.remaining_formatted} more for free express dispatch`;
-                } else {
-                    labelEl.textContent = 'Add items to unlock free express dispatch';
-                }
-            }
-
-            if (container) {
-                if (!data.items || !data.items.length) {
-                    container.innerHTML = `<div class="py-10 text-center font-mono-tech text-xs text-[#5C6661]">Your bag is currently empty.</div>`;
-                } else {
-                    container.innerHTML = data.items.map(it => `
-                        <div class="p-3 rounded-2xl bg-[#F4F1EA] border border-[#E7E3D8] space-y-2.5">
-                            <div class="flex items-center gap-3">
-                                <img src="${it.image_url}" alt="${it.name}" class="w-14 h-14 rounded-xl bg-[#FCFBF8] p-1.5 object-contain shrink-0">
-                                <div class="flex-1 min-w-0">
-                                    <div class="text-xs font-bold text-[#0D1512] truncate">${it.name}</div>
-                                    <div class="font-mono-tech text-[10px] text-[#5C6661]">SIZE EU ${it.size}</div>
-                                </div>
-                                <div class="font-mono-tech text-xs font-extrabold text-[#0D1512]">${it.line_total_formatted}</div>
-                            </div>
-                            <div class="flex items-center justify-between pt-1.5 border-t border-[#DFDBD0]">
-                                <div class="inline-flex items-center rounded-full bg-[#FCFBF8] border border-[#DFDBD0] font-mono-tech text-xs font-bold">
-                                    <button type="button" onclick="updateDrawerQty('${it.key}', -1)" class="px-2.5 py-1 hover:text-[#FF4D1C]">&minus;</button>
-                                    <span class="px-2 text-[#0D1512]">${it.qty}</span>
-                                    <button type="button" onclick="updateDrawerQty('${it.key}', 1)" class="px-2.5 py-1 hover:text-[#FF4D1C]">+</button>
-                                </div>
-                                <button type="button" onclick="removeDrawerItem('${it.key}')" class="font-mono-tech text-[10px] font-bold uppercase text-[#5C6661] hover:text-[#FF4D1C]">
-                                    Remove &times;
-                                </button>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-            }
-        }
-
-        async function refreshBagDrawer() {
-            try {
-                const res = await fetch('/api/cart/state');
-                const data = await res.json();
-                renderBagData(data);
-            } catch (_) {}
-        }
-
-        async function updateDrawerQty(itemKey, delta) {
-            StudioAudio.click(delta > 0 ? 600 : 440);
-            const res = await fetch(`/api/cart/update/${encodeURIComponent(itemKey)}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ delta })
-            });
-            const data = await res.json();
-            renderBagData(data);
-        }
-
-        async function removeDrawerItem(itemKey) {
-            StudioAudio.click(400);
-            const res = await fetch(`/api/cart/remove/${encodeURIComponent(itemKey)}`, {
-                method: 'POST'
-            });
-            const data = await res.json();
-            renderBagData(data);
-        }
+        };
 
         async function quickAddToBag(sneakerId, size = '42', qty = 1) {
-            const res = await fetch(`/api/cart/add/${sneakerId}`, {
+            const resp = await fetch(`/api/cart/add/${sneakerId}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
                 body: JSON.stringify({ size, qty })
             });
-            const data = await res.json();
-            renderBagData(data);
-        }
-
-        async function openBagDrawer() {
-            StudioAudio.click(640);
-            await refreshBagDrawer();
-            const backdrop = document.getElementById('bagDrawerBackdrop');
-            const panel = document.getElementById('bagDrawerPanel');
-            backdrop.classList.remove('hidden');
-            backdrop.classList.add('flex');
-            requestAnimationFrame(() => panel.classList.remove('translate-x-full'));
-        }
-        function closeBagDrawer() {
-            const backdrop = document.getElementById('bagDrawerBackdrop');
-            const panel = document.getElementById('bagDrawerPanel');
-            panel.classList.add('translate-x-full');
-            setTimeout(() => {
-                backdrop.classList.add('hidden');
-                backdrop.classList.remove('flex');
-            }, 260);
-        }
-
-        function getCompareIds() {
-            try {
-                return JSON.parse(localStorage.getItem('ak_compare_ids') || '[]').map(Number);
-            } catch (_) {
-                return [];
+            if (resp.ok) {
+                const data = await resp.json();
+                document.querySelectorAll('a[href="/cart"]').forEach(el => {
+                    if (el.textContent.includes('Bag')) el.textContent = `Bag (${data.count})`;
+                });
             }
+            return resp;
         }
 
-        function saveCompareIds(ids) {
-            localStorage.setItem('ak_compare_ids', JSON.stringify(ids.slice(0, 3)));
-            syncCompareUI();
+        function openBagDrawer() {
+            window.location.href = '/cart';
         }
 
-        function toggleCompare(sneakerId) {
-            StudioAudio.click(580);
-            const id = Number(sneakerId);
-            let ids = getCompareIds();
-            if (ids.includes(id)) {
-                ids = ids.filter(x => x !== id);
-            } else {
-                if (ids.length >= 3) ids.shift();
-                ids.push(id);
-            }
-            saveCompareIds(ids);
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const revealEls = document.querySelectorAll('.reveal-up');
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach((entry, idx) => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.transitionDelay = `${Math.min(idx * 60, 240)}ms`;
+                        entry.target.classList.add('is-visible');
+                        io.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.08 });
+            revealEls.forEach(el => io.observe(el));
 
-        function clearCompare() {
-            StudioAudio.click(440);
-            saveCompareIds([]);
-            closeCompareModal();
-        }
-
-        async function syncCompareUI() {
-            const ids = getCompareIds();
-            const navBadge = document.getElementById('navCompareCount');
-            if (navBadge) navBadge.textContent = ids.length;
-
-            document.querySelectorAll('[data-compare-btn]').forEach(btn => {
-                const bid = Number(btn.getAttribute('data-compare-btn'));
-                if (ids.includes(bid)) {
-                    btn.classList.add('bg-[#FF4D1C]', 'text-white', 'border-[#FF4D1C]');
-                    btn.textContent = '✓ Spec';
-                } else {
-                    btn.classList.remove('bg-[#FF4D1C]', 'text-white', 'border-[#FF4D1C]');
-                    btn.textContent = 'Compare';
-                }
-            });
-
-            const dock = document.getElementById('compareDock');
-            const thumbs = document.getElementById('compareDockThumbs');
-            if (!dock || !thumbs) return;
-
-            if (!ids.length) {
-                dock.classList.add('hidden');
-                dock.classList.remove('flex');
-                return;
-            }
-
-            const catalog = await loadCatalogCache();
-            const selected = ids.map(id => catalog.find(s => Number(s.id) === id)).filter(Boolean);
-            thumbs.innerHTML = selected.map(s => `
-                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#14201B] border border-[#243830] text-[11px] font-semibold">
-                    <img src="${s.image_url}" alt="${s.name}" class="w-5 h-5 object-contain rounded">
-                    <span class="max-w-[90px] truncate">${s.name}</span>
-                </div>
-            `).join('');
-
-            dock.classList.remove('hidden');
-            dock.classList.add('flex');
-        }
-
-        async function openCompareModal() {
-            StudioAudio.click(640);
-            const ids = getCompareIds();
-            const catalog = await loadCatalogCache();
-            const selected = ids.map(id => catalog.find(s => Number(s.id) === id)).filter(Boolean);
-            const body = document.getElementById('compareMatrixBody');
-
-            if (!selected.length) {
-                body.innerHTML = `
-                    <div class="py-10 text-center space-y-3">
-                        <div class="font-mono-tech text-xs text-[#5C6661]">NO SILHOUETTES SELECTED</div>
-                        <p class="text-xs text-[#5C6661]">Click "Compare" on any 2 or 3 sneaker cards in the catalog to inspect them side-by-side.</p>
-                    </div>`;
-            } else {
-                body.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-${selected.length} gap-5">
-                        ${selected.map(s => `
-                            <div class="rounded-2xl bg-[#F4F1EA] border border-[#E7E3D8] p-5 flex flex-col justify-between space-y-4">
-                                <div>
-                                    <div class="flex items-center justify-between mb-3">
-                                        <span class="font-mono-tech text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#0D1512] text-[#F4F1EA]">${s.badge}</span>
-                                        <button type="button" onclick="toggleCompare(${s.id}); openCompareModal();" class="font-mono-tech text-[10px] text-[#5C6661] hover:text-[#FF4D1C]">Remove &times;</button>
-                                    </div>
-                                    <div class="h-36 rounded-xl bg-[#FCFBF8] p-3 flex items-center justify-center mb-3">
-                                        <img src="${s.image_url}" alt="${s.name}" class="max-h-full max-w-full object-contain">
-                                    </div>
-                                    <div class="font-mono-tech text-[10px] uppercase text-[#5C6661]">${s.brand} &bull; ${s.category}</div>
-                                    <h4 class="font-display text-lg font-bold text-[#0D1512]">${s.name}</h4>
-                                    <div class="font-mono-tech text-base font-extrabold text-[#FF4D1C] mt-0.5">${s.price_formatted}</div>
-                                </div>
-
-                                <div class="space-y-2.5 pt-3 border-t border-[#DFDBD0] font-mono-tech text-[11px]">
-                                    <div>
-                                        <div class="flex justify-between mb-1"><span>CUSHIONING</span><span class="font-bold">${s.telemetry.cushion}%</span></div>
-                                        <div class="h-1.5 rounded-full bg-[#DFDBD0] overflow-hidden"><div class="h-full bg-[#0D1512]" style="width:${s.telemetry.cushion}%"></div></div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between mb-1"><span>ENERGY RETURN</span><span class="font-bold">${s.telemetry.response}%</span></div>
-                                        <div class="h-1.5 rounded-full bg-[#DFDBD0] overflow-hidden"><div class="h-full bg-[#FF4D1C]" style="width:${s.telemetry.response}%"></div></div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between mb-1"><span>SURFACE GRIP</span><span class="font-bold">${s.telemetry.traction}%</span></div>
-                                        <div class="h-1.5 rounded-full bg-[#DFDBD0] overflow-hidden"><div class="h-full bg-[#0D1512]" style="width:${s.telemetry.traction}%"></div></div>
-                                    </div>
-                                    <div class="pt-1 text-[10px] text-[#5C6661]">SIZES: EU ${(s.sizes || []).join(', ')}</div>
-                                </div>
-
-                                <button type="button" onclick="StudioAudio.chime(); quickAddToBag(${s.id}, '${(s.sizes && s.sizes[0]) || '42'}', 1).then(() => { closeCompareModal(); openBagDrawer(); });"
-                                        class="w-full py-2.5 rounded-full bg-[#0D1512] text-[#F4F1EA] text-xs font-bold uppercase tracking-wider hover:bg-[#FF4D1C] hover:text-white transition">
-                                    + Add EU ${(s.sizes && s.sizes[0]) || '42'} to Bag
-                                </button>
-                            </div>
-                        `).join('')}
-                    </div>`;
-            }
-
-            const modal = document.getElementById('compareModal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeCompareModal() {
-            const modal = document.getElementById('compareModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function openSizeDrawer() {
-            StudioAudio.click(540);
-            const m = document.getElementById('sizeDrawerModal');
-            m.classList.remove('hidden');
-            m.classList.add('flex');
-        }
-        function closeSizeDrawer() {
-            const m = document.getElementById('sizeDrawerModal');
-            m.classList.add('hidden');
-            m.classList.remove('flex');
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-                e.preventDefault();
-                openCommandPalette();
-            } else if (e.key === 'Escape') {
-                closeCommandPalette();
-                closeQuickView();
-                closeBagDrawer();
-                closeCompareModal();
-                closeSizeDrawer();
+            const heroImg = document.querySelector('section.reveal-up img.tilt-pop');
+            if (heroImg && window.location.pathname === '/') {
+                window.addEventListener('scroll', () => {
+                    const offset = Math.min(window.scrollY * 0.06, 28);
+                    heroImg.style.transform = `translateY(${offset}px)`;
+                }, { passive: true });
             }
         });
-
-        syncCompareUI();
     </script>
 </body>
 </html>
