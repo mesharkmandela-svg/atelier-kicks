@@ -1006,7 +1006,31 @@ def lookbook():
     conn = get_db()
     sneakers = [dict(r) for r in conn.execute("SELECT * FROM sneakers ORDER BY id ASC").fetchall()]
     conn.close()
-    return render_template("lookbook.html", sneakers=sneakers)
+
+    enriched = []
+    for idx, s in enumerate(sneakers, start=1):
+        story = get_silhouette_story(s)
+        telemetry = compute_telemetry(s["category"])
+        enriched.append(
+            {
+                **s,
+                "spread_num": idx,
+                "image_url": resolve_image_url(s["image_file"]),
+                "price_formatted": format_price(s["price"]),
+                "tagline": story["tagline"],
+                "lead": story["lead"],
+                "weight": story["weight"],
+                "drop": story["drop"],
+                "stack": story["stack"],
+                "surface": story["surface"],
+                "fit_note": story["fit_note"],
+                "chapters": story["chapters"],
+                "cushion": telemetry["cushion"],
+                "response": telemetry["response"],
+                "traction": telemetry["traction"],
+            }
+        )
+    return render_template("lookbook.html", sneakers=enriched)
 
 
 @app.route("/compare")

@@ -1,472 +1,383 @@
 {% extends "base.html" %}
 
-{% block title %}3D Interactive Lookbook — ATELIER KICKS{% endblock %}
+{% block title %}Editorial Lookbook — ATELIER KICKS{% endblock %}
 
 {% block content %}
 <style>
     .book-viewport {
-        perspective: 2600px;
-        user-select: none;
+        perspective: 2200px;
     }
-
-    .book-stage {
+    .book-spread {
         position: relative;
-        width: 100%;
-        max-width: 1120px;
-        height: 650px;
-        margin: 0 auto;
         transform-style: preserve-3d;
+        box-shadow:
+            0 28px 60px -18px rgba(0, 0, 0, 0.25),
+            0 0 0 1px var(--border-subtle);
     }
-
-    .book-sheet {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 50%;
-        height: 100%;
-        transform-origin: left center;
-        transform-style: preserve-3d;
-        transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
-        cursor: pointer;
-    }
-
-    .book-sheet.is-hidden-sheet {
-        visibility: hidden;
-        pointer-events: none;
-    }
-
-    .page-face {
-        position: absolute;
-        inset: 0;
-        backface-visibility: hidden;
-        -webkit-backface-visibility: hidden;
-        background-color: #FCFBF8;
-        border: 1px solid #DFDBD0;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        isolation: isolate;
-        transition: background-color 0.3s ease, border-color 0.3s ease;
-    }
-
-    html.dark-theme .page-face {
-        background-color: #121B17;
-        border-color: #22302A;
-    }
-
-    .page-front {
-        transform: rotateY(0deg) translateZ(1px);
-        border-radius: 0 22px 22px 0;
-        box-shadow: inset 18px 0 28px -18px rgba(13, 21, 18, 0.22), 10px 14px 28px -12px rgba(13, 21, 18, 0.2);
-    }
-
-    .page-back {
-        transform: rotateY(180deg) translateZ(1px);
-        border-radius: 22px 0 0 22px;
-        box-shadow: inset -18px 0 28px -18px rgba(13, 21, 18, 0.22), -10px 14px 28px -12px rgba(13, 21, 18, 0.2);
-    }
-
-    html.dark-theme .page-front {
-        box-shadow: inset 18px 0 28px -18px rgba(0, 0, 0, 0.65), 10px 14px 28px -12px rgba(0, 0, 0, 0.55);
-    }
-
-    html.dark-theme .page-back {
-        box-shadow: inset -18px 0 28px -18px rgba(0, 0, 0, 0.65), -10px 14px 28px -12px rgba(0, 0, 0, 0.55);
-    }
-
-    .book-sheet.flipped {
-        transform: rotateY(-180deg);
-    }
-
-    .book-sheet:not(.flipped) .page-back {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-    }
-
-    .book-sheet.flipped .page-front {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-    }
-
-    .cover-front {
-        background: radial-gradient(circle at 25% 20%, #16231E 0%, #0D1512 80%) !important;
-        color: #F4F1EA;
-        border: 1px solid #243830 !important;
-    }
-
-    .cover-back {
-        background: #0D1512 !important;
-        color: #F4F1EA;
-        border: 1px solid #243830 !important;
-    }
-
-    .page-grid-bg {
-        background-color: #FCFBF8;
-        background-image:
-            linear-gradient(to right, rgba(13, 21, 18, 0.035) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(13, 21, 18, 0.035) 1px, transparent 1px);
-        background-size: 26px 26px;
-    }
-
-    html.dark-theme .page-grid-bg {
-        background-color: #121B17 !important;
-        background-image:
-            linear-gradient(to right, rgba(244, 241, 234, 0.03) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(244, 241, 234, 0.03) 1px, transparent 1px) !important;
-    }
-
-    .shoe-stage-3d {
-        perspective: 900px;
-    }
-
-    .shoe-card-3d {
-        transition: transform 0.18s ease-out, box-shadow 0.18s ease-out, background-color 0.3s ease;
-        transform-style: preserve-3d;
-        background-color: #F4F1EA;
-    }
-
-    html.dark-theme .shoe-card-3d {
-        background-color: #0A0F0D !important;
-        border-color: #22302A !important;
-    }
-
-    .shoe-card-3d:hover {
-        box-shadow: 0 24px 40px -15px rgba(13, 21, 18, 0.22);
-    }
-
-    html.dark-theme .shoe-card-3d:hover {
-        box-shadow: 0 24px 40px -15px rgba(0, 0, 0, 0.65);
-    }
-
-    .shoe-img-pop {
-        transform: translateZ(34px);
-        filter: drop-shadow(0 18px 20px rgba(13, 21, 18, 0.22));
-    }
-
-    .spine-crease {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 50%;
-        width: 32px;
-        transform: translateX(-50%);
-        background: linear-gradient(90deg, rgba(13,21,18,0) 0%, rgba(13,21,18,0.2) 50%, rgba(13,21,18,0) 100%);
-        pointer-events: none;
-        z-index: 90;
-    }
-
-    html.dark-theme .spine-crease {
-        background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0) 100%);
-    }
-
-    @media (max-width: 820px) {
-        .book-stage {
-            height: 540px;
+    @media (min-width: 1024px) {
+        .book-spine-shadow {
+            background: linear-gradient(
+                to right,
+                transparent 0%,
+                rgba(0, 0, 0, 0.04) 47.5%,
+                rgba(0, 0, 0, 0.16) 50%,
+                rgba(0, 0, 0, 0.04) 52.5%,
+                transparent 100%
+            );
         }
-        .book-sheet {
-            width: 88%;
-            right: 6%;
-        }
-        .spine-crease {
-            display: none;
-        }
+    }
+    .page-flip-next {
+        animation: flipNext 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .page-flip-prev {
+        animation: flipPrev 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes flipNext {
+        0%   { opacity: 0.35; transform: rotateY(-10deg) scale(0.985); }
+        100% { opacity: 1;    transform: rotateY(0deg) scale(1); }
+    }
+    @keyframes flipPrev {
+        0%   { opacity: 0.35; transform: rotateY(10deg) scale(0.985); }
+        100% { opacity: 1;    transform: rotateY(0deg) scale(1); }
+    }
+    .shoe-cutout-book {
+        mix-blend-mode: multiply;
+        transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .dark .shoe-cutout-book,
+    [data-theme="dark"] .shoe-cutout-book {
+        mix-blend-mode: normal;
+        border-radius: 20px;
     }
 </style>
 
-<div class="flex flex-wrap items-end justify-between gap-4 mb-6">
+<div class="reveal-up flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
     <div>
-        <div class="font-mono-tech text-[11px] uppercase tracking-widest text-[#5C6661]">INTERACTIVE 3D EDITION &bull; 2026</div>
-        <h1 class="text-3xl sm:text-4xl font-black tracking-tight uppercase text-[#0D1512]">3D Footwear Lookbook</h1>
+        <div class="font-mono-tech text-[10px] font-bold uppercase tracking-widest text-[#FF4D1C] mb-1">
+            ARCHIVE MONOGRAPH // VOLUME 01
+        </div>
+        <h1 class="font-display text-3xl sm:text-5xl font-bold tracking-tight ak-text">
+            Atelier Lookbook.
+        </h1>
+        <p class="text-xs sm:text-sm ak-muted mt-1">
+            Turn through each two-page spread—silhouette showcase on the left, full engineering breakdown on the right.
+        </p>
     </div>
-    <div class="flex items-center gap-2">
-        <button type="button" onclick="prevPage()" class="px-4 py-2 rounded-full border border-[#DFDBD0] bg-[#FCFBF8] text-xs font-bold uppercase tracking-wider text-[#0D1512] hover:border-[#FF4D1C] transition">
-            &larr; Prev
+
+    <div class="flex items-center gap-2.5">
+        <button type="button" onclick="turnPage(-1)"
+                class="px-4 py-2 rounded-full border ak-surface font-mono-tech text-xs font-bold ak-text hover:border-[#FF4D1C] transition">
+            &larr; Prev Page
         </button>
-        <span id="pageIndicator" class="px-4 py-2 rounded-full bg-[#0D1512] text-[#F4F1EA] font-mono-tech text-xs font-bold uppercase tracking-wider">
-            Cover
+        <span id="spreadCounter" class="px-3.5 py-2 rounded-full ak-elevated border font-mono-tech text-xs font-bold ak-text">
+            Spread 01 / {{ "%02d"|format(sneakers|length) }}
         </span>
-        <button type="button" onclick="nextPage()" class="px-4 py-2 rounded-full bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider hover:bg-[#E63E10] transition">
-            Next &rarr;
+        <button type="button" onclick="turnPage(1)"
+                class="px-4 py-2 rounded-full bg-[#0D1512] text-[#F4F1EA] font-mono-tech text-xs font-bold hover:bg-[#FF4D1C] transition">
+            Next Page &rarr;
         </button>
     </div>
 </div>
 
-<div class="book-viewport py-4">
-    <div class="book-stage" id="bookStage">
-        <div class="spine-crease"></div>
+{% if sneakers %}
+{% set first = sneakers[0] %}
+<div class="book-viewport mb-10">
+    <div id="bookSpread" class="book-spread rounded-[32px] border ak-surface overflow-hidden relative">
+        <div class="book-spine-shadow hidden lg:block absolute inset-0 pointer-events-none z-20"></div>
 
-        <div class="book-sheet" data-sheet="0" onclick="handleSheetClick(event, 0)">
-            <div class="page-face page-front cover-front p-8 sm:p-12">
-                <div class="flex justify-between items-center font-mono-tech text-xs font-bold uppercase tracking-widest text-[#9BA6A0]">
-                    <span>ATELIER KICKS</span>
-                    <span>VOL. 01 // ARCHIVE</span>
-                </div>
-
-                <div class="my-auto">
-                    <span class="inline-block bg-[#FF4D1C] text-white font-mono-tech text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-5">
-                        3D Interactive Catalog
+        <div class="grid grid-cols-1 lg:grid-cols-2 min-h-[620px]">
+            <!-- LEFT PAGE: SHOE VISUAL + BRIEF OVERVIEW -->
+            <div class="p-6 sm:p-10 lg:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r relative" style="border-color: var(--border-subtle);">
+                <div class="flex items-center justify-between gap-2">
+                    <span id="leftPageNum" class="font-mono-tech text-[10px] font-bold uppercase tracking-widest ak-muted">
+                        PAGE 01 // PLATE
                     </span>
-                    <h2 class="text-4xl sm:text-5xl font-black tracking-tight uppercase leading-none mb-4 text-[#F4F1EA]">
-                        THE<br>SILHOUETTE<br>EDITION.
-                    </h2>
-                    <p class="text-sm text-[#C4C0B5] max-w-sm leading-relaxed">
-                        Flip through all {{ sneakers|length }} curated footwear models in 3D perspective. Tilt any sneaker stage and add directly to your bag.
-                    </p>
+                    <span id="leftBadge" class="font-mono-tech text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[#0D1512] text-[#F4F1EA]">
+                        {{ first.badge }}
+                    </span>
                 </div>
 
-                <div class="flex items-center justify-between pt-6 border-t border-[#1E2E28]">
-                    <span class="text-xs text-[#9BA6A0]">Click cover or use arrow keys</span>
-                    <span class="font-mono-tech text-xs font-bold uppercase tracking-wider text-[#FF4D1C]">Open Book &rarr;</span>
+                <div class="my-6 rounded-[26px] ak-elevated border p-6 sm:p-8 flex flex-col items-center justify-center min-h-[300px] relative overflow-hidden group">
+                    <img id="leftShoeImg"
+                         src="{{ first.image_url }}"
+                         alt="{{ first.name }}"
+                         class="shoe-cutout-book max-h-60 sm:max-h-68 max-w-full object-contain group-hover:scale-105">
+                    <div class="mt-4 w-48 h-3.5 rounded-full blur-md opacity-25 bg-[#0D1512]"></div>
                 </div>
-            </div>
 
-            <div class="page-face page-back page-grid-bg p-8 sm:p-10">
-                <div>
-                    <div class="font-mono-tech text-xs font-bold uppercase tracking-widest text-[#5C6661] mb-2">Index &amp; Foreword</div>
-                    <h3 class="text-2xl font-black uppercase tracking-tight text-[#0D1512] mb-3">Inside This Catalog</h3>
-                    <p class="text-xs sm:text-sm text-[#5C6661] leading-relaxed mb-5">
-                        Move your cursor over any sneaker stage to inspect its silhouette in 3D space, or select your EU size right inside the book to checkout in <strong>{{ currency }}</strong>.
-                    </p>
+                <div class="space-y-4">
+                    <div>
+                        <div id="leftBrandCat" class="font-mono-tech text-[10px] font-bold uppercase tracking-widest text-[#FF4D1C]">
+                            {{ first.brand }} &bull; {{ first.category }}
+                        </div>
+                        <div class="flex items-baseline justify-between gap-3 mt-1">
+                            <h2 id="leftTitle" class="font-display text-2xl sm:text-4xl font-bold ak-text leading-tight">
+                                {{ first.name }}
+                            </h2>
+                            <span id="leftPrice" class="font-mono-tech text-lg sm:text-xl font-extrabold ak-text shrink-0">
+                                {{ first.price_formatted }}
+                            </span>
+                        </div>
+                        <p id="leftBrief" class="text-xs sm:text-sm ak-muted leading-relaxed mt-2">
+                            {{ first.description }}
+                        </p>
+                    </div>
 
-                    <div class="space-y-2 text-xs">
-                        <div class="flex justify-between py-2.5 px-3.5 rounded-xl bg-[#F4F1EA] border border-[#DFDBD0]">
-                            <span class="font-bold text-[#0D1512]">01. Carbon Race-Day Runners</span>
-                            <span class="font-mono-tech text-[#FF4D1C] font-bold">Page 01 &rarr;</span>
+                    <div class="pt-4 border-t flex flex-wrap items-center justify-between gap-3" style="border-color: var(--border-soft);">
+                        <div class="font-mono-tech text-[10px] ak-muted">
+                            SIZES: <strong id="leftSizes" class="ak-text">EU {{ first.sizes }}</strong>
                         </div>
-                        <div class="flex justify-between py-2.5 px-3.5 rounded-xl bg-[#F4F1EA] border border-[#DFDBD0]">
-                            <span class="font-bold text-[#0D1512]">02. Terrace &amp; Court Icons</span>
-                            <span class="font-mono-tech text-[#FF4D1C] font-bold">Page 03 &rarr;</span>
-                        </div>
-                        <div class="flex justify-between py-2.5 px-3.5 rounded-xl bg-[#F4F1EA] border border-[#DFDBD0]">
-                            <span class="font-bold text-[#0D1512]">03. Technical Trail Protectors</span>
-                            <span class="font-mono-tech text-[#FF4D1C] font-bold">Page 05 &rarr;</span>
-                        </div>
-                        <div class="flex justify-between py-2.5 px-3.5 rounded-xl bg-[#F4F1EA] border border-[#DFDBD0]">
-                            <span class="font-bold text-[#0D1512]">04. Hardwood Court Editions</span>
-                            <span class="font-mono-tech text-[#FF4D1C] font-bold">Page 07 &rarr;</span>
+
+                        <div class="flex items-center gap-2.5">
+                            <a id="leftInspectLink"
+                               href="/sneaker/{{ first.id }}"
+                               class="px-4 py-2 rounded-full border ak-surface font-mono-tech text-[11px] font-bold uppercase ak-text hover:border-[#FF4D1C] transition">
+                                Full Page
+                            </a>
+                            <button type="button"
+                                    id="leftQuickBuyBtn"
+                                    onclick="buyCurrentSpreadShoe()"
+                                    class="px-5 py-2 rounded-full bg-[#FF4D1C] text-white text-xs font-extrabold uppercase tracking-wider hover:bg-[#E63E10] transition">
+                                Add to Bag &rarr;
+                            </button>
                         </div>
                     </div>
                 </div>
-
-                <div class="flex justify-between items-center font-mono-tech text-[11px] font-bold uppercase tracking-wider text-[#5C6661] pt-4 border-t border-[#DFDBD0]">
-                    <span>&larr; Click to Close</span>
-                    <span>Page 00</span>
-                </div>
             </div>
-        </div>
 
-        {% set total_pairs = (sneakers|length + 1) // 2 %}
-        {% for pair_idx in range(total_pairs) %}
-            {% set front_shoe = sneakers[pair_idx * 2] %}
-            {% set back_shoe = sneakers[pair_idx * 2 + 1] if (pair_idx * 2 + 1) < sneakers|length else None %}
-            {% set sheet_num = pair_idx + 1 %}
-
-            <div class="book-sheet" data-sheet="{{ sheet_num }}" onclick="handleSheetClick(event, {{ sheet_num }})">
-                <div class="page-face page-front page-grid-bg p-6 sm:p-8">
-                    <div class="flex items-center justify-between">
-                        <span class="font-mono-tech text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#0D1512] text-[#F4F1EA]">
-                            {{ front_shoe.badge }}
+            <!-- RIGHT PAGE: IN-DEPTH DETAILS & ENGINEERING -->
+            <div class="p-6 sm:p-10 lg:p-12 flex flex-col justify-between ak-elevated">
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between gap-2 pb-3 border-b" style="border-color: var(--border-subtle);">
+                        <span id="rightPageNum" class="font-mono-tech text-[10px] font-bold uppercase tracking-widest ak-muted">
+                            PAGE 02 // TECHNICAL DOSSIER
                         </span>
-                        <span class="font-mono-tech text-xs font-bold text-[#5C6661]">PAGE {{ "%02d"|format(pair_idx * 2 + 1) }}</span>
-                    </div>
-
-                    <div class="shoe-stage-3d my-auto py-3">
-                        <div class="shoe-card-3d rounded-2xl border border-[#DFDBD0] p-5 flex flex-col items-center justify-center relative"
-                             onmousemove="tiltCard(event, this)" onmouseleave="resetTilt(this)">
-                            <div class="w-48 h-40 sm:w-56 sm:h-48 flex items-center justify-center">
-                                <img src="{{ resolve_image_url(front_shoe.image_file) }}"
-                                     alt="{{ front_shoe.name }}"
-                                     class="shoe-img-pop max-h-full max-w-full object-contain rounded-xl">
-                            </div>
-                        </div>
+                        <span id="rightSerial" class="font-mono-tech text-[10px] font-bold text-[#FF4D1C]">
+                            AK-2026-{{ "%03d"|format(first.id) }}
+                        </span>
                     </div>
 
                     <div>
-                        <div class="flex items-baseline justify-between gap-2 mb-1">
-                            <div>
-                                <div class="font-mono-tech text-[10px] font-bold uppercase tracking-wider text-[#5C6661]">{{ front_shoe.brand }} &bull; {{ front_shoe.category }}</div>
-                                <h3 class="text-xl font-black tracking-tight text-[#0D1512] leading-tight">{{ front_shoe.name }}</h3>
-                            </div>
-                            <div class="font-mono-tech text-base font-black text-[#0D1512] whitespace-nowrap">{{ format_price(front_shoe.price) }}</div>
-                        </div>
-                        <p class="text-xs text-[#5C6661] line-clamp-2 mb-3">{{ front_shoe.description }}</p>
+                        <h3 id="rightTagline" class="font-display text-2xl sm:text-3xl font-bold ak-text leading-tight">
+                            {{ first.tagline }}
+                        </h3>
+                        <p id="rightLead" class="text-xs sm:text-sm ak-muted leading-relaxed mt-2.5">
+                            {{ first.lead }}
+                        </p>
+                    </div>
 
-                        <form method="POST" action="/cart/add/{{ front_shoe.id }}" onclick="event.stopPropagation()" class="flex items-center gap-2">
-                            <input type="hidden" name="qty" value="1">
-                            <select name="size" class="px-2.5 py-2 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
-                                {% for sz in front_shoe.sizes.split(',') %}
-                                    <option value="{{ sz }}">EU {{ sz }}</option>
-                                {% endfor %}
-                            </select>
-                            <button type="submit" onclick="StudioAudio.chime()" class="flex-1 bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider py-2.5 rounded-full hover:bg-[#E63E10] transition">
-                                Add to Bag
-                            </button>
-                            <a href="/sneaker/{{ front_shoe.id }}" class="px-3 py-2.5 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-bold text-[#0D1512] hover:border-[#0D1512]">
-                                Specs
-                            </a>
-                        </form>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="p-3.5 rounded-2xl border ak-surface">
+                            <div class="font-mono-tech text-[9px] uppercase tracking-widest ak-muted">MEASURED MASS</div>
+                            <div id="rightWeight" class="font-mono-tech text-xs sm:text-sm font-extrabold ak-text mt-0.5">{{ first.weight }}</div>
+                        </div>
+                        <div class="p-3.5 rounded-2xl border ak-surface">
+                            <div class="font-mono-tech text-[9px] uppercase tracking-widest ak-muted">HEEL-TO-TOE DROP</div>
+                            <div id="rightDrop" class="font-mono-tech text-xs sm:text-sm font-extrabold ak-text mt-0.5">{{ first.drop }}</div>
+                        </div>
+                        <div class="p-3.5 rounded-2xl border ak-surface">
+                            <div class="font-mono-tech text-[9px] uppercase tracking-widest ak-muted">STACK GEOMETRY</div>
+                            <div id="rightStack" class="font-mono-tech text-xs font-extrabold ak-text mt-0.5">{{ first.stack }}</div>
+                        </div>
+                        <div class="p-3.5 rounded-2xl border ak-surface">
+                            <div class="font-mono-tech text-[9px] uppercase tracking-widest ak-muted">TARGET SURFACE</div>
+                            <div id="rightSurface" class="font-mono-tech text-xs font-extrabold ak-text mt-0.5">{{ first.surface }}</div>
+                        </div>
+                    </div>
+
+                    <div id="rightChapters" class="space-y-3">
+                        {% for ch in first.chapters %}
+                        <div class="p-4 rounded-2xl border ak-surface">
+                            <div class="flex items-center justify-between gap-2 mb-1">
+                                <span class="font-mono-tech text-[9px] font-bold uppercase tracking-widest text-[#FF4D1C]">{{ ch.kicker }}</span>
+                                <span class="font-mono-tech text-[10px] font-bold ak-text">{{ ch.metric }}</span>
+                            </div>
+                            <div class="font-display text-sm font-bold ak-text">{{ ch.title }}</div>
+                            <p class="text-[11px] ak-muted leading-relaxed mt-1">{{ ch.body }}</p>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
 
-                {% if back_shoe %}
-                    <div class="page-face page-back page-grid-bg p-6 sm:p-8">
-                        <div class="flex items-center justify-between">
-                            <span class="font-mono-tech text-xs font-bold text-[#5C6661]">PAGE {{ "%02d"|format(pair_idx * 2 + 2) }}</span>
-                            <span class="font-mono-tech text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#0D1512] text-[#F4F1EA]">
-                                {{ back_shoe.badge }}
-                            </span>
-                        </div>
-
-                        <div class="shoe-stage-3d my-auto py-3">
-                            <div class="shoe-card-3d rounded-2xl border border-[#DFDBD0] p-5 flex flex-col items-center justify-center relative"
-                                 onmousemove="tiltCard(event, this)" onmouseleave="resetTilt(this)">
-                                <div class="w-48 h-40 sm:w-56 sm:h-48 flex items-center justify-center">
-                                    <img src="{{ resolve_image_url(back_shoe.image_file) }}"
-                                         alt="{{ back_shoe.name }}"
-                                         class="shoe-img-pop max-h-full max-w-full object-contain rounded-xl">
-                                </div>
-                            </div>
-                        </div>
-
+                <div class="pt-5 mt-6 border-t space-y-3" style="border-color: var(--border-subtle);">
+                    <div class="grid grid-cols-3 gap-3 font-mono-tech text-[10px]">
                         <div>
-                            <div class="flex items-baseline justify-between gap-2 mb-1">
-                                <div>
-                                    <div class="font-mono-tech text-[10px] font-bold uppercase tracking-wider text-[#5C6661]">{{ back_shoe.brand }} &bull; {{ back_shoe.category }}</div>
-                                    <h3 class="text-xl font-black tracking-tight text-[#0D1512] leading-tight">{{ back_shoe.name }}</h3>
-                                </div>
-                                <div class="font-mono-tech text-base font-black text-[#0D1512] whitespace-nowrap">{{ format_price(back_shoe.price) }}</div>
+                            <div class="flex justify-between ak-muted mb-1">
+                                <span>CUSHION</span>
+                                <span id="rightCushionVal" class="font-bold ak-text">{{ first.cushion }}%</span>
                             </div>
-                            <p class="text-xs text-[#5C6661] line-clamp-2 mb-3">{{ back_shoe.description }}</p>
+                            <div class="h-1.5 rounded-full border ak-surface overflow-hidden">
+                                <div id="rightCushionBar" class="h-full bg-[#FF4D1C]" style="width: {{ first.cushion }}%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between ak-muted mb-1">
+                                <span>PROPULSION</span>
+                                <span id="rightResponseVal" class="font-bold ak-text">{{ first.response }}%</span>
+                            </div>
+                            <div class="h-1.5 rounded-full border ak-surface overflow-hidden">
+                                <div id="rightResponseBar" class="h-full bg-[#FF4D1C]" style="width: {{ first.response }}%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between ak-muted mb-1">
+                                <span>TRACTION</span>
+                                <span id="rightTractionVal" class="font-bold ak-text">{{ first.traction }}%</span>
+                            </div>
+                            <div class="h-1.5 rounded-full border ak-surface overflow-hidden">
+                                <div id="rightTractionBar" class="h-full bg-[#FF4D1C]" style="width: {{ first.traction }}%"></div>
+                            </div>
+                        </div>
+                    </div>
 
-                            <form method="POST" action="/cart/add/{{ back_shoe.id }}" onclick="event.stopPropagation()" class="flex items-center gap-2">
-                                <input type="hidden" name="qty" value="1">
-                                <select name="size" class="px-2.5 py-2 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
-                                    {% for sz in back_shoe.sizes.split(',') %}
-                                        <option value="{{ sz }}">EU {{ sz }}</option>
-                                    {% endfor %}
-                                </select>
-                                <button type="submit" onclick="StudioAudio.chime()" class="flex-1 bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider py-2.5 rounded-full hover:bg-[#E63E10] transition">
-                                    Add to Bag
-                                </button>
-                                <a href="/sneaker/{{ back_shoe.id }}" class="px-3 py-2.5 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] text-xs font-bold text-[#0D1512] hover:border-[#0D1512]">
-                                    Specs
-                                </a>
-                            </form>
-                        </div>
+                    <div class="text-[11px] ak-muted">
+                        <strong class="ak-text">Fit Note:</strong> <span id="rightFitNote">{{ first.fit_note }}</span>
                     </div>
-                {% else %}
-                    <div class="page-face page-back cover-back p-8 sm:p-12">
-                        <div class="font-mono-tech text-xs font-bold uppercase tracking-widest text-[#9BA6A0]">ATELIER KICKS // END OF EDITION</div>
-                        <div class="my-auto">
-                            <h3 class="text-3xl font-black uppercase tracking-tight mb-3 text-[#F4F1EA]">Ready to Checkout?</h3>
-                            <p class="text-sm text-[#C4C0B5] mb-6">
-                                Complete your order with M-PESA Express or Card in {{ currency }}. Free shipping on orders over {{ format_price(200) }}.
-                            </p>
-                            <div class="flex flex-wrap gap-3" onclick="event.stopPropagation()">
-                                <a href="/cart" class="bg-[#FF4D1C] text-white text-xs font-black uppercase tracking-wider px-5 py-3 rounded-full hover:bg-[#E63E10]">
-                                    Checkout Bag ({{ cart_count }})
-                                </a>
-                                <button type="button" onclick="resetBook()" class="border border-[#243830] text-[#F4F1EA] text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-full hover:border-[#FF4D1C]">
-                                    Close Book &#8634;
-                                </button>
-                            </div>
-                        </div>
-                        <div class="font-mono-tech text-xs text-[#9BA6A0]">&larr; Click page to turn back</div>
-                    </div>
-                {% endif %}
+                </div>
             </div>
-        {% endfor %}
+        </div>
     </div>
 </div>
 
+<!-- TABLE OF CONTENTS -->
+<div class="rounded-[28px] border ak-surface p-5 sm:p-6">
+    <div class="flex items-center justify-between mb-4">
+        <span class="font-mono-tech text-[10px] font-bold uppercase tracking-widest ak-muted">
+            TABLE OF CONTENTS // JUMP TO SPREAD
+        </span>
+        <span class="font-mono-tech text-[10px] ak-muted hidden sm:inline">
+            Tip: Use Left &amp; Right arrow keys to flip pages
+        </span>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+        {% for s in sneakers %}
+        <button type="button"
+                onclick="goToSpread({{ loop.index0 }})"
+                class="spread-tab text-left p-3 rounded-2xl border transition {% if loop.first %}border-[#FF4D1C] ak-elevated{% else %}ak-surface hover:border-[#FF4D1C]{% endif %}">
+            <div class="font-mono-tech text-[9px] font-bold text-[#FF4D1C] mb-1">
+                PP. {{ "%02d"|format(loop.index * 2 - 1) }}–{{ "%02d"|format(loop.index * 2) }}
+            </div>
+            <div class="h-14 rounded-xl ak-elevated p-1.5 flex items-center justify-center mb-2">
+                <img src="{{ s.image_url }}" alt="{{ s.name }}" class="shoe-cutout-book max-h-full max-w-full object-contain">
+            </div>
+            <div class="text-[11px] font-bold ak-text truncate">{{ s.name }}</div>
+        </button>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <script>
-    const sheets = Array.from(document.querySelectorAll('.book-sheet'));
-    const totalSheets = sheets.length;
-    let currentSheet = 0;
+    const BOOK_SPREADS = {{ sneakers | tojson }};
+    let currentSpreadIdx = 0;
 
-    function updateBookState() {
-        sheets.forEach((sheet, idx) => {
-            if (idx < currentSheet) {
-                sheet.classList.add('flipped');
-                sheet.style.zIndex = idx + 1;
-            } else {
-                sheet.classList.remove('flipped');
-                sheet.style.zIndex = totalSheets - idx + 1;
-            }
+    function pad2(n) {
+        return String(n).padStart(2, '0');
+    }
 
-            const isVisibleLeft = idx === currentSheet - 1;
-            const isVisibleRight = idx === currentSheet;
-            if (isVisibleLeft || isVisibleRight) {
-                sheet.classList.remove('is-hidden-sheet');
+    function pad3(n) {
+        return String(n).padStart(3, '0');
+    }
+
+    function renderSpread(index, direction = 1) {
+        if (!BOOK_SPREADS.length) return;
+        currentSpreadIdx = (index + BOOK_SPREADS.length) % BOOK_SPREADS.length;
+        const s = BOOK_SPREADS[currentSpreadIdx];
+
+        const spreadEl = document.getElementById('bookSpread');
+        if (spreadEl) {
+            spreadEl.classList.remove('page-flip-next', 'page-flip-prev');
+            void spreadEl.offsetWidth;
+            spreadEl.classList.add(direction >= 0 ? 'page-flip-next' : 'page-flip-prev');
+        }
+
+        const leftPg = currentSpreadIdx * 2 + 1;
+        const rightPg = currentSpreadIdx * 2 + 2;
+
+        document.getElementById('spreadCounter').textContent =
+            `Spread ${pad2(currentSpreadIdx + 1)} / ${pad2(BOOK_SPREADS.length)}`;
+
+        document.getElementById('leftPageNum').textContent = `PAGE ${pad2(leftPg)} // PLATE`;
+        document.getElementById('leftBadge').textContent = s.badge || 'ARCHIVE';
+        const shoeImg = document.getElementById('leftShoeImg');
+        shoeImg.src = s.image_url;
+        shoeImg.alt = s.name;
+        document.getElementById('leftBrandCat').textContent = `${s.brand} • ${s.category}`;
+        document.getElementById('leftTitle').textContent = s.name;
+        document.getElementById('leftPrice').textContent = s.price_formatted;
+        document.getElementById('leftBrief').textContent = s.description;
+        document.getElementById('leftSizes').textContent = `EU ${s.sizes}`;
+        document.getElementById('leftInspectLink').href = `/sneaker/${s.id}`;
+
+        document.getElementById('rightPageNum').textContent = `PAGE ${pad2(rightPg)} // TECHNICAL DOSSIER`;
+        document.getElementById('rightSerial').textContent = `AK-2026-${pad3(s.id)}`;
+        document.getElementById('rightTagline').textContent = s.tagline;
+        document.getElementById('rightLead').textContent = s.lead;
+        document.getElementById('rightWeight').textContent = s.weight;
+        document.getElementById('rightDrop').textContent = s.drop;
+        document.getElementById('rightStack').textContent = s.stack;
+        document.getElementById('rightSurface').textContent = s.surface;
+        document.getElementById('rightFitNote').textContent = s.fit_note;
+
+        const chaptersEl = document.getElementById('rightChapters');
+        chaptersEl.innerHTML = (s.chapters || []).map(ch => `
+            <div class="p-4 rounded-2xl border ak-surface">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                    <span class="font-mono-tech text-[9px] font-bold uppercase tracking-widest text-[#FF4D1C]">${ch.kicker}</span>
+                    <span class="font-mono-tech text-[10px] font-bold ak-text">${ch.metric}</span>
+                </div>
+                <div class="font-display text-sm font-bold ak-text">${ch.title}</div>
+                <p class="text-[11px] ak-muted leading-relaxed mt-1">${ch.body}</p>
+            </div>
+        `).join('');
+
+        document.getElementById('rightCushionVal').textContent = `${s.cushion}%`;
+        document.getElementById('rightCushionBar').style.width = `${s.cushion}%`;
+        document.getElementById('rightResponseVal').textContent = `${s.response}%`;
+        document.getElementById('rightResponseBar').style.width = `${s.response}%`;
+        document.getElementById('rightTractionVal').textContent = `${s.traction}%`;
+        document.getElementById('rightTractionBar').style.width = `${s.traction}%`;
+
+        document.querySelectorAll('.spread-tab').forEach((tab, idx) => {
+            if (idx === currentSpreadIdx) {
+                tab.classList.remove('ak-surface');
+                tab.classList.add('border-[#FF4D1C]', 'ak-elevated');
             } else {
-                sheet.classList.add('is-hidden-sheet');
+                tab.classList.remove('border-[#FF4D1C]', 'ak-elevated');
+                tab.classList.add('ak-surface');
             }
         });
+    }
 
-        const indicator = document.getElementById('pageIndicator');
-        if (currentSheet === 0) {
-            indicator.textContent = 'Front Cover';
-        } else if (currentSheet >= totalSheets) {
-            indicator.textContent = 'Back Cover';
-        } else {
-            const leftPg = (currentSheet - 1) * 2;
-            const rightPg = leftPg + 1;
-            indicator.textContent = `Pages ${String(leftPg).padStart(2, '0')} – ${String(rightPg).padStart(2, '0')}`;
+    function turnPage(delta) {
+        if (typeof StudioAudio !== 'undefined' && StudioAudio.click) {
+            StudioAudio.click(delta > 0 ? 620 : 520);
         }
+        renderSpread(currentSpreadIdx + delta, delta);
     }
 
-    function nextPage() {
-        if (currentSheet < totalSheets) {
-            if (typeof StudioAudio !== 'undefined') StudioAudio.pageFlip();
-            sheets[currentSheet].classList.remove('is-hidden-sheet');
-            currentSheet++;
-            updateBookState();
+    function goToSpread(idx) {
+        if (typeof StudioAudio !== 'undefined' && StudioAudio.click) {
+            StudioAudio.click(580);
         }
+        renderSpread(idx, idx >= currentSpreadIdx ? 1 : -1);
     }
 
-    function prevPage() {
-        if (currentSheet > 0) {
-            if (typeof StudioAudio !== 'undefined') StudioAudio.pageFlip();
-            currentSheet--;
-            sheets[currentSheet].classList.remove('is-hidden-sheet');
-            updateBookState();
+    function buyCurrentSpreadShoe() {
+        const s = BOOK_SPREADS[currentSpreadIdx];
+        if (!s) return;
+        if (typeof StudioAudio !== 'undefined' && StudioAudio.chime) {
+            StudioAudio.chime();
         }
-    }
-
-    function resetBook() {
-        if (typeof StudioAudio !== 'undefined') StudioAudio.pageFlip();
-        currentSheet = 0;
-        updateBookState();
-    }
-
-    function handleSheetClick(event, sheetIdx) {
-        if (event.target.closest('form, button, a, select, input')) return;
-        if (sheetIdx === currentSheet) {
-            nextPage();
-        } else if (sheetIdx === currentSheet - 1) {
-            prevPage();
-        }
-    }
-
-    function tiltCard(event, card) {
-        const rect = card.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / rect.width - 0.5;
-        const y = (event.clientY - rect.top) / rect.height - 0.5;
-        card.style.transform = `rotateY(${x * 20}deg) rotateX(${-y * 20}deg)`;
-    }
-
-    function resetTilt(card) {
-        card.style.transform = 'rotateY(0deg) rotateX(0deg)';
+        const defaultSize = (s.sizes || '42').split(',')[0].trim();
+        quickAddToBag(s.id, defaultSize, 1).then(() => openBagDrawer());
     }
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') nextPage();
-        if (e.key === 'ArrowLeft') prevPage();
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.key === 'ArrowRight') turnPage(1);
+        if (e.key === 'ArrowLeft') turnPage(-1);
     });
-
-    updateBookState();
 </script>
 {% endblock %}
