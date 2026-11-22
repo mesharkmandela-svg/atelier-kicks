@@ -5,13 +5,13 @@
 {% block content %}
 <style>
     .book-viewport {
-        perspective: 2200px;
+        perspective: 2400px;
     }
     .book-spread {
         position: relative;
         transform-style: preserve-3d;
         box-shadow:
-            0 28px 60px -18px rgba(0, 0, 0, 0.25),
+            0 28px 60px -18px rgba(0, 0, 0, 0.28),
             0 0 0 1px var(--border-subtle);
     }
     @media (min-width: 1024px) {
@@ -19,27 +19,87 @@
             background: linear-gradient(
                 to right,
                 transparent 0%,
-                rgba(0, 0, 0, 0.04) 47.5%,
-                rgba(0, 0, 0, 0.16) 50%,
-                rgba(0, 0, 0, 0.04) 52.5%,
+                rgba(0, 0, 0, 0.05) 47.5%,
+                rgba(0, 0, 0, 0.22) 50%,
+                rgba(0, 0, 0, 0.05) 52.5%,
                 transparent 100%
             );
         }
     }
-    .page-flip-next {
-        animation: flipNext 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* Hinged 3D turning leaf across the center spine */
+    .turning-leaf-layer {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 25;
+        perspective: 2400px;
+        overflow: hidden;
     }
-    .page-flip-prev {
-        animation: flipPrev 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+    .turning-leaf {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 50%;
+        backface-visibility: hidden;
+        transform-style: preserve-3d;
+        opacity: 0;
     }
-    @keyframes flipNext {
-        0%   { opacity: 0.35; transform: rotateY(-10deg) scale(0.985); }
-        100% { opacity: 1;    transform: rotateY(0deg) scale(1); }
+    .turning-leaf.flip-forward {
+        left: 50%;
+        transform-origin: left center;
+        animation: leafTurnForward 0.68s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
-    @keyframes flipPrev {
-        0%   { opacity: 0.35; transform: rotateY(10deg) scale(0.985); }
-        100% { opacity: 1;    transform: rotateY(0deg) scale(1); }
+    .turning-leaf.flip-backward {
+        left: 0;
+        transform-origin: right center;
+        animation: leafTurnBackward 0.68s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
+
+    @keyframes leafTurnForward {
+        0% {
+            opacity: 0.92;
+            transform: rotateY(0deg);
+            box-shadow: -8px 0 24px rgba(0, 0, 0, 0.16);
+        }
+        48% {
+            opacity: 0.96;
+            transform: rotateY(-88deg);
+            box-shadow: -24px 12px 36px rgba(0, 0, 0, 0.28);
+        }
+        100% {
+            opacity: 0;
+            transform: rotateY(-176deg);
+            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+        }
+    }
+
+    @keyframes leafTurnBackward {
+        0% {
+            opacity: 0.92;
+            transform: rotateY(0deg);
+            box-shadow: 8px 0 24px rgba(0, 0, 0, 0.16);
+        }
+        48% {
+            opacity: 0.96;
+            transform: rotateY(88deg);
+            box-shadow: 24px 12px 36px rgba(0, 0, 0, 0.28);
+        }
+        100% {
+            opacity: 0;
+            transform: rotateY(176deg);
+            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+        }
+    }
+
+    .spread-content-fade {
+        transition: opacity 0.28s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .spread-content-swapping {
+        opacity: 0.25;
+        transform: scale(0.992);
+    }
+
     .shoe-cutout-book {
         mix-blend-mode: multiply;
         transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
@@ -83,9 +143,28 @@
 {% set first = sneakers[0] %}
 <div class="book-viewport mb-10">
     <div id="bookSpread" class="book-spread rounded-[32px] border ak-surface overflow-hidden relative">
+        <!-- Spine Crease Overlay -->
         <div class="book-spine-shadow hidden lg:block absolute inset-0 pointer-events-none z-20"></div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 min-h-[620px]">
+        <!-- Animated 3D Turning Page Leaf -->
+        <div id="turningLeafLayer" class="turning-leaf-layer hidden lg:block">
+            <div id="turningLeaf" class="turning-leaf ak-surface border flex flex-col justify-between p-10" style="border-color: var(--border-subtle);">
+                <div class="flex items-center justify-between font-mono-tech text-[10px] uppercase tracking-widest ak-muted">
+                    <span id="leafKicker">TURNING LEAF</span>
+                    <span id="leafSerial" class="text-[#FF4D1C] font-bold">AK-2026</span>
+                </div>
+                <div class="my-auto text-center space-y-2">
+                    <div id="leafTitle" class="font-display text-2xl font-bold ak-text">{{ first.name }}</div>
+                    <div id="leafSub" class="font-mono-tech text-[11px] ak-muted">{{ first.tagline }}</div>
+                </div>
+                <div class="font-mono-tech text-[10px] ak-muted flex justify-between">
+                    <span>ATELIER MONOGRAPH</span>
+                    <span id="leafPageLabel">PAGE 02</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="spreadInnerGrid" class="spread-content-fade grid grid-cols-1 lg:grid-cols-2 min-h-[620px]">
             <!-- LEFT PAGE: SHOE VISUAL + BRIEF OVERVIEW -->
             <div class="p-6 sm:p-10 lg:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r relative" style="border-color: var(--border-subtle);">
                 <div class="flex items-center justify-between gap-2">
@@ -177,11 +256,11 @@
                         </div>
                         <div class="p-3.5 rounded-2xl border ak-surface">
                             <div class="font-mono-tech text-[9px] uppercase tracking-widest ak-muted">STACK GEOMETRY</div>
-                            <div id="rightStack" class="font-mono-tech text-xs font-extrabold ak-text mt-0.5">{{ first.stack }}</div>
+                            <div id="rightStack" class="font-mono-tech text-xs sm:text-sm font-extrabold ak-text mt-0.5">{{ first.stack }}</div>
                         </div>
                         <div class="p-3.5 rounded-2xl border ak-surface">
                             <div class="font-mono-tech text-[9px] uppercase tracking-widest ak-muted">TARGET SURFACE</div>
-                            <div id="rightSurface" class="font-mono-tech text-xs font-extrabold ak-text mt-0.5">{{ first.surface }}</div>
+                            <div id="rightSurface" class="font-mono-tech text-xs sm:text-sm font-extrabold ak-text mt-0.5">{{ first.surface }}</div>
                         </div>
                     </div>
 
@@ -271,6 +350,7 @@
 <script>
     const BOOK_SPREADS = {{ sneakers | tojson }};
     let currentSpreadIdx = 0;
+    let isFlipping = false;
 
     function pad2(n) {
         return String(n).padStart(2, '0');
@@ -280,18 +360,7 @@
         return String(n).padStart(3, '0');
     }
 
-    function renderSpread(index, direction = 1) {
-        if (!BOOK_SPREADS.length) return;
-        currentSpreadIdx = (index + BOOK_SPREADS.length) % BOOK_SPREADS.length;
-        const s = BOOK_SPREADS[currentSpreadIdx];
-
-        const spreadEl = document.getElementById('bookSpread');
-        if (spreadEl) {
-            spreadEl.classList.remove('page-flip-next', 'page-flip-prev');
-            void spreadEl.offsetWidth;
-            spreadEl.classList.add(direction >= 0 ? 'page-flip-next' : 'page-flip-prev');
-        }
-
+    function applySpreadData(s) {
         const leftPg = currentSpreadIdx * 2 + 1;
         const rightPg = currentSpreadIdx * 2 + 2;
 
@@ -348,6 +417,45 @@
                 tab.classList.add('ak-surface');
             }
         });
+    }
+
+    function renderSpread(index, direction = 1) {
+        if (!BOOK_SPREADS.length || isFlipping) return;
+        const nextIdx = (index + BOOK_SPREADS.length) % BOOK_SPREADS.length;
+        if (nextIdx === currentSpreadIdx) return;
+
+        isFlipping = true;
+        const outgoingSpread = BOOK_SPREADS[currentSpreadIdx];
+        currentSpreadIdx = nextIdx;
+        const incomingSpread = BOOK_SPREADS[currentSpreadIdx];
+
+        const leaf = document.getElementById('turningLeaf');
+        const innerGrid = document.getElementById('spreadInnerGrid');
+
+        if (leaf) {
+            document.getElementById('leafKicker').textContent = direction >= 0 ? 'TURNING FORWARD' : 'TURNING BACK';
+            document.getElementById('leafSerial').textContent = `AK-2026-${pad3(outgoingSpread.id)}`;
+            document.getElementById('leafTitle').textContent = outgoingSpread.name;
+            document.getElementById('leafSub').textContent = outgoingSpread.tagline;
+            document.getElementById('leafPageLabel').textContent =
+                direction >= 0 ? `PAGE ${pad2(nextIdx * 2 + 1)}` : `PAGE ${pad2(nextIdx * 2 + 2)}`;
+
+            leaf.classList.remove('flip-forward', 'flip-backward');
+            void leaf.offsetWidth;
+            leaf.classList.add(direction >= 0 ? 'flip-forward' : 'flip-backward');
+        }
+
+        if (innerGrid) innerGrid.classList.add('spread-content-swapping');
+
+        setTimeout(() => {
+            applySpreadData(incomingSpread);
+            if (innerGrid) innerGrid.classList.remove('spread-content-swapping');
+        }, 260);
+
+        setTimeout(() => {
+            if (leaf) leaf.classList.remove('flip-forward', 'flip-backward');
+            isFlipping = false;
+        }, 700);
     }
 
     function turnPage(delta) {
