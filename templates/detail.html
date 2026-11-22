@@ -11,7 +11,7 @@
             <span class="text-[#DFDBD0]">|</span>
             <span class="font-display font-bold text-sm sm:text-base text-[#0D1512] truncate">{{ sneaker.name }}</span>
             <span id="stickyEditionTag" class="hidden md:inline-block font-mono-tech text-[10px] uppercase px-2.5 py-0.5 rounded-full bg-[#F4F1EA] border border-[#DFDBD0] text-[#5C6661]">
-                Studio Edition
+                Studio Archive Edition
             </span>
         </div>
 
@@ -27,7 +27,7 @@
 </div>
 
 <!-- MAIN APPLE-STYLE STICKY STAGE + GUIDED CONFIGURATOR -->
-<div class="reveal-up grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14 items-start">
+<div class="reveal-up grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16 items-start">
     <!-- LEFT: STICKY STUDIO STAGE -->
     <div class="lg:col-span-7 lg:sticky lg:top-32">
         <div data-tilt class="tilt-surface rounded-[32px] bg-[#FCFBF8] border border-[#DFDBD0] p-6 sm:p-10 flex flex-col justify-between min-h-[480px]">
@@ -81,7 +81,7 @@
         <div class="rounded-[32px] bg-[#FCFBF8] border border-[#DFDBD0] p-6 sm:p-8 space-y-6">
             <div>
                 <div class="font-mono-tech text-[10px] font-bold uppercase tracking-widest text-[#FF4D1C] mb-1">
-                    NEW // {{ sneaker.brand }} &bull; {{ sneaker.category }}
+                    {{ sneaker.brand }} &bull; {{ sneaker.category }}
                 </div>
                 <h1 class="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[#0D1512] leading-tight">
                     Buy {{ sneaker.name }}
@@ -90,7 +90,7 @@
                     {{ format_price(sneaker.price) }}
                 </div>
                 <p class="text-xs sm:text-sm text-[#5C6661] leading-relaxed mt-3">
-                    {{ sneaker.description }}
+                    {{ story.lead }}
                 </p>
             </div>
 
@@ -99,7 +99,7 @@
 
                 <!-- STEP 1: SIZE -->
                 <div>
-                    <div class="flex items-center justify-between mb-2.5">
+                    <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-bold text-[#0D1512]">
                             <span class="text-[#5C6661]">Step 1.</span> Choose your EU size.
                         </span>
@@ -107,6 +107,7 @@
                             Size Guide
                         </button>
                     </div>
+                    <p class="text-[11px] text-[#5C6661] mb-3">{{ story.fit_note }}</p>
                     <div class="grid grid-cols-3 gap-2">
                         {% for sz in sneaker.sizes.split(',') %}
                         <label class="cursor-pointer" onclick="StudioAudio.click(620)">
@@ -159,27 +160,31 @@
         <div class="rounded-[24px] bg-[#FCFBF8] border border-[#DFDBD0] p-5">
             <button type="button" onclick="toggleTechDrawer()" class="w-full flex items-center justify-between text-left">
                 <div>
-                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">DEEP DIVE</div>
-                    <div class="font-display text-base font-bold text-[#0D1512]">Take a closer look at engineering specs</div>
+                    <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">CALIBRATED DIMENSIONS</div>
+                    <div class="font-display text-base font-bold text-[#0D1512]">View full physical spec sheet</div>
                 </div>
                 <span id="techDrawerPlus" class="w-8 h-8 rounded-full bg-[#0D1512] text-[#F4F1EA] flex items-center justify-center font-mono-tech text-sm font-bold transition-transform">+</span>
             </button>
 
             <div id="techDrawerContent" class="hidden pt-4 mt-4 border-t border-[#ECE8DE] space-y-2.5 text-xs text-[#5C6661]">
                 <div class="flex justify-between py-1.5 border-b border-[#ECE8DE]">
-                    <span>Discipline</span>
-                    <span class="font-mono-tech font-bold text-[#0D1512]">{{ sneaker.category }}</span>
+                    <span>Measured Mass</span>
+                    <span class="font-mono-tech font-bold text-[#0D1512]">{{ story.weight }}</span>
                 </div>
                 <div class="flex justify-between py-1.5 border-b border-[#ECE8DE]">
-                    <span>Upper Architecture</span>
-                    <span class="font-mono-tech font-bold text-[#0D1512]">Engineered Multi-Zone Mesh / Suede</span>
+                    <span>Heel-to-Toe Offset</span>
+                    <span class="font-mono-tech font-bold text-[#0D1512]">{{ story.drop }}</span>
                 </div>
                 <div class="flex justify-between py-1.5 border-b border-[#ECE8DE]">
-                    <span>Outsole Compound</span>
-                    <span class="font-mono-tech font-bold text-[#0D1512]">High-Abrasion Directional Rubber</span>
+                    <span>Stack Geometry</span>
+                    <span class="font-mono-tech font-bold text-[#0D1512]">{{ story.stack }}</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-[#ECE8DE]">
+                    <span>Target Surface</span>
+                    <span class="font-mono-tech font-bold text-[#0D1512]">{{ story.surface }}</span>
                 </div>
                 <div class="flex justify-between py-1.5">
-                    <span>Archive Reference</span>
+                    <span>Archive Serial</span>
                     <span class="font-mono-tech font-bold text-[#FF4D1C]">AK-2026-{{ "%03d"|format(sneaker.id) }}</span>
                 </div>
             </div>
@@ -187,16 +192,56 @@
     </div>
 </div>
 
+<!-- APPLE-STYLE PRODUCT ENGINEERING STORY CHAPTERS ("WHAT MAKES THIS SNEAKER") -->
+<section class="reveal-up mb-16">
+    <div class="max-w-3xl mb-8">
+        <div class="font-mono-tech text-[10px] font-bold uppercase tracking-widest text-[#FF4D1C] mb-1.5">
+            INSIDE THE SILHOUETTE // {{ sneaker.name|upper }}
+        </div>
+        <h2 class="font-display text-3xl sm:text-5xl font-bold tracking-tight text-[#0D1512] leading-[1.06]">
+            {{ story.tagline }}
+        </h2>
+        <p class="text-sm sm:text-base text-[#5C6661] leading-relaxed mt-3">
+            {{ sneaker.description }}
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {% for chapter in story.chapters %}
+        <div class="rounded-[28px] {% if loop.index == 2 %}bg-[#0D1512] text-[#F4F1EA] border-[#22302A]{% else %}bg-[#FCFBF8] text-[#0D1512] border-[#DFDBD0]{% endif %} border p-7 sm:p-8 flex flex-col justify-between space-y-6">
+            <div class="space-y-3">
+                <div class="font-mono-tech text-[10px] font-bold uppercase tracking-widest {% if loop.index == 2 %}text-[#FF4D1C]{% else %}text-[#5C6661]{% endif %}">
+                    {{ chapter.kicker }}
+                </div>
+                <h3 class="font-display text-2xl font-bold leading-tight">
+                    {{ chapter.title }}
+                </h3>
+                <p class="text-xs sm:text-sm {% if loop.index == 2 %}text-[#98A39D]{% else %}text-[#5C6661]{% endif %} leading-relaxed">
+                    {{ chapter.body }}
+                </p>
+            </div>
+
+            <div class="pt-4 border-t {% if loop.index == 2 %}border-[#22302A]{% else %}border-[#ECE8DE]{% endif %} flex items-center justify-between">
+                <span class="font-mono-tech text-[10px] uppercase {% if loop.index == 2 %}text-[#98A39D]{% else %}text-[#5C6661]{% endif %}">KEY SPEC</span>
+                <span class="font-mono-tech text-xs font-extrabold {% if loop.index == 2 %}text-[#FF4D1C]{% else %}text-[#0D1512]{% endif %}">
+                    {{ chapter.metric }}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
 <!-- APPLE-STYLE BENTO TELEMETRY GRID -->
 {% set cat = sneaker.category %}
 {% set cushion = 94 if cat == 'Running' else (88 if cat == 'Basketball' else (84 if cat == 'Trail' else 78)) %}
 {% set response = 96 if cat == 'Running' else (90 if cat == 'Basketball' else (82 if cat == 'Trail' else 76)) %}
 {% set traction = 84 if cat == 'Running' else (92 if cat == 'Basketball' else (98 if cat == 'Trail' else 85)) %}
 
-<section class="reveal-up mb-14">
+<section class="reveal-up mb-16">
     <div class="mb-6">
-        <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">PERFORMANCE TELEMETRY</div>
-        <h2 class="font-display text-2xl sm:text-3xl font-bold text-[#0D1512]">Engineered from the ground up.</h2>
+        <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">LAB TELEMETRY</div>
+        <h2 class="font-display text-2xl sm:text-3xl font-bold text-[#0D1512]">Measured performance across three axes.</h2>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">

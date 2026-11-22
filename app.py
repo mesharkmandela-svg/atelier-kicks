@@ -42,7 +42,6 @@ IS_PROD = (
 
 raw_secret = os.getenv("SECRET_KEY", "").strip()
 if not raw_secret:
-    # Ephemeral strong secret fallback if SECRET_KEY is not configured in environment
     raw_secret = secrets.token_hex(32)
 app.secret_key = raw_secret
 
@@ -50,7 +49,7 @@ app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
     SESSION_COOKIE_SECURE=IS_PROD,
-    MAX_CONTENT_LENGTH=5 * 1024 * 1024,  # 5 MB hard cap on uploads & payloads
+    MAX_CONTENT_LENGTH=5 * 1024 * 1024,
     PERMANENT_SESSION_LIFETIME=86400 * 7,
 )
 
@@ -74,7 +73,6 @@ ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "gif"}
 USD_TO_KES = float(os.getenv("USD_TO_KES", "129.0"))
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "").strip()
 
-# In-memory sliding-window rate limiter store: {bucket_key: [timestamps]}
 _RATE_BUCKETS: dict[str, list[float]] = defaultdict(list)
 
 
@@ -115,7 +113,6 @@ app.jinja_env.globals["csrf_token"] = get_csrf_token
 
 @app.before_request
 def enforce_security_policies():
-    # Exempt external Safaricom Daraja webhook if ever added under /webhooks/
     if request.path.startswith("/webhooks/"):
         return None
 
@@ -168,22 +165,17 @@ def allowed_file(filename: str) -> bool:
 
 
 def verify_image_magic_bytes(file_storage) -> bool:
-    """Verify actual binary header magic bytes so disguised scripts/HTML cannot be uploaded."""
     pos = file_storage.stream.tell()
     header = file_storage.stream.read(16)
     file_storage.stream.seek(pos)
     if not header:
         return False
-    # JPEG: FF D8 FF
     if header.startswith(b"\xff\xd8\xff"):
         return True
-    # PNG: 89 50 4E 47 0D 0A 1A 0A
     if header.startswith(b"\x89PNG\r\n\x1a\n"):
         return True
-    # GIF: GIF87a / GIF89a
     if header.startswith((b"GIF87a", b"GIF89a")):
         return True
-    # WEBP: RIFF....WEBP
     if len(header) >= 12 and header[:4] == b"RIFF" and header[8:12] == b"WEBP":
         return True
     return False
@@ -224,6 +216,312 @@ def compute_telemetry(category: str) -> dict:
     if cat == "Trail":
         return {"cushion": 84, "response": 82, "traction": 98}
     return {"cushion": 78, "response": 76, "traction": 85}
+
+
+# Apple-inspired editorial & engineering profiles keyed by silhouette stem or category fallback
+SILHOUETTE_STORIES = {
+    "alphafly": {
+        "tagline": "Propulsion, tuned to the millisecond.",
+        "lead": "Engineered around dual forefoot Air Zoom pods and a full-length carbon fiber Flyplate, every stride stores impact energy and snaps forward with minimal weight penalty.",
+        "weight": "218 g (EU 42)",
+        "drop": "8.0 mm",
+        "stack": "39.5 mm Heel / 31.5 mm Forefoot",
+        "surface": "Road & Marathon Asphalt",
+        "fit_note": "Precision race fit — true to size for locked-in tempo control.",
+        "chapters": [
+            {
+                "kicker": "01 // MIDSOLE ARCHITECTURE",
+                "title": "Dual Air Zoom Pods + Full-Length Carbon.",
+                "metric": "39.5 mm Stack",
+                "body": "Twin pressurized Air Zoom units under the ball of the foot work in tandem with ultra-light ZoomX foam and an articulated carbon plate to deliver unmistakable snap at race pace.",
+            },
+            {
+                "kicker": "02 // UPPER LOCKDOWN",
+                "title": "AtomKnit 3.0 Micro-Weave.",
+                "metric": "218 g Total Mass",
+                "body": "Contoured, open-weave monofilament yarns shed moisture and heat while wrapping the midfoot in featherweight containment during sharp cornering.",
+            },
+            {
+                "kicker": "03 // OUTSOLE GEOMETRY",
+                "title": "Waffle-Mapped Forefoot Grip.",
+                "metric": "1.8 mm Micro-Tread",
+                "body": "Strategic high-abrasion rubber zones target high-wear push-off points without adding unnecessary gram weight beneath the heel.",
+            },
+        ],
+    },
+    "samba": {
+        "tagline": "Low-profile heritage. Effortless daily poise.",
+        "lead": "Born on indoor training pitches and refined into an architectural wardrobe staple, pairing supple full-grain leather with a reinforced suede T-toe.",
+        "weight": "342 g (EU 42)",
+        "drop": "5.0 mm",
+        "stack": "19.0 mm Heel / 14.0 mm Forefoot",
+        "surface": "Urban Pavement & Indoor Court",
+        "fit_note": "Streamlined terrace last — size up 0.5 EU for wider forefeet.",
+        "chapters": [
+            {
+                "kicker": "01 // UPPER CRAFTSMANSHIP",
+                "title": "Full-Grain Leather & Suede T-Toe.",
+                "metric": "Dual-Panel Toe",
+                "body": "Soft milled leather molds naturally to your foot over time, while the signature brushed-suede T-toe guard resists scuffing through daily city miles.",
+            },
+            {
+                "kicker": "02 // CHASSIS & GROUND FEEL",
+                "title": "Low-Slung Direct Court Stance.",
+                "metric": "5.0 mm Offset",
+                "body": "A minimal stack height keeps your center of gravity planted and stable, delivering crisp tactile feedback with every step.",
+            },
+            {
+                "kicker": "03 // OUTSOLE TRACTION",
+                "title": "Pivot-Point Gum Rubber.",
+                "metric": "360° Tread Zones",
+                "body": "Translucent natural gum rubber combines suction-cup forefoot rings with herringbone perimeter lugs for reliable grip on smooth stone and wet sidewalks.",
+            },
+        ],
+    },
+    "terrex": {
+        "tagline": "Weather-sealed confidence for technical terrain.",
+        "lead": "Built to shrug off downpours, loose scree, and steep ridgelines with a waterproof membrane and deep directional outsole lugs.",
+        "weight": "365 g (EU 42)",
+        "drop": "10.0 mm",
+        "stack": "31.0 mm Heel / 21.0 mm Forefoot",
+        "surface": "Wet Rock, Mud & Alpine Trail",
+        "fit_note": "Protective trail fit with room for thermal merino socks.",
+        "chapters": [
+            {
+                "kicker": "01 // WEATHER SHIELD",
+                "title": "Breathable Waterproof Membrane.",
+                "metric": "100% Storm Sealed",
+                "body": "A microporous inner bootie blocks standing water and trail splash while allowing internal vapor to escape during sustained climbs.",
+            },
+            {
+                "kicker": "02 // CHASSIS STABILITY",
+                "title": "Torsion Frame & Speed-Lace System.",
+                "metric": "1-Pull Lockdown",
+                "body": "A molded midfoot chassis prevents ankle roll on off-camber roots, paired with a quick-pull lace toggle that tucks neatly into the tongue.",
+            },
+            {
+                "kicker": "03 // OUTSOLE TRACTION",
+                "title": "Deep Multi-Directional Lugs.",
+                "metric": "5.0 mm Lug Depth",
+                "body": "High-friction rubber lugs bite into slick granite and loose gravel both on steep ascents and technical descents.",
+            },
+        ],
+    },
+    "adizero": {
+        "tagline": "Unrestricted stack. Data-woven precision.",
+        "lead": "A robotically mapped Strung textile upper locks your foot onto triple-layered Lightstrike Pro foam for effortless high-mileage cruising.",
+        "weight": "252 g (EU 42)",
+        "drop": "6.5 mm",
+        "stack": "45.0 mm Heel / 38.5 mm Forefoot",
+        "surface": "Long-Distance Road & Tempo",
+        "fit_note": "True to size with a supportive, non-stretch midfoot cage.",
+        "chapters": [
+            {
+                "kicker": "01 // TEXTILE ENGINEERING",
+                "title": "Data-Driven Strung Upper.",
+                "metric": "0-Waste Weave",
+                "body": "Individual structural threads are laid down at exact angles of tension—stiff where your foot needs lateral lockdown, open and flexible across the toe box.",
+            },
+            {
+                "kicker": "02 // CUSHIONING SYSTEM",
+                "title": "High-Stack Lightstrike Pro.",
+                "metric": "45.0 mm Cushion",
+                "body": "Three sculpted layers of resilient superfoam absorb repetitive impact over 30 km+ sessions while maintaining a lively rocker transition.",
+            },
+            {
+                "kicker": "03 // OUTSOLE GRIP",
+                "title": "High-Traction Forefoot Rubber.",
+                "metric": "All-Weather Grip",
+                "body": "Thin, high-grip rubber sheeting wraps the forefoot strike zone for confident cornering even on rain-slicked tarmac.",
+            },
+        ],
+    },
+    "dunk": {
+        "tagline": "Hardwood pedigree. Crisp color-blocked geometry.",
+        "lead": "Originally engineered for collegiate court dominance, featuring structured leather overlays, a padded high-cut collar, and timeless pivot-circle traction.",
+        "weight": "410 g (EU 42)",
+        "drop": "7.0 mm",
+        "stack": "24.0 mm Heel / 17.0 mm Forefoot",
+        "surface": "Hardwood & Street",
+        "fit_note": "True to size with plush ankle collar padding.",
+        "chapters": [
+            {
+                "kicker": "01 // UPPER ARCHITECTURE",
+                "title": "Structured Varsity Leather.",
+                "metric": "High-Top Collar",
+                "body": "Crisp, layered leather panels reinforce the toe box, eyestay, and heel counter while a foam-padded collar cushions the ankle.",
+            },
+            {
+                "kicker": "02 // MIDSOLE CUSHIONING",
+                "title": "Full-Length Cup-Sole Foam.",
+                "metric": "24.0 mm Heel",
+                "body": "An internal EVA wedge sits inside a stitched rubber cup-sole, balancing court stability with all-day walking comfort.",
+            },
+            {
+                "kicker": "03 // OUTSOLE GEOMETRY",
+                "title": "Concentric Pivot-Circle Tread.",
+                "metric": "360° Court Grip",
+                "body": "Classic forefoot pivot rings and deep flex grooves provide predictable traction and natural forefoot bend.",
+            },
+        ],
+    },
+    "nb990": {
+        "tagline": "Architectural suede. All-day FuelCell poise.",
+        "lead": "Premium pigskin suede and breathable athletic mesh meet responsive FuelCell cushioning for unmatched everyday refinement.",
+        "weight": "388 g (EU 42)",
+        "drop": "8.0 mm",
+        "stack": "32.0 mm Heel / 24.0 mm Forefoot",
+        "surface": "All-Day Urban & Studio",
+        "fit_note": "Generous, balanced fit — true to size.",
+        "chapters": [
+            {
+                "kicker": "01 // MATERIAL PALETTE",
+                "title": "Plush Pigskin Suede & Mesh.",
+                "metric": "Multi-Panel Craft",
+                "body": "Richly textured suede overlays frame open-cell mesh panels, delivering a balanced blend of structural support and continuous airflow.",
+            },
+            {
+                "kicker": "02 // MIDSOLE INNOVATION",
+                "title": "ENCAP Rim + FuelCell Core.",
+                "metric": "Dual-Density Core",
+                "body": "A durable polyurethane heel rim stabilizes every footstrike while nitrogen-infused FuelCell foam adds subtle spring through the forefoot.",
+            },
+            {
+                "kicker": "03 // OUTSOLE DURABILITY",
+                "title": "Ndurance Carbon Heel Rubber.",
+                "metric": "High-Wear Compound",
+                "body": "Reinforced carbon rubber in high-impact heel zones extends outsole lifespan across thousands of daily steps.",
+            },
+        ],
+    },
+}
+
+
+def get_silhouette_story(sneaker: dict) -> dict:
+    stem = _norm(os.path.splitext(sneaker.get("image_file") or "")[0])
+    if stem in SILHOUETTE_STORIES:
+        return SILHOUETTE_STORIES[stem]
+
+    cat = (sneaker.get("category") or "Lifestyle").strip()
+    if cat == "Running":
+        return {
+            "tagline": "Tuned for forward momentum.",
+            "lead": sneaker.get("description") or "High-rebound midsole geometry engineered for effortless pace.",
+            "weight": "235 g (EU 42)",
+            "drop": "8.0 mm",
+            "stack": "37.0 mm Heel / 29.0 mm Forefoot",
+            "surface": "Road & Track",
+            "fit_note": "Athletic true-to-size fit.",
+            "chapters": [
+                {
+                    "kicker": "01 // PROPULSION",
+                    "title": "High-Rebound Superfoam Core.",
+                    "metric": "37.0 mm Stack",
+                    "body": "Engineered midsole geometry absorbs landing shock and transitions smoothly into a snappy toe-off.",
+                },
+                {
+                    "kicker": "02 // BREATHABILITY",
+                    "title": "Zoned Engineered Mesh.",
+                    "metric": "235 g Total Mass",
+                    "body": "Featherweight ventilation zones keep foot temperature regulated across tempo runs and long miles.",
+                },
+                {
+                    "kicker": "03 // TRACTION",
+                    "title": "Segmented Road Rubber.",
+                    "metric": "Wet/Dry Grip",
+                    "body": "Targeted outsole pods grip wet and dry asphalt without stiffening the forefoot flex.",
+                },
+            ],
+        }
+    if cat == "Trail":
+        return {
+            "tagline": "Built for unscripted terrain.",
+            "lead": sneaker.get("description") or "Protective rock-shielding and deep directional lugs for technical off-road routes.",
+            "weight": "330 g (EU 42)",
+            "drop": "8.0 mm",
+            "stack": "30.0 mm Heel / 22.0 mm Forefoot",
+            "surface": "Mountain Trail & Scree",
+            "fit_note": "Secure midfoot lockdown with protective toe bumper.",
+            "chapters": [
+                {
+                    "kicker": "01 // PROTECTION",
+                    "title": "Reinforced Toe & Rock Plate.",
+                    "metric": "All-Terrain Armor",
+                    "body": "A flexible underfoot shield deflects sharp roots and stones while a TPU toe cap guards against trail impacts.",
+                },
+                {
+                    "kicker": "02 // ENDURANCE FOAM",
+                    "title": "Balanced Trail Cushioning.",
+                    "metric": "30.0 mm Stack",
+                    "body": "Tuned midsole density stays stable on uneven ground without losing responsiveness over long distances.",
+                },
+                {
+                    "kicker": "03 // OUTSOLE LUGS",
+                    "title": "Multi-Angle Traction Lugs.",
+                    "metric": "4.5 mm Lug Depth",
+                    "body": "Aggressive directional lugs claw into loose dirt, mud, and wet rock.",
+                },
+            ],
+        }
+    if cat == "Basketball":
+        return {
+            "tagline": "Explosive court control.",
+            "lead": sneaker.get("description") or "Lateral containment and impact-absorbing cushioning built for sharp cuts.",
+            "weight": "395 g (EU 42)",
+            "drop": "7.5 mm",
+            "stack": "26.0 mm Heel / 18.5 mm Forefoot",
+            "surface": "Hardwood & Outdoor Court",
+            "fit_note": "Locked-in heel counter — true to size.",
+            "chapters": [
+                {
+                    "kicker": "01 // LATERAL CONTAINMENT",
+                    "title": "Sculpted Sidewall Support.",
+                    "metric": "360° Lockdown",
+                    "body": "Reinforced upper wings keep your foot centered over the footbed during hard cross-overs and abrupt stops.",
+                },
+                {
+                    "kicker": "02 // IMPACT RESPONSE",
+                    "title": "Responsive Court Midsole.",
+                    "metric": "26.0 mm Heel",
+                    "body": "Cushions hard landings under the rim while keeping the forefoot low enough for instant first-step reaction.",
+                },
+                {
+                    "kicker": "03 // COURT TRACTION",
+                    "title": "Multi-Directional Herringbone.",
+                    "metric": "High-Tack Rubber",
+                    "body": "Dense radial and herringbone tread channels bite cleanly on dusty hardwood.",
+                },
+            ],
+        }
+    return {
+        "tagline": "Refined materials. Everyday versatility.",
+        "lead": sneaker.get("description") or "Clean architectural proportions crafted for effortless all-day rotation.",
+        "weight": "355 g (EU 42)",
+        "drop": "6.0 mm",
+        "stack": "23.0 mm Heel / 17.0 mm Forefoot",
+        "surface": "Urban & Studio",
+        "fit_note": "Comfortable daily fit — true to size.",
+        "chapters": [
+            {
+                "kicker": "01 // UPPER MATERIALS",
+                "title": "Supple Leather & Suede Accents.",
+                "metric": "Hand-Finished",
+                "body": "Rich tactile panels age gracefully with wear while maintaining a clean, structured silhouette.",
+            },
+            {
+                "kicker": "02 // ALL-DAY COMFORT",
+                "title": "Contoured Footbed & Soft Collar.",
+                "metric": "6.0 mm Offset",
+                "body": "Anatomical heel cushioning and breathable lining keep every step effortless from morning to night.",
+            },
+            {
+                "kicker": "03 // OUTSOLE BUILD",
+                "title": "Durable Cup-Sole Traction.",
+                "metric": "Full-Length Rubber",
+                "body": "Stitched rubber outsole construction delivers dependable grip and long-term durability.",
+            },
+        ],
+    }
 
 
 @app.route("/media/uploads/<path:filename>")
@@ -719,13 +1017,16 @@ def sneaker_detail(sneaker_id: int):
     ]
     conn.close()
 
+    sneaker_dict = dict(row)
+    story = get_silhouette_story(sneaker_dict)
     avg_rating = (
         round(sum(r["rating"] for r in reviews) / len(reviews), 1) if reviews else None
     )
     recently_viewed = get_recent_sneakers(exclude_id=sneaker_id, limit=4)
     return render_template(
         "detail.html",
-        sneaker=dict(row),
+        sneaker=sneaker_dict,
+        story=story,
         reviews=reviews,
         avg_rating=avg_rating,
         recently_viewed=recently_viewed,
@@ -956,7 +1257,6 @@ def checkout():
     conn.commit()
     conn.close()
 
-    # Track customer's own session order numbers for immediate private viewing
     my_orders = session.get("my_orders", [])
     my_orders.insert(0, order_number)
     session["my_orders"] = my_orders[:10]
@@ -967,11 +1267,6 @@ def checkout():
 
 @app.route("/orders")
 def orders_view():
-    """
-    Privacy-hardened Order Ledger:
-    - Unlocked Studio Admin (when ADMIN_PASSWORD is set) sees full order ledger.
-    - Regular shoppers see only orders placed in their current session OR an order verified by Order ID + Email/Phone.
-    """
     conn = get_db()
     lookup_id = (request.args.get("order_number") or "").strip().upper()
     lookup_contact = (request.args.get("contact") or "").strip().lower()
@@ -1024,7 +1319,6 @@ def orders_view():
     )
 
 
-# --- STUDIO ADMIN CONSOLE & PRODUCTION READINESS ---
 @app.route("/admin/login", methods=["POST"])
 def admin_login():
     allowed, wait = check_rate_limit("admin_login", limit=5, window_seconds=900)
