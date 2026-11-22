@@ -3,10 +3,65 @@
 {% block title %}Catalog — ATELIER KICKS{% endblock %}
 
 {% block content %}
-<div class="reveal-up flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<!-- APPLE-STYLE VISUAL CHAPTER ICON RIBBON -->
+<nav aria-label="Footwear Disciplines" class="reveal-up mb-8 overflow-x-auto pb-2">
+    <div class="flex items-center justify-start sm:justify-center gap-3 min-w-max mx-auto px-1">
+        <a href="/shop?category=All"
+           class="group flex flex-col items-center gap-2 px-5 py-3.5 rounded-2xl border transition {% if selected_category == 'All' %}bg-[#0D1512] text-[#F4F1EA] border-[#0D1512]{% else %}bg-[#FCFBF8] text-[#0D1512] border-[#DFDBD0] hover:border-[#FF4D1C]{% endif %}">
+            <svg class="w-6 h-6 {% if selected_category == 'All' %}text-[#FF4D1C]{% else %}text-[#5C6661] group-hover:text-[#FF4D1C]{% endif %}" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+            <span class="font-mono-tech text-[10px] font-bold uppercase tracking-wider">All Archive</span>
+        </a>
+
+        <a href="/shop?category=Running"
+           class="group flex flex-col items-center gap-2 px-5 py-3.5 rounded-2xl border transition {% if selected_category == 'Running' %}bg-[#0D1512] text-[#F4F1EA] border-[#0D1512]{% else %}bg-[#FCFBF8] text-[#0D1512] border-[#DFDBD0] hover:border-[#FF4D1C]{% endif %}">
+            <svg class="w-6 h-6 {% if selected_category == 'Running' %}text-[#FF4D1C]{% else %}text-[#5C6661] group-hover:text-[#FF4D1C]{% endif %}" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            <span class="font-mono-tech text-[10px] font-bold uppercase tracking-wider">Carbon Race</span>
+        </a>
+
+        <a href="/shop?category=Lifestyle"
+           class="group flex flex-col items-center gap-2 px-5 py-3.5 rounded-2xl border transition {% if selected_category == 'Lifestyle' %}bg-[#0D1512] text-[#F4F1EA] border-[#0D1512]{% else %}bg-[#FCFBF8] text-[#0D1512] border-[#DFDBD0] hover:border-[#FF4D1C]{% endif %}">
+            <svg class="w-6 h-6 {% if selected_category == 'Lifestyle' %}text-[#FF4D1C]{% else %}text-[#5C6661] group-hover:text-[#FF4D1C]{% endif %}" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 2L15 8l6 .9-4.5 4.3 1.1 6.1L12 16.4 6.4 19.3l1.1-6.1L3 8.9 9 8l3-6z"/>
+            </svg>
+            <span class="font-mono-tech text-[10px] font-bold uppercase tracking-wider">Terrace</span>
+        </a>
+
+        <a href="/shop?category=Trail"
+           class="group flex flex-col items-center gap-2 px-5 py-3.5 rounded-2xl border transition {% if selected_category == 'Trail' %}bg-[#0D1512] text-[#F4F1EA] border-[#0D1512]{% else %}bg-[#FCFBF8] text-[#0D1512] border-[#DFDBD0] hover:border-[#FF4D1C]{% endif %}">
+            <svg class="w-6 h-6 {% if selected_category == 'Trail' %}text-[#FF4D1C]{% else %}text-[#5C6661] group-hover:text-[#FF4D1C]{% endif %}" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 19l6-10 4 6 3-4 5 8H3z"/>
+            </svg>
+            <span class="font-mono-tech text-[10px] font-bold uppercase tracking-wider">All-Terrain</span>
+        </a>
+
+        <a href="/shop?category=Basketball"
+           class="group flex flex-col items-center gap-2 px-5 py-3.5 rounded-2xl border transition {% if selected_category == 'Basketball' %}bg-[#0D1512] text-[#F4F1EA] border-[#0D1512]{% else %}bg-[#FCFBF8] text-[#0D1512] border-[#DFDBD0] hover:border-[#FF4D1C]{% endif %}">
+            <svg class="w-6 h-6 {% if selected_category == 'Basketball' %}text-[#FF4D1C]{% else %}text-[#5C6661] group-hover:text-[#FF4D1C]{% endif %}" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/>
+            </svg>
+            <span class="font-mono-tech text-[10px] font-bold uppercase tracking-wider">Hardwood</span>
+        </a>
+
+        <button type="button" onclick="openCompareModal()"
+                class="group flex flex-col items-center gap-2 px-5 py-3.5 rounded-2xl border border-[#DFDBD0] bg-[#FCFBF8] text-[#0D1512] hover:border-[#FF4D1C] transition">
+            <svg class="w-6 h-6 text-[#5C6661] group-hover:text-[#FF4D1C]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.1-1.3 2-3 2s-3-.9-3-2 1.3-2 3-2 3 .9 3 2zm12-3c0 1.1-1.3 2-3 2s-3-.9-3-2 1.3-2 3-2 3 .9 3 2z"/>
+            </svg>
+            <span class="font-mono-tech text-[10px] font-bold uppercase tracking-wider">Compare</span>
+        </button>
+    </div>
+</nav>
+
+<div class="reveal-up flex flex-col md:flex-row md:items-end justify-between gap-4 mb-7">
     <div>
         <div class="font-mono-tech text-[11px] uppercase tracking-widest text-[#5C6661]">ARCHIVE INDEX // {{ sneakers|length }} SILHOUETTES</div>
-        <h1 class="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#0D1512]">Footwear Catalog</h1>
+        <h1 class="font-display text-3xl sm:text-5xl font-bold tracking-tight text-[#0D1512]">
+            {% if selected_category != 'All' %}{{ selected_category }} Lineup.{% else %}Footwear Catalog.{% endif %}
+        </h1>
     </div>
 
     {% if q or selected_category != 'All' or selected_brand != 'All' or sort_by != 'featured' %}
@@ -16,7 +71,7 @@
     {% endif %}
 </div>
 
-<form method="GET" action="/shop" class="reveal-up rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-4 sm:p-5 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
+<form method="GET" action="/shop" class="reveal-up rounded-[24px] bg-[#FCFBF8] border border-[#DFDBD0] p-4 sm:p-5 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
     <div class="lg:col-span-4">
         <label class="block font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661] mb-1">Search Model</label>
         <input type="text" name="q" value="{{ q }}" placeholder="e.g. Alphafly, Samba, Terrex..."
@@ -61,10 +116,10 @@
 {% if sneakers %}
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for shoe in sneakers %}
-    <div data-tilt class="reveal-up tilt-surface rounded-2xl bg-[#FCFBF8] border border-[#DFDBD0] p-6 flex flex-col justify-between">
+    <div data-tilt class="reveal-up tilt-surface rounded-[28px] bg-[#FCFBF8] border border-[#DFDBD0] p-6 sm:p-7 flex flex-col justify-between">
         <div>
             <div class="flex items-center justify-between mb-4 gap-2">
-                <span class="font-mono-tech text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#0D1512] text-[#F4F1EA]">
+                <span class="font-mono-tech text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#F4F1EA] border border-[#DFDBD0] text-[#0D1512]">
                     {{ shoe.badge }}
                 </span>
 
@@ -78,6 +133,7 @@
                         Inspect
                     </button>
                     <form method="POST" action="/wishlist/toggle/{{ shoe.id }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="next" value="{{ request.full_path }}">
                         <button type="submit" class="w-8 h-8 rounded-full border border-[#DFDBD0] flex items-center justify-center text-xs hover:border-[#FF4D1C] transition {% if shoe.id in wishlist_ids %}bg-[#FF4D1C] text-white border-[#FF4D1C]{% else %}text-[#5C6661]{% endif %}">
                             &hearts;
@@ -86,7 +142,7 @@
                 </div>
             </div>
 
-            <a href="/sneaker/{{ shoe.id }}" class="block h-48 rounded-xl bg-[#F4F1EA] border border-[#E7E3D8] p-4 flex items-center justify-center mb-5">
+            <a href="/sneaker/{{ shoe.id }}" class="block h-52 rounded-2xl bg-[#F4F1EA] border border-[#E7E3D8] p-5 flex items-center justify-center mb-5">
                 <img src="{{ resolve_image_url(shoe.image_file) }}"
                      alt="{{ shoe.name }}"
                      class="tilt-pop max-h-full max-w-full object-contain">
@@ -96,31 +152,32 @@
                 <span>{{ shoe.brand }} &bull; {{ shoe.category }}</span>
                 <span class="text-[#0D1512] font-bold">{{ shoe.stock }} IN STOCK</span>
             </div>
-            <a href="/sneaker/{{ shoe.id }}" class="text-lg font-black tracking-tight text-[#0D1512] hover:text-[#FF4D1C] transition block mt-0.5">{{ shoe.name }}</a>
+            <a href="/sneaker/{{ shoe.id }}" class="font-display text-xl font-bold tracking-tight text-[#0D1512] hover:text-[#FF4D1C] transition block mt-0.5">{{ shoe.name }}</a>
             <p class="text-xs text-[#5C6661] line-clamp-2 mt-1.5 leading-relaxed">{{ shoe.description }}</p>
         </div>
 
-        <div class="pt-5 mt-5 border-t border-[#ECE8DE] flex items-center justify-between gap-3">
-            <div class="font-mono-tech text-base font-black text-[#0D1512]">{{ format_price(shoe.price) }}</div>
-            <form method="POST" action="/cart/add/{{ shoe.id }}" class="flex items-center gap-1.5">
-                <input type="hidden" name="qty" value="1">
-                <select name="size" class="px-2.5 py-2 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
+        <div class="pt-5 mt-5 border-t border-[#ECE8DE] flex items-center justify-between gap-2">
+            <div class="font-mono-tech text-sm font-extrabold text-[#0D1512]">{{ format_price(shoe.price) }}</div>
+            <div class="flex items-center gap-1.5">
+                <select id="shopSize_{{ shoe.id }}" class="px-2.5 py-2 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-xs font-bold text-[#0D1512]">
                     {% for sz in shoe.sizes.split(',') %}
                         <option value="{{ sz }}">EU {{ sz }}</option>
                     {% endfor %}
                 </select>
-                <button type="submit" onclick="StudioAudio.chime()" class="px-4 py-2 rounded-full bg-[#0D1512] text-[#F4F1EA] text-xs font-bold uppercase tracking-wider hover:bg-[#FF4D1C] hover:text-white transition">
-                    + Bag
+                <button type="button"
+                        onclick="StudioAudio.chime(); quickAddToBag({{ shoe.id }}, document.getElementById('shopSize_{{ shoe.id }}').value, 1).then(() => openBagDrawer());"
+                        class="px-4 py-2 rounded-full bg-[#FF4D1C] text-white text-xs font-extrabold uppercase tracking-wider hover:bg-[#E63E10] transition">
+                    Buy
                 </button>
-            </form>
+            </div>
         </div>
     </div>
     {% endfor %}
 </div>
 {% else %}
-<div class="rounded-3xl bg-[#FCFBF8] border border-[#DFDBD0] p-12 text-center">
+<div class="rounded-[28px] bg-[#FCFBF8] border border-[#DFDBD0] p-12 text-center">
     <div class="font-mono-tech text-xs uppercase tracking-widest text-[#5C6661] mb-2">NO MATCHING SILHOUETTES</div>
-    <h2 class="text-2xl font-black uppercase text-[#0D1512] mb-3">Zero results found</h2>
+    <h2 class="font-display text-2xl font-bold text-[#0D1512] mb-3">Zero results found</h2>
     <p class="text-xs text-[#5C6661] mb-6">Try clearing your search query or switching back to all disciplines.</p>
     <a href="/shop" class="inline-block px-6 py-3 rounded-full bg-[#0D1512] text-[#F4F1EA] text-xs font-bold uppercase tracking-wider hover:bg-[#FF4D1C]">
         Reset Catalog
@@ -133,7 +190,7 @@
     <div class="flex items-end justify-between mb-5">
         <div>
             <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">SESSION ROTATION HISTORY</div>
-            <h2 class="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#0D1512]">Recently Inspected</h2>
+            <h2 class="font-display text-2xl font-bold tracking-tight text-[#0D1512]">Recently Inspected.</h2>
         </div>
     </div>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
