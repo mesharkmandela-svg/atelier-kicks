@@ -3,27 +3,41 @@
 {% block title %}{{ sneaker.name }} — ATELIER KICKS{% endblock %}
 
 {% block content %}
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
-
 <style>
-  .studio-cutout {
+  /* Seamless studio cutout blend + Apple-like turntable stage */
+  .shoe-cutout {
     mix-blend-mode: multiply;
-    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.35s ease;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), filter 0.35s ease;
     will-change: transform, filter;
     user-select: none;
     -webkit-user-drag: none;
   }
-  .dark .studio-cutout,
-  [data-theme="dark"] .studio-cutout {
+  .dark .shoe-cutout,
+  [data-theme="dark"] .shoe-cutout {
     mix-blend-mode: normal;
-    border-radius: 22px;
+    border-radius: 20px;
   }
-  .stage-well {
-    transition: background 0.35s ease, border-color 0.35s ease;
+  .turntable-scene {
+    perspective: 1100px;
+    touch-action: none;
+    cursor: grab;
+  }
+  .turntable-scene:active {
+    cursor: grabbing;
+  }
+  .turntable-rig {
+    transform-style: preserve-3d;
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .turntable-rig.dragging {
+    transition: none;
+  }
+  .studio-pedestal {
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
   }
 </style>
 
-<!-- STICKY FROSTED PRODUCT SUB-BAR -->
+<!-- APPLE-STYLE STICKY FROSTED PRODUCT SUB-BAR -->
 <div class="sticky top-16 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 mb-8 border-b border-[#DFDBD0] backdrop-blur-md" style="background: var(--nav-bg);">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
         <div class="flex items-center gap-3 min-w-0">
@@ -31,7 +45,7 @@
             <span class="text-[#DFDBD0]">|</span>
             <span class="font-display font-bold text-sm sm:text-base text-[#0D1512] truncate">{{ sneaker.name }}</span>
             <span id="stickyEditionTag" class="hidden md:inline-block font-mono-tech text-[10px] uppercase px-2.5 py-0.5 rounded-full bg-[#F4F1EA] border border-[#DFDBD0] text-[#5C6661]">
-                Original Edition
+                Original Colorway
             </span>
         </div>
 
@@ -46,12 +60,12 @@
     </div>
 </div>
 
-<!-- MAIN STICKY STUDIO STAGE + GUIDED CONFIGURATOR -->
+<!-- MAIN APPLE-STYLE STICKY STAGE + GUIDED CONFIGURATOR -->
 <div class="reveal-up grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16 items-start">
-    <!-- LEFT: APPLE-STYLE STUDIO PHOTO STAGE -->
+    <!-- LEFT: INTERACTIVE 360 / MULTI-ANGLE STUDIO STAGE -->
     <div class="lg:col-span-7 lg:sticky lg:top-32">
-        <div class="rounded-[32px] bg-[#FCFBF8] border border-[#DFDBD0] p-5 sm:p-8 flex flex-col justify-between min-h-[500px]">
-            <!-- Top Controls: Badge + Lighting / Zoom Presets -->
+        <div class="rounded-[32px] bg-[#FCFBF8] border border-[#DFDBD0] p-5 sm:p-8 flex flex-col justify-between min-h-[520px]">
+            <!-- Top Bar: Badge + Angle Presets + Orbit Toggle -->
             <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                 <span class="font-mono-tech text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-[#0D1512] text-[#F4F1EA]">
                     {{ sneaker.badge }}
@@ -59,97 +73,127 @@
 
                 <div class="flex flex-wrap items-center gap-1.5">
                     <div class="flex items-center gap-1 bg-[#F4F1EA] border border-[#DFDBD0] rounded-full p-1 font-mono-tech text-[10px] font-bold">
-                        <button type="button" onclick="setStudioView('profile', this)" class="view-btn px-2.5 py-1 rounded-full bg-[#0D1512] text-[#F4F1EA]">
-                            Profile
+                        <button type="button" onclick="setAnglePreset('profile', this)" class="angle-btn px-2.5 py-1 rounded-full bg-[#0D1512] text-[#F4F1EA]">
+                            Side
                         </button>
-                        <button type="button" onclick="setStudioView('macro', this)" class="view-btn px-2.5 py-1 rounded-full text-[#5C6661] hover:text-[#0D1512]">
-                            Macro Zoom
+                        <button type="button" onclick="setAnglePreset('front34', this)" class="angle-btn px-2.5 py-1 rounded-full text-[#5C6661] hover:text-[#0D1512]">
+                            3/4 Front
                         </button>
-                        <button type="button" onclick="setStudioView('nocturne', this)" class="view-btn px-2.5 py-1 rounded-full text-[#5C6661] hover:text-[#0D1512]">
-                            Nocturne
+                        <button type="button" onclick="setAnglePreset('top', this)" class="angle-btn px-2.5 py-1 rounded-full text-[#5C6661] hover:text-[#0D1512]">
+                            Top
                         </button>
-                        <button type="button" onclick="setStudioView('blueprint', this)" class="view-btn px-2.5 py-1 rounded-full text-[#5C6661] hover:text-[#0D1512]">
-                            Blueprint
+                        <button type="button" onclick="setAnglePreset('heel', this)" class="angle-btn px-2.5 py-1 rounded-full text-[#5C6661] hover:text-[#0D1512]">
+                            Heel
+                        </button>
+                        <button type="button" onclick="setAnglePreset('low', this)" class="angle-btn px-2.5 py-1 rounded-full text-[#5C6661] hover:text-[#0D1512]">
+                            Sole/Low
                         </button>
                     </div>
+
+                    <button type="button" id="orbitToggleBtn" onclick="toggleOrbit()"
+                            class="px-3 py-1.5 rounded-full border border-[#DFDBD0] bg-[#F4F1EA] font-mono-tech text-[10px] font-bold uppercase text-[#0D1512] hover:border-[#FF4D1C] transition">
+                        &#8635; Orbit
+                    </button>
                 </div>
             </div>
 
-            {% set model_url = resolve_model_url(sneaker.image_file) %}
+            <!-- Interactive 3D Turntable Viewport -->
             <div id="inspectionStageWell"
-                 class="stage-well my-2 rounded-[26px] bg-gradient-to-b from-[#F7F5F0] to-[#ECE7DC] border border-[#E5E0D5] relative overflow-hidden h-[360px] sm:h-[400px] flex flex-col items-center justify-center p-6">
+                 class="turntable-scene my-2 py-10 px-4 flex flex-col items-center justify-center rounded-[26px] bg-gradient-to-b from-[#F7F5F0] to-[#ECE7DC] border border-[#E5E0D5] relative overflow-hidden min-h-[320px]">
+                <div id="turntableRig" class="turntable-rig flex flex-col items-center justify-center">
+                    <img id="studioSneakerImg"
+                         src="{{ resolve_image_url(sneaker.image_file) }}"
+                         alt="{{ sneaker.name }}"
+                         class="shoe-cutout max-h-64 sm:max-h-72 max-w-full object-contain">
+                </div>
 
-                {% if model_url %}
-                <model-viewer id="glbShoeViewer"
-                              src="{{ model_url }}"
-                              alt="{{ sneaker.name }} 3D Model"
-                              camera-controls
-                              auto-rotate
-                              shadow-intensity="1.15"
-                              exposure="1.05"
-                              environment-image="neutral"
-                              style="width: 100%; height: 100%; background: transparent;">
-                </model-viewer>
-                {% else %}
-                <img id="studioSneakerImg"
-                     src="{{ resolve_image_url(sneaker.image_file) }}"
-                     alt="{{ sneaker.name }}"
-                     class="studio-cutout max-h-64 sm:max-h-72 max-w-full object-contain drop-shadow-[0_26px_26px_rgba(13,21,18,0.20)]">
-
+                <!-- Dynamic Ground Shadow / Pedestal -->
                 <div id="studioShadow"
-                     class="mt-4 w-52 sm:w-64 h-4 rounded-full blur-md opacity-25 bg-[#0D1512] transition-all duration-300"></div>
-                {% endif %}
+                     class="studio-pedestal mt-4 w-56 sm:w-72 h-5 rounded-full blur-md opacity-35 bg-[#0D1512]"></div>
 
-                <div class="absolute bottom-3 inset-x-4 flex items-center justify-between font-mono-tech text-[10px] text-[#5C6661]">
-                    <span id="stageModeLabel">STUDIO ARCHIVE // {{ sneaker.brand|upper }}</span>
-                    <span class="font-bold text-[#0D1512]">AK-{{ "%03d"|format(sneaker.id) }}</span>
+                <!-- Subtle Angle Readout & Drag Hint -->
+                <div class="mt-4 flex items-center justify-between w-full max-w-md font-mono-tech text-[10px] text-[#5C6661]">
+                    <span>Drag to rotate &bull; Scroll/slider to zoom</span>
+                    <span id="angleReadout" class="font-bold text-[#0D1512]">Y: 0&deg; &bull; X: 0&deg;</span>
                 </div>
             </div>
 
-            <!-- LIVE COLORWAY / EDITION SWATCHES -->
-            <div class="pt-4 mt-2 border-t border-[#ECE8DE] space-y-3">
+            <!-- Fine Angle & Zoom Scrubber -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 py-3 px-1">
+                <div>
+                    <div class="flex justify-between font-mono-tech text-[10px] text-[#5C6661] mb-1">
+                        <span>ROTATION ANGLE</span>
+                        <span id="yawLabel">0&deg;</span>
+                    </div>
+                    <input id="yawSlider" type="range" min="-180" max="180" value="0"
+                           oninput="setManualYaw(this.value)"
+                           class="w-full accent-[#FF4D1C] cursor-pointer">
+                </div>
+                <div>
+                    <div class="flex justify-between font-mono-tech text-[10px] text-[#5C6661] mb-1">
+                        <span>INSPECT ZOOM</span>
+                        <span id="zoomLabel">100%</span>
+                    </div>
+                    <input id="zoomSlider" type="range" min="85" max="145" value="100"
+                           oninput="setManualZoom(this.value)"
+                           class="w-full accent-[#FF4D1C] cursor-pointer">
+                </div>
+            </div>
+
+            <!-- LIVE SHOE COLORWAY STUDIO -->
+            <div class="pt-4 border-t border-[#ECE8DE] space-y-3">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                        <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">EDITION &amp; COLORWAY</div>
-                        <div id="activeFinishLabel" class="text-xs font-bold text-[#0D1512] mt-0.5">Original Edition</div>
+                        <div class="font-mono-tech text-[10px] uppercase tracking-widest text-[#5C6661]">SHOE COLORWAY LAB</div>
+                        <div id="activeFinishLabel" class="text-xs font-bold text-[#0D1512] mt-0.5">Original Colorway</div>
                     </div>
-                    <button type="button" onclick="resetStudioStage()"
+                    <button type="button" onclick="resetTurntable()"
                             class="font-mono-tech text-[10px] font-bold uppercase text-[#FF4D1C] hover:underline">
                         Reset View
                     </button>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <!-- Original -->
                     <button type="button"
-                            onclick="applyColorway('Original Edition', 'none', this)"
+                            onclick="applyColorway('Original Colorway', 'none', this)"
+                            title="Original Colorway"
                             class="color-chip px-3 py-1.5 rounded-full border-2 border-[#FF4D1C] bg-[#F4F1EA] flex items-center gap-2 font-mono-tech text-[10px] font-bold text-[#0D1512] transition">
                         <span class="w-3.5 h-3.5 rounded-full bg-[#4A553B] border border-black/20"></span>
                         Original
                     </button>
 
+                    <!-- Blaze Crimson -->
                     <button type="button"
                             onclick="applyColorway('Blaze Terracotta', 'hue-rotate(315deg) saturate(1.35) contrast(1.04)', this)"
+                            title="Blaze Terracotta"
                             class="color-chip px-3 py-1.5 rounded-full border-2 border-transparent bg-[#F4F1EA] flex items-center gap-2 font-mono-tech text-[10px] font-bold text-[#0D1512] hover:border-[#FF4D1C] transition">
                         <span class="w-3.5 h-3.5 rounded-full bg-[#FF4D1C]"></span>
                         Blaze
                     </button>
 
+                    <!-- Cobalt Slate -->
                     <button type="button"
                             onclick="applyColorway('Cobalt Studio', 'hue-rotate(155deg) saturate(1.25) contrast(1.04)', this)"
+                            title="Cobalt Studio"
                             class="color-chip px-3 py-1.5 rounded-full border-2 border-transparent bg-[#F4F1EA] flex items-center gap-2 font-mono-tech text-[10px] font-bold text-[#0D1512] hover:border-[#FF4D1C] transition">
                         <span class="w-3.5 h-3.5 rounded-full bg-[#2563EB]"></span>
                         Cobalt
                     </button>
 
+                    <!-- Sand Stone -->
                     <button type="button"
                             onclick="applyColorway('Sandstone Dune', 'hue-rotate(335deg) saturate(0.75) brightness(1.08)', this)"
+                            title="Sandstone Dune"
                             class="color-chip px-3 py-1.5 rounded-full border-2 border-transparent bg-[#F4F1EA] flex items-center gap-2 font-mono-tech text-[10px] font-bold text-[#0D1512] hover:border-[#FF4D1C] transition">
                         <span class="w-3.5 h-3.5 rounded-full bg-[#D6C7B2]"></span>
                         Sandstone
                     </button>
 
+                    <!-- Obsidian Stealth -->
                     <button type="button"
-                            onclick="applyColorway('Obsidian Stealth', 'saturate(0.25) brightness(0.80) contrast(1.12)', this)"
+                            onclick="applyColorway('Obsidian Stealth', 'saturate(0.25) brightness(0.78) contrast(1.12)', this)"
+                            title="Obsidian Stealth"
                             class="color-chip px-3 py-1.5 rounded-full border-2 border-transparent bg-[#F4F1EA] flex items-center gap-2 font-mono-tech text-[10px] font-bold text-[#0D1512] hover:border-[#FF4D1C] transition">
                         <span class="w-3.5 h-3.5 rounded-full bg-[#181B1A]"></span>
                         Obsidian
@@ -271,7 +315,7 @@
     </div>
 </div>
 
-<!-- PRODUCT ENGINEERING STORY CHAPTERS -->
+<!-- APPLE-STYLE PRODUCT ENGINEERING STORY CHAPTERS -->
 <section class="reveal-up mb-16">
     <div class="max-w-3xl mb-8">
         <div class="font-mono-tech text-[10px] font-bold uppercase tracking-widest text-[#FF4D1C] mb-1.5">
@@ -451,14 +495,42 @@
 {% endif %}
 
 <script>
-    const stageWell = document.getElementById('inspectionStageWell');
-    const shoeImg = document.getElementById('studioSneakerImg');
-    const shadowEl = document.getElementById('studioShadow');
-    const stageModeLabel = document.getElementById('stageModeLabel');
+    let yawDeg = 0;
+    let pitchDeg = 0;
+    let zoomPct = 100;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let orbitTimer = null;
 
-    function setStudioView(mode, btn) {
+    const rig = document.getElementById('turntableRig');
+    const shoeImg = document.getElementById('studioSneakerImg');
+    const stageWell = document.getElementById('inspectionStageWell');
+    const shadowEl = document.getElementById('studioShadow');
+
+    function renderTurntable() {
+        const scale = zoomPct / 100;
+        // Mirror horizontally past +/-90 deg to simulate viewing the opposite flank/angle
+        const flipX = Math.abs(yawDeg) > 90 ? -1 : 1;
+        rig.style.transform = `rotateX(${pitchDeg}deg) rotateY(${yawDeg * 0.45}deg) scale(${scale})`;
+        shoeImg.style.transform = `scaleX(${flipX})`;
+
+        // Shift ground shadow opposite to rotation for depth
+        const shadowShiftX = Math.round(-yawDeg * 0.25);
+        const shadowScale = Math.max(0.65, 1.15 - Math.abs(pitchDeg) * 0.01);
+        shadowEl.style.transform = `translateX(${shadowShiftX}px) scale(${shadowScale})`;
+
+        document.getElementById('angleReadout').textContent = `Y: ${Math.round(yawDeg)}° • X: ${Math.round(pitchDeg)}°`;
+        document.getElementById('yawLabel').textContent = `${Math.round(yawDeg)}°`;
+        document.getElementById('zoomLabel').textContent = `${Math.round(zoomPct)}%`;
+        document.getElementById('yawSlider').value = Math.round(yawDeg);
+        document.getElementById('zoomSlider').value = Math.round(zoomPct);
+    }
+
+    function setAnglePreset(preset, btn) {
         StudioAudio.click(540);
-        document.querySelectorAll('.view-btn').forEach(b => {
+        stopOrbit();
+        document.querySelectorAll('.angle-btn').forEach(b => {
             b.classList.remove('bg-[#0D1512]', 'text-[#F4F1EA]');
             b.classList.add('text-[#5C6661]');
         });
@@ -467,41 +539,56 @@
             btn.classList.remove('text-[#5C6661]');
         }
 
-        stageWell.style.background = '';
-        stageWell.style.backgroundImage = '';
-        stageWell.style.backgroundSize = '';
-        if (shoeImg) {
-            shoeImg.style.transform = 'scale(1)';
-            shoeImg.style.mixBlendMode = '';
-            shoeImg.style.borderRadius = '';
-        }
-        if (shadowEl) shadowEl.style.opacity = '0.25';
+        if (preset === 'profile') { yawDeg = 0; pitchDeg = 0; zoomPct = 100; }
+        else if (preset === 'front34') { yawDeg = -36; pitchDeg = -8; zoomPct = 108; }
+        else if (preset === 'top') { yawDeg = 18; pitchDeg = -32; zoomPct = 96; }
+        else if (preset === 'heel') { yawDeg = 125; pitchDeg = -6; zoomPct = 106; }
+        else if (preset === 'low') { yawDeg = -24; pitchDeg = 18; zoomPct = 114; }
+        renderTurntable();
+    }
 
-        if (mode === 'macro') {
-            if (shoeImg) shoeImg.style.transform = 'scale(1.26) translateY(-4px)';
-            if (shadowEl) shadowEl.style.opacity = '0.12';
-            if (stageModeLabel) stageModeLabel.textContent = 'MACRO DETAIL // 1.26X LOUPE';
-        } else if (mode === 'nocturne') {
-            stageWell.style.background = 'radial-gradient(circle at 50% 45%, #23332C 0%, #0D1512 85%)';
-            if (shoeImg) {
-                shoeImg.style.mixBlendMode = 'normal';
-                shoeImg.style.borderRadius = '20px';
-            }
-            if (shadowEl) shadowEl.style.opacity = '0';
-            if (stageModeLabel) stageModeLabel.textContent = 'NOCTURNE RIM // DARK STUDIO';
-        } else if (mode === 'blueprint') {
-            stageWell.style.background = '#0E1E2E';
-            stageWell.style.backgroundImage = 'linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px)';
-            stageWell.style.backgroundSize = '24px 24px';
-            if (shoeImg) {
-                shoeImg.style.mixBlendMode = 'normal';
-                shoeImg.style.borderRadius = '20px';
-            }
-            if (shadowEl) shadowEl.style.opacity = '0';
-            if (stageModeLabel) stageModeLabel.textContent = 'CAD GRID // TELEMETRY';
-        } else {
-            if (stageModeLabel) stageModeLabel.textContent = 'STUDIO ARCHIVE // {{ sneaker.brand|upper }}';
+    function setManualYaw(val) {
+        stopOrbit();
+        yawDeg = Number(val);
+        renderTurntable();
+    }
+
+    function setManualZoom(val) {
+        zoomPct = Number(val);
+        renderTurntable();
+    }
+
+    function stopOrbit() {
+        if (orbitTimer) {
+            clearInterval(orbitTimer);
+            orbitTimer = null;
+            const btn = document.getElementById('orbitToggleBtn');
+            if (btn) btn.classList.remove('bg-[#FF4D1C]', 'text-white', 'border-[#FF4D1C]');
         }
+    }
+
+    function toggleOrbit() {
+        StudioAudio.click(580);
+        const btn = document.getElementById('orbitToggleBtn');
+        if (orbitTimer) {
+            stopOrbit();
+            return;
+        }
+        btn.classList.add('bg-[#FF4D1C]', 'text-white', 'border-[#FF4D1C]');
+        orbitTimer = setInterval(() => {
+            yawDeg += 1.5;
+            if (yawDeg > 180) yawDeg = -180;
+            renderTurntable();
+        }, 25);
+    }
+
+    function resetTurntable() {
+        StudioAudio.click(500);
+        stopOrbit();
+        yawDeg = 0;
+        pitchDeg = 0;
+        zoomPct = 100;
+        renderTurntable();
     }
 
     function applyColorway(label, filterCss, btn) {
@@ -510,9 +597,7 @@
         const stickyTag = document.getElementById('stickyEditionTag');
         if (stickyTag) stickyTag.textContent = label;
 
-        if (shoeImg) {
-            shoeImg.style.filter = filterCss === 'none' ? '' : filterCss;
-        }
+        shoeImg.style.filter = filterCss === 'none' ? '' : filterCss;
 
         document.querySelectorAll('.color-chip').forEach(el => {
             el.classList.remove('border-[#FF4D1C]');
@@ -524,10 +609,40 @@
         }
     }
 
-    function resetStudioStage() {
-        setStudioView('profile', document.querySelectorAll('.view-btn')[0]);
-        applyColorway('Original Edition', 'none', document.querySelectorAll('.color-chip')[0]);
-    }
+    // Pointer drag for 360/multi-angle inspection
+    stageWell.addEventListener('pointerdown', (e) => {
+        stopOrbit();
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        rig.classList.add('dragging');
+        stageWell.setPointerCapture(e.pointerId);
+    });
+
+    stageWell.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        startX = e.clientX;
+        startY = e.clientY;
+
+        yawDeg = Math.max(-180, Math.min(180, yawDeg + dx * 0.7));
+        pitchDeg = Math.max(-35, Math.min(35, pitchDeg - dy * 0.35));
+        renderTurntable();
+    });
+
+    stageWell.addEventListener('pointerup', () => {
+        isDragging = false;
+        rig.classList.remove('dragging');
+    });
+
+    // Wheel zoom on stage
+    stageWell.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? 5 : -5;
+        zoomPct = Math.max(85, Math.min(145, zoomPct + delta));
+        renderTurntable();
+    }, { passive: false });
 
     function toggleTechDrawer() {
         StudioAudio.click(520);
