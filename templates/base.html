@@ -1,22 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ATELIER KICKS{% endblock %}</title>
+    <script>
+        (function () {
+            const saved = localStorage.getItem('ak_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+            if (saved === 'dark') document.documentElement.classList.add('dark');
+        })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
+        :root,
+        [data-theme="light"] {
             --bg-canvas: #F4F1EA;
             --bg-surface: #FCFBF8;
+            --bg-elevated: #F4F1EA;
             --border-subtle: #DFDBD0;
+            --border-soft: #ECE8DE;
             --text-primary: #0D1512;
             --text-muted: #5C6661;
             --accent: #FF4D1C;
-            --nav-bg: rgba(244, 241, 234, 0.82);
+            --nav-bg: rgba(244, 241, 234, 0.84);
+        }
+        [data-theme="dark"],
+        .dark {
+            --bg-canvas: #0A0F0D;
+            --bg-surface: #121B17;
+            --bg-elevated: #18241F;
+            --border-subtle: #22302A;
+            --border-soft: #1D2A24;
+            --text-primary: #F4F1EA;
+            --text-muted: #98A39D;
+            --accent: #FF4D1C;
+            --nav-bg: rgba(10, 15, 13, 0.84);
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -24,6 +46,21 @@
             color: var(--text-primary);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+        .ak-surface {
+            background-color: var(--bg-surface);
+            border-color: var(--border-subtle);
+        }
+        .ak-elevated {
+            background-color: var(--bg-elevated);
+            border-color: var(--border-subtle);
+        }
+        .ak-text {
+            color: var(--text-primary);
+        }
+        .ak-muted {
+            color: var(--text-muted);
         }
         .font-display {
             font-family: 'Space Grotesk', sans-serif;
@@ -52,32 +89,37 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
-    <header class="sticky top-0 z-40 border-b border-[#DFDBD0] backdrop-blur-md" style="background: var(--nav-bg);">
+    <header class="sticky top-0 z-40 border-b backdrop-blur-md" style="background: var(--nav-bg); border-color: var(--border-subtle);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-            <a href="/" class="font-display text-lg sm:text-xl font-bold tracking-tight text-[#0D1512]">
+            <a href="/" class="font-display text-lg sm:text-xl font-bold tracking-tight ak-text">
                 ATELIER<span class="text-[#FF4D1C]">.</span>KICKS
             </a>
 
             <nav class="hidden md:flex items-center gap-6">
-                <a href="/" class="text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">Home</a>
-                <a href="/shop" class="text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">Catalog</a>
-                <a href="/compare" class="text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">Compare</a>
-                <a href="/lookbook" class="text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">3D Book</a>
-                <a href="/orders" class="text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">Orders</a>
-                <a href="/admin" class="text-xs font-bold uppercase tracking-wider text-[#5C6661] hover:text-[#FF4D1C] transition">Admin</a>
+                <a href="/" class="text-xs font-bold uppercase tracking-wider ak-muted hover:text-[#FF4D1C] transition">Home</a>
+                <a href="/shop" class="text-xs font-bold uppercase tracking-wider ak-muted hover:text-[#FF4D1C] transition">Catalog</a>
+                <a href="/compare" class="text-xs font-bold uppercase tracking-wider ak-muted hover:text-[#FF4D1C] transition">Compare</a>
+                <a href="/lookbook" class="text-xs font-bold uppercase tracking-wider ak-muted hover:text-[#FF4D1C] transition">3D Book</a>
+                <a href="/orders" class="text-xs font-bold uppercase tracking-wider ak-muted hover:text-[#FF4D1C] transition">Orders</a>
+                <a href="/admin" class="text-xs font-bold uppercase tracking-wider ak-muted hover:text-[#FF4D1C] transition">Admin</a>
             </nav>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button type="button" onclick="toggleTheme()" id="themeToggleBtn"
+                        class="px-3 py-1.5 rounded-full border ak-surface font-mono-tech text-[11px] font-bold ak-text hover:border-[#FF4D1C] transition">
+                    Theme
+                </button>
+
                 <form method="POST" action="/currency">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="next" value="{{ request.full_path }}">
                     <button type="submit" name="currency" value="{{ 'USD' if currency == 'KES' else 'KES' }}"
-                            class="px-3 py-1.5 rounded-full border border-[#DFDBD0] bg-[#FCFBF8] font-mono-tech text-[11px] font-bold text-[#0D1512] hover:border-[#FF4D1C] transition">
+                            class="px-3 py-1.5 rounded-full border ak-surface font-mono-tech text-[11px] font-bold ak-text hover:border-[#FF4D1C] transition">
                         {{ currency }}
                     </button>
                 </form>
 
-                <a href="/wishlist" class="px-3 py-1.5 rounded-full border border-[#DFDBD0] bg-[#FCFBF8] font-mono-tech text-[11px] font-bold text-[#0D1512] hover:border-[#FF4D1C] transition">
+                <a href="/wishlist" class="px-3 py-1.5 rounded-full border ak-surface font-mono-tech text-[11px] font-bold ak-text hover:border-[#FF4D1C] transition">
                     &hearts; {{ wishlist_count }}
                 </a>
 
@@ -104,9 +146,9 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="border-t border-[#DFDBD0] bg-[#FCFBF8] py-10 mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#5C6661]">
-            <div class="font-display font-bold text-[#0D1512]">ATELIER KICKS // ENGINEERED FOOTWEAR</div>
+    <footer class="border-t ak-surface py-10 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs ak-muted">
+            <div class="font-display font-bold ak-text">ATELIER KICKS // ENGINEERED FOOTWEAR</div>
             <div class="flex items-center gap-5 font-mono-tech text-[11px]">
                 <a href="/shop" class="hover:text-[#FF4D1C]">Catalog</a>
                 <a href="/compare" class="hover:text-[#FF4D1C]">Compare</a>
@@ -117,6 +159,22 @@
     </footer>
 
     <script>
+        function syncThemeLabel() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const btn = document.getElementById('themeToggleBtn');
+            if (btn) btn.textContent = current === 'dark' ? 'Light' : 'Dark';
+        }
+
+        function toggleTheme() {
+            StudioAudio.click(580);
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            document.documentElement.classList.toggle('dark', next === 'dark');
+            localStorage.setItem('ak_theme', next);
+            syncThemeLabel();
+        }
+
         const StudioAudio = {
             ctx: null,
             ensure() {
@@ -172,6 +230,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            syncThemeLabel();
+
             const revealEls = document.querySelectorAll('.reveal-up');
             const io = new IntersectionObserver((entries) => {
                 entries.forEach((entry, idx) => {
